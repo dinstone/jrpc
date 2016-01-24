@@ -1,0 +1,132 @@
+/*
+ * Copyright (C) 2012~2016 dinstone<dinstone@163.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.dinstone.jrpc.mina.client;
+
+import java.util.concurrent.Semaphore;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.dinstone.jrpc.Configuration;
+import com.dinstone.jrpc.cases.HelloService;
+import com.dinstone.jrpc.cases.HelloServiceImpl;
+import com.dinstone.jrpc.client.CallFuture;
+import com.dinstone.jrpc.client.CallFutureListener;
+import com.dinstone.jrpc.client.Connection;
+import com.dinstone.jrpc.mina.server.MinaServer;
+import com.dinstone.jrpc.protocol.Call;
+
+/**
+ * @author guojf
+ * @version 1.0.0.2013-11-5
+ */
+public class DefaultConnectionTest {
+
+    private static MinaServer server;
+
+    private Connection connect;
+
+    private MinaConnectionFactory minaConnectionFactory;
+
+    @BeforeClass
+    public static void startServer() {
+        server = new MinaServer("localhost", 1234);
+        server.regist(HelloService.class, new HelloServiceImpl());
+        server.bind();
+    }
+
+    @AfterClass
+    public static void stopServer() {
+        if (server != null) {
+            server.shutdown();
+        }
+    }
+
+    /**
+     * @throws java.lang.Exception
+     */
+    @Before
+    public void setUp() throws Exception {
+        Configuration config = new Configuration();
+        config.setServiceHost("localhost");
+        config.setServicePort(1234);
+        minaConnectionFactory = new MinaConnectionFactory(config);
+        connect = minaConnectionFactory.create();
+    }
+
+    /**
+     * @throws java.lang.Exception
+     */
+    @After
+    public void tearDown() throws Exception {
+        minaConnectionFactory.destroy();
+    }
+
+    /**
+     * Test method for
+     * {@link com.dinstone.rpc.mina.client.MinaConnection#call(java.lang.String, java.lang.Object[], java.lang.Class)} .
+     */
+    @Test
+    public void testCall() {
+        long st = System.currentTimeMillis();
+
+        CallFuture cf = connect.call(new Call("com.dinstone.jrpc.cases.HelloService.sayHello", new Object[] { "dddd" }));
+        try {
+            cf.get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        long et = System.currentTimeMillis() - st;
+        System.out.println("it takes " + et + "ms, " + (1 * 1000 / et) + " tps");
+    }
+
+    @Test
+    public void testCall01() throws InterruptedException {
+        byte[] mb = new byte[1 * 1024];
+        for (int i = 0; i < mb.length; i++) {
+            mb[i] = 65;
+        }
+        String name = new String(mb);
+
+        long st = System.currentTimeMillis();
+
+        final Semaphore s = new Semaphore(0);
+        CallFutureListener listener = new CallFutureListener() {
+
+            public void complete(CallFuture future) {
+                s.release();
+            }
+        };
+
+        int count = 10000;
+        for (int i = 0; i < count; i++) {
+            CallFuture f = connect
+                .call(new Call("com.dinstone.rpc.cases.HelloService.sayHello", new Object[] { name }));
+            f.addListener(listener);
+        }
+
+        long et = System.currentTimeMillis() - st;
+        System.out.println("write time " + et + " ms");
+
+        s.acquire(count);
+        et = System.currentTimeMillis() - st;
+        System.out.println("it takes " + et + "ms, 1k : " + (count * 1000 / et) + " tps");
+    }
+}
