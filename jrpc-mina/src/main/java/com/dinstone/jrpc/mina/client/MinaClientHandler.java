@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.client;
 
 import java.util.Map;
@@ -22,10 +23,9 @@ import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.RpcException;
 import com.dinstone.jrpc.client.CallFuture;
-import com.dinstone.jrpc.protocol.Result;
 import com.dinstone.jrpc.protocol.Response;
+import com.dinstone.jrpc.protocol.Result;
 
 public class MinaClientHandler extends IoHandlerAdapter {
 
@@ -46,7 +46,7 @@ public class MinaClientHandler extends IoHandlerAdapter {
         LOG.debug("Session[{}] is closed", session.getId());
         Map<Integer, CallFuture> futureMap = SessionUtil.getCallFutureMap(session);
         for (CallFuture future : futureMap.values()) {
-            future.setException(new RuntimeException("connection is closed"));
+            future.setResult(new Result(400, "connection is closed"));
         }
     }
 
@@ -69,24 +69,9 @@ public class MinaClientHandler extends IoHandlerAdapter {
 
     private void handle(IoSession session, Response response) {
         Map<Integer, CallFuture> cfMap = SessionUtil.getCallFutureMap(session);
-        int id = response.getMessageId();
-        CallFuture future = cfMap.remove(id);
+        CallFuture future = cfMap.remove(response.getMessageId());
         if (future != null) {
-            try {
-                Result result = response.getResult();
-                if (result.getCode() != 200) {
-                    Throwable fault = (Throwable) result.getData();
-                    if (fault == null) {
-                        fault = new RpcException(result.getCode(), result.getMessage());
-                    }
-                    future.setException(fault);
-                } else {
-                    future.setResult(result.getData());
-                }
-            } catch (Exception e) {
-                LOG.error("Unhandled Exception", e);
-                future.setException(new RpcException(400, e.getMessage()));
-            }
+            future.setResult(response.getResult());
         }
     }
 

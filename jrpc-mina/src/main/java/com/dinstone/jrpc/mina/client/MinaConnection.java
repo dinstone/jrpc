@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.client;
 
 import java.util.Map;
@@ -29,6 +30,7 @@ import com.dinstone.jrpc.client.CallFuture;
 import com.dinstone.jrpc.client.Connection;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
+import com.dinstone.jrpc.protocol.Result;
 import com.dinstone.jrpc.serialize.SerializeType;
 
 public class MinaConnection implements Connection {
@@ -64,7 +66,7 @@ public class MinaConnection implements Connection {
 
             public void operationComplete(WriteFuture future) {
                 if (!future.isWritten()) {
-                    callFuture.setException(future.getException());
+                    callFuture.setResult(new Result(500, "connection is closed"));
                 }
             }
 

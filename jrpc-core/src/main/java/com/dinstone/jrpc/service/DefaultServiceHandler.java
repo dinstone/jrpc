@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.service;
 
 import java.lang.reflect.InvocationTargetException;
@@ -27,9 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.RpcException;
-import com.dinstone.jrpc.protocol.Result;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
+import com.dinstone.jrpc.protocol.Result;
 
 /**
  * @author guojinfei
@@ -50,8 +51,7 @@ public class DefaultServiceHandler implements ServiceHandler, ServiceStats {
     /**
      * {@inheritDoc}
      * 
-     * @see com.dinstone.jrpc.service.ServiceHandler#regist(java.lang.Class,
-     *      java.lang.Object)
+     * @see com.dinstone.jrpc.service.ServiceHandler#regist(java.lang.Class, java.lang.Object)
      */
     public synchronized <T> void regist(Class<T> serviceInterface, T serviceObject) {
         if (!serviceInterface.isInstance(serviceObject)) {
@@ -94,7 +94,7 @@ public class DefaultServiceHandler implements ServiceHandler, ServiceStats {
         try {
             Service service = find(request.getMethod());
             if (service == null) {
-                result = new Result(505, "no serivce");
+                result = new Result(404, "no serivce");
             } else {
                 Object resObj = service.call(request.getParams());
                 result = new Result(200, resObj);

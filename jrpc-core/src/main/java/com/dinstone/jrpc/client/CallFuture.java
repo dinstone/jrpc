@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.client;
 
 import java.util.ArrayList;
@@ -23,19 +24,22 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.dinstone.jrpc.RpcException;
+import com.dinstone.jrpc.protocol.Result;
+
 /**
  * @author guojf
  * @version 1.0.0.2013-5-2
  */
 public class CallFuture {
 
-    private Object result;
-
     private Lock lock = new ReentrantLock();
 
     private Condition ready = lock.newCondition();
 
     private boolean done;
+
+    private Result result;
 
     private List<CallFutureListener> listeners;
 
@@ -74,38 +78,27 @@ public class CallFuture {
         }
     }
 
-    public void setResult(Object result) {
+    public void setResult(Result result) {
         setValue(result);
     }
 
-    public void setException(Throwable exception) {
-        if (exception == null) {
-            throw new IllegalArgumentException("exception");
-        }
-
-        setValue(exception);
-    }
-
     private Object getValue() {
-        if (result instanceof Error) {
-            throw (Error) result;
+        if (result.getCode() != 200) {
+            Throwable fault = (Throwable) result.getData();
+            if (fault != null) {
+                throw new RpcException(result.getCode(), result.getMessage(), fault);
+            } else {
+                throw new RpcException(result.getCode(), result.getMessage());
+            }
+        } else {
+            return result.getData();
         }
-
-        if (result instanceof RuntimeException) {
-            throw (RuntimeException) result;
-        }
-
-        if (result instanceof Exception) {
-            throw new RuntimeException((Exception) result);
-        }
-
-        return result;
     }
 
     /**
      * @param result
      */
-    private void setValue(Object result) {
+    private void setValue(Result result) {
         lock.lock();
         try {
             if (done) {
