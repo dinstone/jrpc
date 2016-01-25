@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.jrpc</groupId>
 		<artifactId>jrpc-parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 	<artifactId>jrpc-mina</artifactId>
 	<description>Transport implement by mina.</description>
