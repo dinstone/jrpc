@@ -83,9 +83,6 @@ public class MinaServer extends AbstractServer implements Server {
     private ExecutorService executorService;
 
     public MinaServer(String host, int port) {
-        if (host == null || host.length() == 0) {
-            throw new IllegalArgumentException("host is null");
-        }
         if (port <= 0) {
             throw new IllegalArgumentException("port must be greater than zero");
         }
@@ -183,11 +180,13 @@ public class MinaServer extends AbstractServer implements Server {
         // add business handler
         acceptor.setHandler(new MinaServerHandler(handler));
 
-        InetSocketAddress localAddress = new InetSocketAddress(port);
         if (host != null) {
-            localAddress = new InetSocketAddress(host, port);
+            InetSocketAddress localAddress = new InetSocketAddress(host, port);
+            acceptor.bind(localAddress);
+        } else {
+            InetSocketAddress localAddress = new InetSocketAddress(port);
+            acceptor.bind(localAddress);
         }
-        acceptor.bind(localAddress);
     }
 
     public MinaServer setMaxObjectSize(int maxSize) {
