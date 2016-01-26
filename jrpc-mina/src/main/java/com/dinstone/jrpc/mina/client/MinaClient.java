@@ -55,4 +55,10 @@ public class MinaClient extends AbstractClient implements Client {
         build(new MinaConnectionFactory(config));
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "MinaClient [host=" + config.getServiceHost() + ", port=" + config.getServicePort() + "]";
+    }
+
 }
