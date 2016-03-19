@@ -18,6 +18,10 @@ package com.dinstone.jrpc.mina.client;
 
 import com.dinstone.jrpc.client.AbstractClient;
 import com.dinstone.jrpc.client.Client;
+import com.dinstone.jrpc.client.ConnectionFactory;
+import com.dinstone.jrpc.invoker.DefaultServiceInvoker;
+import com.dinstone.jrpc.proxy.DefaultServiceProxyFactory;
+import com.dinstone.jrpc.proxy.ServiceProxyFactory;
 
 /**
  * @author guojf
@@ -25,7 +29,19 @@ import com.dinstone.jrpc.client.Client;
  */
 public class MinaClient extends AbstractClient implements Client {
 
+    private boolean created;
+
+    private ConnectionFactory connectionFactory;
+
+    private DefaultServiceInvoker serviceInvoker;
+
+    public MinaClient(ServiceProxyFactory serviceProxyFactory) {
+        super(serviceProxyFactory);
+    }
+
     public MinaClient(String host, int port) {
+        super(null);
+
         if (host == null || host.length() == 0) {
             throw new IllegalArgumentException("host is null");
         }
@@ -34,6 +50,12 @@ public class MinaClient extends AbstractClient implements Client {
         }
         config.setServiceHost(host);
         config.setServicePort(port);
+
+        connectionFactory = new MinaConnectionFactory(config);
+        serviceInvoker = new DefaultServiceInvoker(connectionFactory);
+        serviceProxyFactory = new DefaultServiceProxyFactory(config, serviceInvoker);
+
+        created = true;
     }
 
     public MinaClient setCallTimeout(int timeout) {
@@ -51,9 +73,19 @@ public class MinaClient extends AbstractClient implements Client {
         return this;
     }
 
-    public Client build() {
-        build(new MinaConnectionFactory(config));
-        return this;
+    @Override
+    public void destroy() {
+        super.destroy();
+
+        if (created && serviceProxyFactory != null) {
+            serviceProxyFactory.destroy();
+        }
+        if (created && serviceInvoker != null) {
+            serviceInvoker.destroy();
+        }
+        if (created && connectionFactory != null) {
+            connectionFactory.destroy();
+        }
     }
 
     @Override

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.server;
 
 import org.apache.mina.core.service.IoHandlerAdapter;
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
-import com.dinstone.jrpc.service.ServiceHandler;
+import com.dinstone.jrpc.server.Acceptance;
 
 /**
  * @author guojf
@@ -34,19 +35,19 @@ public class MinaServerHandler extends IoHandlerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(MinaServerHandler.class);
 
-    private ServiceHandler handler;
+    private Acceptance acceptance;
 
     /**
-     * @param handler
+     * @param acceptance
      */
-    public MinaServerHandler(ServiceHandler handler) {
-        this.handler = handler;
+    public MinaServerHandler(Acceptance acceptance) {
+        this.acceptance = acceptance;
     }
 
     @Override
     public void messageReceived(IoSession session, Object message) throws Exception {
         if (message instanceof Request) {
-            Response response = handler.handle((Request) message);
+            Response response = acceptance.handle((Request) message);
             session.write(response);
         }
     }

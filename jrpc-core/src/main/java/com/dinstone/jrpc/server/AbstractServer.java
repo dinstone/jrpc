@@ -17,33 +17,33 @@
 package com.dinstone.jrpc.server;
 
 import com.dinstone.jrpc.Configuration;
-import com.dinstone.jrpc.service.DefaultServiceHandler;
-import com.dinstone.jrpc.service.ServiceHandler;
+import com.dinstone.jrpc.processor.ServiceProcessor;
 
 public abstract class AbstractServer implements Server {
 
     protected Configuration config = new Configuration();
 
-    protected ServiceHandler handler = new DefaultServiceHandler();
+    protected ServiceProcessor serviceProcessor;
+
+    protected Acceptance acceptance;
 
     public AbstractServer() {
-        this(null);
     }
 
-    public AbstractServer(ServiceHandler handler) {
-        if (handler != null) {
-            this.handler = handler;
+    public AbstractServer(ServiceProcessor serviceProcessor) {
+        init(serviceProcessor);
+    }
+
+    protected void init(ServiceProcessor serviceProcessor) {
+        if (serviceProcessor == null) {
+            throw new IllegalArgumentException("serviceProcessor is null");
         }
+        this.serviceProcessor = serviceProcessor;
+        this.acceptance = new DefaultAcceptance(serviceProcessor);
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @return
-     * @see com.dinstone.jrpc.server.Server#regist(java.lang.Class, java.lang.Object)
-     */
     public <T> Server regist(Class<T> serviceInterface, T serviceObject) {
-        handler.regist(serviceInterface, serviceObject);
+        serviceProcessor.regist(serviceInterface, serviceObject);
 
         return this;
     }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.client;
 
 import com.dinstone.jrpc.Configuration;
@@ -27,9 +28,9 @@ public interface Client {
 
     public abstract Configuration getConfiguration();
 
-    public abstract <T> T getProxy(Class<T> proxy);
+    public abstract <T> T getService(Class<T> sic);
 
-    public abstract CallFuture asyncInvoke(String method, Object[] args) throws Throwable;
+    public abstract <T> T getService(Class<T> sic, String group);
 
     public abstract void destroy();
 

@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.dinstone.jrpc.RpcException;
 import com.dinstone.jrpc.mina.TransportProtocolDecoder;
 import com.dinstone.jrpc.mina.TransportProtocolEncoder;
+import com.dinstone.jrpc.processor.DefaultServiceProcessor;
 import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.server.AbstractServer;
 import com.dinstone.jrpc.server.Server;
@@ -89,6 +90,8 @@ public class MinaServer extends AbstractServer implements Server {
 
         config.setServiceHost(host);
         config.setServicePort(port);
+
+        init(new DefaultServiceProcessor());
     }
 
     /**
@@ -108,6 +111,10 @@ public class MinaServer extends AbstractServer implements Server {
                 executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
             }
+        }
+
+        if (serviceProcessor != null) {
+            serviceProcessor.destroy();
         }
 
         LOG.info("jrpc service shutdown");
@@ -178,7 +185,7 @@ public class MinaServer extends AbstractServer implements Server {
         chainBuilder.addLast("keepAlive", kaFilter);
 
         // add business handler
-        acceptor.setHandler(new MinaServerHandler(handler));
+        acceptor.setHandler(new MinaServerHandler(acceptance));
 
         if (host != null) {
             InetSocketAddress localAddress = new InetSocketAddress(host, port);

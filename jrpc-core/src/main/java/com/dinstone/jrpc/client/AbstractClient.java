@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.client;
 
-import java.lang.reflect.Proxy;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.jrpc.Configuration;
+import com.dinstone.jrpc.proxy.ServiceProxyFactory;
 
 /**
  * the interface Client implements.
@@ -27,48 +29,41 @@ import com.dinstone.jrpc.Configuration;
  */
 public abstract class AbstractClient implements Client {
 
+    private ConcurrentHashMap<String, Object> serviceMap = new ConcurrentHashMap<String, Object>();
+
     protected Configuration config = new Configuration();
 
-    protected ConnectionFactory factory;
+    protected ServiceProxyFactory serviceProxyFactory;
 
-    protected InvocationProxy invoker;
+    public AbstractClient(ServiceProxyFactory serviceProxyFactory) {
+        super();
+        this.serviceProxyFactory = serviceProxyFactory;
+    }
 
     @Override
     public Configuration getConfiguration() {
         return config;
     }
 
-    protected void build(ConnectionFactory connectionFactory) {
-        if (connectionFactory == null) {
-            throw new IllegalArgumentException("connectionFactory is null");
+    public <T> T getService(Class<T> sic) {
+        return getService(sic, "");
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getService(Class<T> sic, String group) {
+        String key = sic.getName() + group;
+        Object so = serviceMap.get(key);
+        if (so == null) {
+            so = serviceProxyFactory.createProxy(sic, group);
+            serviceMap.putIfAbsent(key, so);
         }
-        this.factory = connectionFactory;
 
-        this.invoker = new InvocationProxy(connectionFactory, config);
+        return (T) serviceMap.get(key);
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.client.Client#getProxy(java.lang.Class)
-     */
-    public <T> T getProxy(Class<T> proxy) {
-        return proxy.cast(Proxy.newProxyInstance(proxy.getClassLoader(), new Class[] { proxy }, invoker));
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.client.Client#asyncInvoke(java.lang.String, java.lang.Object[])
-     */
-    public CallFuture asyncInvoke(String method, Object[] args) throws Throwable {
-        return invoker.invoke(method, args);
-    }
-
+    @Override
     public void destroy() {
-        if (factory != null) {
-            factory.destroy();
-        }
+        serviceMap.clear();
     }
 
 }
