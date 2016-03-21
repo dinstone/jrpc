@@ -7,7 +7,6 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
-import org.apache.curator.x.discovery.UriSpec;
 import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 
 public class ZookeeperServiceRegistry implements DistributedServiceRegistry {
@@ -33,13 +32,12 @@ public class ZookeeperServiceRegistry implements DistributedServiceRegistry {
     }
 
     @Override
-    public void regist(ServiceDescription description) throws Exception {
+    public void publish(ServiceDescription description) throws Exception {
         String serviceName = description.getName() + "-" + description.getGroup();
-        UriSpec uriSpec = new UriSpec("{scheme}://{host}:{port}/{name}");
 
         ServiceInstance<ServiceAttribute> serviceInstance = ServiceInstance.<ServiceAttribute> builder()
             .id(description.getId()).name(serviceName).address(description.getHost()).port(description.getPort())
-            .payload(description.getServiceAttribute()).uriSpec(uriSpec).build();
+            .payload(description.getServiceAttribute()).build();
 
         serviceDiscovery.registerService(serviceInstance);
     }

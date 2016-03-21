@@ -119,6 +119,7 @@
 		<module>jrpc-mina</module>
 		<module>jrpc-core</module>
 		<module>jrpc-srd</module>
+		<module>jrpc-cluster</module>
 	</modules>
 	<name>jrpc-all</name>
 </project>

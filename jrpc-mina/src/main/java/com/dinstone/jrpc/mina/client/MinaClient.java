@@ -20,8 +20,7 @@ import com.dinstone.jrpc.client.AbstractClient;
 import com.dinstone.jrpc.client.Client;
 import com.dinstone.jrpc.client.ConnectionFactory;
 import com.dinstone.jrpc.invoker.DefaultServiceInvoker;
-import com.dinstone.jrpc.proxy.DefaultServiceProxyFactory;
-import com.dinstone.jrpc.proxy.ServiceProxyFactory;
+import com.dinstone.jrpc.invoker.ServiceInvoker;
 
 /**
  * @author guojf
@@ -35,13 +34,11 @@ public class MinaClient extends AbstractClient implements Client {
 
     private DefaultServiceInvoker serviceInvoker;
 
-    public MinaClient(ServiceProxyFactory serviceProxyFactory) {
-        super(serviceProxyFactory);
+    public MinaClient(ServiceInvoker serviceInvoker) {
+        super(serviceInvoker);
     }
 
     public MinaClient(String host, int port) {
-        super(null);
-
         if (host == null || host.length() == 0) {
             throw new IllegalArgumentException("host is null");
         }
@@ -53,7 +50,7 @@ public class MinaClient extends AbstractClient implements Client {
 
         connectionFactory = new MinaConnectionFactory(config);
         serviceInvoker = new DefaultServiceInvoker(connectionFactory);
-        serviceProxyFactory = new DefaultServiceProxyFactory(config, serviceInvoker);
+        init(serviceInvoker);
 
         created = true;
     }
@@ -77,9 +74,6 @@ public class MinaClient extends AbstractClient implements Client {
     public void destroy() {
         super.destroy();
 
-        if (created && serviceProxyFactory != null) {
-            serviceProxyFactory.destroy();
-        }
         if (created && serviceInvoker != null) {
             serviceInvoker.destroy();
         }

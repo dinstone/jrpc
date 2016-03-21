@@ -514,4 +514,8 @@ public class Configuration {
     public void setParallelCount(int count) {
         setInt(PARALLEL_COUNT, count);
     }
+
+    public String getServiceAddress() {
+        return getServiceHost() + ":" + getServicePort();
+    }
 }

@@ -16,19 +16,13 @@
 
 package com.dinstone.jrpc.processor;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.RpcException;
-import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.service.Service;
 import com.dinstone.jrpc.service.ServiceStats;
 
@@ -36,52 +30,12 @@ import com.dinstone.jrpc.service.ServiceStats;
  * @author guojinfei
  * @version 1.0.0.2014-7-29
  */
-public class DefaultServiceProcessor implements ServiceProcessor, ServiceStats {
+public class DefaultServiceProcessor extends AbstractServiceProcessor implements ServiceStats {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultServiceProcessor.class);
-
-    private Map<Class<?>, Object> interfaceMap = new ConcurrentHashMap<Class<?>, Object>();
-
-    private Map<String, Service> serviceMap = new ConcurrentHashMap<String, Service>();
+    static final Logger LOG = LoggerFactory.getLogger(DefaultServiceProcessor.class);
 
     public DefaultServiceProcessor() {
-        regist(ServiceStats.class, this);
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.service.ServiceHandler#regist(java.lang.Class, java.lang.Object)
-     */
-    public synchronized <T> void regist(Class<T> serviceInterface, T serviceObject) {
-        if (!serviceInterface.isInstance(serviceObject)) {
-            String message = "the specified service object[" + serviceObject.getClass()
-                    + "] is not assignment-compatible with the object represented by this Class[" + serviceInterface
-                    + "].";
-            LOG.warn(message);
-            throw new RpcException(501, message);
-        }
-
-        Object obj = interfaceMap.get(serviceInterface);
-        if (obj != null) {
-            throw new RpcException(502, "multiple object registed with the service interface " + serviceInterface);
-        } else {
-            interfaceMap.put(serviceInterface, serviceObject);
-        }
-
-        String classPrefix = serviceInterface.getName() + ".";
-        Map<String, Service> tmpMap = new HashMap<String, Service>();
-        Method[] methods = serviceInterface.getDeclaredMethods();
-        for (Method method : methods) {
-            Service service = new Service(serviceObject, method);
-            String key = classPrefix + method.getName();
-            if (tmpMap.containsKey(key)) {
-                throw new RpcException(503, "method overloading is not supported");
-            }
-            tmpMap.put(key, service);
-        }
-
-        serviceMap.putAll(tmpMap);
+        bind(ServiceStats.class, this);
     }
 
     /**
@@ -95,10 +49,6 @@ public class DefaultServiceProcessor implements ServiceProcessor, ServiceStats {
             services.add(description(service));
         }
         return services;
-    }
-
-    private Service find(String methodName) {
-        return serviceMap.get(methodName);
     }
 
     private String description(Service service) {
@@ -137,21 +87,6 @@ public class DefaultServiceProcessor implements ServiceProcessor, ServiceStats {
             }
         }
         return type.getName();
-    }
-
-    @Override
-    public Object process(Call call) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-        Service service = find(call.getMethod());
-        if (service == null) {
-            throw new IllegalAccessException("not published service");
-        }
-        return service.call(call.getParams());
-    }
-
-    @Override
-    public void destroy() {
-        serviceMap.clear();
-        interfaceMap.clear();
     }
 
 }

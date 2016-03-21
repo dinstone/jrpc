@@ -21,9 +21,12 @@ public class DefaultServiceProxyFactory implements ServiceProxyFactory {
     }
 
     @Override
-    public <T> T createProxy(Class<T> si, String group) {
-        return si.cast(Proxy.newProxyInstance(si.getClassLoader(), new Class[] { si }, new JdkInvocationHandler<T>(si,
+    public <T> T createProxy(Class<T> si, String group) throws Exception {
+        T sr = si.cast(Proxy.newProxyInstance(si.getClassLoader(), new Class[] { si }, new JdkInvocationHandler<T>(si,
             group)));
+        serviceInvoker.bind(si, sr, group);
+
+        return sr;
     }
 
     @Override

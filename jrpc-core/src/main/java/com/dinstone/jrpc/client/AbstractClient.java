@@ -19,6 +19,9 @@ package com.dinstone.jrpc.client;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.jrpc.Configuration;
+import com.dinstone.jrpc.RpcException;
+import com.dinstone.jrpc.invoker.ServiceInvoker;
+import com.dinstone.jrpc.proxy.DefaultServiceProxyFactory;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
 
 /**
@@ -35,9 +38,18 @@ public abstract class AbstractClient implements Client {
 
     protected ServiceProxyFactory serviceProxyFactory;
 
-    public AbstractClient(ServiceProxyFactory serviceProxyFactory) {
-        super();
-        this.serviceProxyFactory = serviceProxyFactory;
+    public AbstractClient() {
+    }
+
+    public AbstractClient(ServiceInvoker serviceInvoker) {
+        init(serviceInvoker);
+    }
+
+    protected void init(ServiceInvoker serviceInvoker) {
+        if (serviceInvoker == null) {
+            throw new IllegalArgumentException("serviceInvoker is null");
+        }
+        this.serviceProxyFactory = new DefaultServiceProxyFactory(config, serviceInvoker);
     }
 
     @Override
@@ -51,19 +63,27 @@ public abstract class AbstractClient implements Client {
 
     @SuppressWarnings("unchecked")
     public <T> T getService(Class<T> sic, String group) {
-        String key = sic.getName() + group;
-        Object so = serviceMap.get(key);
-        if (so == null) {
-            so = serviceProxyFactory.createProxy(sic, group);
-            serviceMap.putIfAbsent(key, so);
-        }
+        try {
+            String key = sic.getName() + group;
+            Object so = serviceMap.get(key);
+            if (so == null) {
+                so = serviceProxyFactory.createProxy(sic, group);
+                serviceMap.putIfAbsent(key, so);
+            }
 
-        return (T) serviceMap.get(key);
+            return (T) serviceMap.get(key);
+        } catch (Exception e) {
+            throw new RpcException(400, "find service error", e);
+        }
     }
 
     @Override
     public void destroy() {
         serviceMap.clear();
+
+        if (serviceProxyFactory != null) {
+            serviceProxyFactory.destroy();
+        }
     }
 
 }

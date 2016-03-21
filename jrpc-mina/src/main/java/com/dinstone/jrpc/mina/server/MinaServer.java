@@ -39,10 +39,12 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dinstone.jrpc.Configuration;
 import com.dinstone.jrpc.RpcException;
 import com.dinstone.jrpc.mina.TransportProtocolDecoder;
 import com.dinstone.jrpc.mina.TransportProtocolEncoder;
 import com.dinstone.jrpc.processor.DefaultServiceProcessor;
+import com.dinstone.jrpc.processor.ServiceProcessor;
 import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.server.AbstractServer;
 import com.dinstone.jrpc.server.Server;
@@ -83,13 +85,16 @@ public class MinaServer extends AbstractServer implements Server {
 
     private ExecutorService executorService;
 
-    public MinaServer(String host, int port) {
-        if (port <= 0) {
-            throw new IllegalArgumentException("port must be greater than zero");
-        }
+    public MinaServer(Configuration config, ServiceProcessor serviceProcessor) {
+        this.config.setServiceHost(config.getServiceHost());
+        this.config.setServicePort(config.getServicePort());
 
-        config.setServiceHost(host);
-        config.setServicePort(port);
+        init(serviceProcessor);
+    }
+
+    public MinaServer(String host, int port) {
+        this.config.setServiceHost(host);
+        this.config.setServicePort(port);
 
         init(new DefaultServiceProcessor());
     }

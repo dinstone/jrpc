@@ -24,7 +24,13 @@ public class DefaultServiceInvoker implements ServiceInvoker {
 
     public void destroy() {
         // TODO Auto-generated method stub
-        
+
+    }
+
+    @Override
+    public <T> void bind(Class<T> serviceInterface, T serviceObject, String group) {
+        // TODO Auto-generated method stub
+
     }
 
 }

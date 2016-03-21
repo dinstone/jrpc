@@ -17,8 +17,6 @@ import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
 
 public class ZookeeperServiceDiscovery implements DistributedServiceDiscovery {
 
-    // private String basePath = "/discovery/jrpc";
-
     private ServiceDiscovery<ServiceAttribute> serviceDiscovery;
 
     private Map<String, ServiceProvider<ServiceAttribute>> providers = new HashMap<String, ServiceProvider<ServiceAttribute>>();
@@ -62,7 +60,6 @@ public class ZookeeperServiceDiscovery implements DistributedServiceDiscovery {
                     }
                     description.setHost(serviceInstance.getAddress());
                     description.setPort(serviceInstance.getPort());
-                    description.setUri(serviceInstance.getUriSpec().build());
                     description.setRegistryTime(serviceInstance.getRegistrationTimeUTC());
                     description.setServiceAttribute(serviceInstance.getPayload());
 
@@ -87,7 +84,7 @@ public class ZookeeperServiceDiscovery implements DistributedServiceDiscovery {
         synchronized (providers) {
             if (!providers.containsKey(key)) {
                 ServiceProvider<ServiceAttribute> serviceProvider = serviceDiscovery.serviceProviderBuilder()
-                    .serviceName(serviceName).build();
+                    .serviceName(key).build();
                 serviceProvider.start();
                 providers.put(key, serviceProvider);
             }
@@ -96,7 +93,7 @@ public class ZookeeperServiceDiscovery implements DistributedServiceDiscovery {
 
     @Override
     public void cancel(String serviceName, String group) {
-        String key = serviceName + "[" + group + "]";
+        String key = serviceName + "-" + group;
         synchronized (providers) {
             if (providers.containsKey(key)) {
                 ServiceProvider<ServiceAttribute> provider = providers.remove(key);

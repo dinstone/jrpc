@@ -43,7 +43,7 @@ public abstract class AbstractServer implements Server {
     }
 
     public <T> Server regist(Class<T> serviceInterface, T serviceObject) {
-        serviceProcessor.regist(serviceInterface, serviceObject);
+        serviceProcessor.bind(serviceInterface, serviceObject);
 
         return this;
     }

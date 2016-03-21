@@ -9,7 +9,7 @@ package com.dinstone.jrpc.srd;
  */
 public interface DistributedServiceRegistry {
 
-    public abstract void regist(ServiceDescription description) throws Exception;
+    public abstract void publish(ServiceDescription description) throws Exception;
 
     public abstract void destroy();
 
