@@ -46,9 +46,9 @@ public class ClientTest {
     public static void startServer() {
         server = new MinaServer("localhost", 1234);
         server.regist(HelloService.class, new HelloServiceImpl());
-        server.bind();
+        server.start();
 
-        client = new MinaClient("localhost", 1234).setParallelCount(2).setCallTimeout(5000);
+        client = new MinaClient("localhost", 1234).setCallTimeout(5000);
     }
 
     @AfterClass

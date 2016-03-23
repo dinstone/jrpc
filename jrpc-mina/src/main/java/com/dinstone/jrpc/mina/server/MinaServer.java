@@ -130,10 +130,10 @@ public class MinaServer extends AbstractServer implements Server {
     /**
      * {@inheritDoc}
      * 
-     * @see com.dinstone.jrpc.server.Server#bind()
+     * @see com.dinstone.jrpc.server.Server#start()
      */
     @Override
-    public Server bind() {
+    public Server start() {
         String serviceHost = getServiceHost();
         int servicePort = getServicePort();
         String localAddress = serviceHost + ":" + servicePort;

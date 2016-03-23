@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.protocol;
 
 import java.io.Serializable;
@@ -29,7 +30,13 @@ public class Call implements Content, Serializable {
     /**  */
     private static final long serialVersionUID = 1L;
 
+    private String group;
+
+    private String service;
+
     private String method;
+
+    private int timeout;
 
     private Object[] params;
 
@@ -37,9 +44,12 @@ public class Call implements Content, Serializable {
         super();
     }
 
-    public Call(String method, Object[] params) {
+    public Call(String service, String group, int timeout, String method, Object[] params) {
         super();
+        this.group = group;
+        this.service = service;
         this.method = method;
+        this.timeout = timeout;
         this.params = params;
     }
 
@@ -83,14 +93,34 @@ public class Call implements Content, Serializable {
         this.params = params;
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see java.lang.Object#toString()
-     */
+    public String getService() {
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
     @Override
     public String toString() {
-        return "{method=" + method + ", params=" + Arrays.toString(params) + "}";
+        return "Call [service=" + service + ", group=" + group + ", timeout=" + timeout + ", method=" + method
+                + ", params=" + Arrays.toString(params) + "]";
     }
 
 }

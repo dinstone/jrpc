@@ -16,11 +16,12 @@
 
 package com.dinstone.jrpc.mina.client;
 
+import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.client.AbstractClient;
 import com.dinstone.jrpc.client.Client;
 import com.dinstone.jrpc.client.ConnectionFactory;
-import com.dinstone.jrpc.invoker.DefaultServiceInvoker;
-import com.dinstone.jrpc.invoker.ServiceInvoker;
+import com.dinstone.jrpc.client.TransportConfig;
+import com.dinstone.jrpc.invoker.DefaultReferenceBinding;
 
 /**
  * @author guojf
@@ -28,63 +29,35 @@ import com.dinstone.jrpc.invoker.ServiceInvoker;
  */
 public class MinaClient extends AbstractClient implements Client {
 
-    private boolean created;
+    private TransportConfig config = new TransportConfig();
 
     private ConnectionFactory connectionFactory;
 
-    private DefaultServiceInvoker serviceInvoker;
+    private DefaultReferenceBinding referenceBinding;
 
-    public MinaClient(ServiceInvoker serviceInvoker) {
-        super(serviceInvoker);
-    }
-
-    public MinaClient(String host, int port) {
-        if (host == null || host.length() == 0) {
-            throw new IllegalArgumentException("host is null");
-        }
-        if (port <= 0) {
-            throw new IllegalArgumentException("port must be greater than zero");
-        }
-        config.setServiceHost(host);
-        config.setServicePort(port);
-
+    public MinaClient(final String host, final int port) {
         connectionFactory = new MinaConnectionFactory(config);
-        serviceInvoker = new DefaultServiceInvoker(connectionFactory);
-        init(serviceInvoker);
-
-        created = true;
+        referenceBinding = new DefaultReferenceBinding(host, port);
+        serviceImporter = new ServiceImporter(referenceBinding, connectionFactory);
     }
 
-    public MinaClient setCallTimeout(int timeout) {
-        config.setCallTimeout(timeout);
-        return this;
-    }
-
-    public MinaClient setMaxObjectSize(int maxSize) {
-        config.setMaxSize(maxSize);
-        return this;
-    }
-
-    public MinaClient setParallelCount(int count) {
-        config.setParallelCount(count);
-        return this;
+    public MinaClient(String serviceAddresses) {
+        connectionFactory = new MinaConnectionFactory(config);
+        referenceBinding = new DefaultReferenceBinding(serviceAddresses);
+        serviceImporter = new ServiceImporter(referenceBinding, connectionFactory);
     }
 
     @Override
     public void destroy() {
-        super.destroy();
-
-        if (created && serviceInvoker != null) {
-            serviceInvoker.destroy();
-        }
-        if (created && connectionFactory != null) {
-            connectionFactory.destroy();
-        }
+        serviceImporter.destroy();
+        referenceBinding.destroy();
+        connectionFactory.destroy();
     }
 
-    @Override
-    public String toString() {
-        return "MinaClient [host=" + config.getServiceHost() + ", port=" + config.getServicePort() + "]";
+    public MinaClient setCallTimeout(int timeout) {
+        config.setCallTimeout(timeout);
+
+        return this;
     }
 
 }

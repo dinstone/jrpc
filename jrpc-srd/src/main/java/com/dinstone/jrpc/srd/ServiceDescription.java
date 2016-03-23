@@ -2,6 +2,7 @@
 package com.dinstone.jrpc.srd;
 
 import java.io.Serializable;
+import java.net.InetSocketAddress;
 
 /**
  * service description
@@ -29,6 +30,8 @@ public class ServiceDescription implements Serializable {
     private long registryTime;
 
     private ServiceAttribute serviceAttribute;
+
+    private volatile InetSocketAddress address;
 
     public String getId() {
         return id;
@@ -92,6 +95,14 @@ public class ServiceDescription implements Serializable {
 
     public void setServiceAttribute(ServiceAttribute serviceAttribute) {
         this.serviceAttribute = serviceAttribute;
+    }
+
+    public InetSocketAddress getServiceAddress() {
+        if (address == null) {
+            address = new InetSocketAddress(host, port);
+        }
+
+        return address;
     }
 
     @Override

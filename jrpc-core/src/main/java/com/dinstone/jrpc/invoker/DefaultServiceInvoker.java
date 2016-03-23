@@ -1,36 +1,31 @@
 
 package com.dinstone.jrpc.invoker;
 
+import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
+import com.dinstone.jrpc.client.Connection;
 import com.dinstone.jrpc.client.ConnectionFactory;
 import com.dinstone.jrpc.protocol.Call;
 
 public class DefaultServiceInvoker implements ServiceInvoker {
 
-    private ConnectionFactory connectionFactory;
-
-    public DefaultServiceInvoker(ConnectionFactory connectionFactory) {
-        this.connectionFactory = connectionFactory;
+    public DefaultServiceInvoker() {
     }
 
     @Override
-    public Object invoke(String serviceName, String group, int callTimeout, String methodName, Object[] params)
-            throws InterruptedException, TimeoutException {
-        String service = serviceName + "." + methodName;
-        return connectionFactory.create().call(new Call(service, params)).get(callTimeout, TimeUnit.MILLISECONDS);
+    public <T> Object invoke(ReferenceBinding referenceBinding, ConnectionFactory connectionFactory,
+            Class<T> serviceInterface, String group, int timeout, Method method, Object[] args) throws Exception {
+        
+        
+        InetSocketAddress address = referenceBinding.getServiceAddress(serviceInterface, group);
+        Connection connection = connectionFactory.create(address);
+        return connection.call(new Call(serviceInterface.getName(), group, timeout, method.getName(), args)).get(
+            timeout, TimeUnit.MILLISECONDS);
     }
 
     public void destroy() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public <T> void bind(Class<T> serviceInterface, T serviceObject, String group) {
-        // TODO Auto-generated method stub
-
     }
 
 }

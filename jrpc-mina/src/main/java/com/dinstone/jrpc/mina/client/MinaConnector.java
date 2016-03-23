@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.client;
 
 import java.net.InetSocketAddress;
@@ -32,7 +33,7 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.Configuration;
+import com.dinstone.jrpc.client.TransportConfig;
 import com.dinstone.jrpc.mina.TransportProtocolDecoder;
 import com.dinstone.jrpc.mina.TransportProtocolEncoder;
 import com.dinstone.jrpc.protocol.Heartbeat;
@@ -79,22 +80,19 @@ public class MinaConnector {
 
     private NioSocketConnector ioConnector;
 
-    /**
-     * @param config
-     * @param ioConnector
-     */
-    public MinaConnector(Configuration config) {
-        initConnector(config);
+    public MinaConnector(InetSocketAddress isa, TransportConfig config) {
+        initConnector(isa, config);
     }
 
     /**
+     * @param port2
+     * @param host2
      * @param config
      */
-    private void initConnector(Configuration config) {
+    private void initConnector(InetSocketAddress isa, TransportConfig config) {
         // create connector
         ioConnector = new NioSocketConnector();
         SocketSessionConfig sessionConfig = ioConnector.getSessionConfig();
-        LOG.debug("KeepAlive is {}", sessionConfig.isKeepAlive());
 
         // set read buffer size
         sessionConfig.setReceiveBufferSize(4 * 1024);
@@ -103,6 +101,7 @@ public class MinaConnector {
 
         int maxLen = config.getMaxSize();
         LOG.debug("rpc.protocol.maxlength is {}", maxLen);
+
         final TransportProtocolEncoder encoder = new TransportProtocolEncoder();
         final TransportProtocolDecoder decoder = new TransportProtocolDecoder();
         encoder.setMaxObjectSize(maxLen);
@@ -128,10 +127,7 @@ public class MinaConnector {
         // set handler
         ioConnector.setHandler(new MinaClientHandler());
 
-        String host = config.getServiceHost();
-        int port = config.getServicePort();
-        InetSocketAddress address = new InetSocketAddress(host, port);
-        ioConnector.setDefaultRemoteAddress(address);
+        ioConnector.setDefaultRemoteAddress(isa);
     }
 
     /**

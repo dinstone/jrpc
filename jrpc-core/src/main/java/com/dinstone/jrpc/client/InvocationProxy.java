@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.client;
 
 import java.lang.reflect.InvocationHandler;
@@ -63,7 +64,7 @@ public class InvocationProxy implements InvocationHandler {
      * @return
      */
     public CallFuture invoke(String method, Object[] args) {
-        return connectionFactory.create().call(new Call(method, args));
+        return connectionFactory.create(null, 0).call(new Call(null, null, 1000, method, args));
     }
 
 }

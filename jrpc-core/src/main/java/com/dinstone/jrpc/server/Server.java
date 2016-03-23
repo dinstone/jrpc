@@ -30,7 +30,7 @@ public interface Server {
 
     public <T> Server regist(Class<T> serviceInterface, T serviceObject);
 
-    public Server bind();
+    public Server start();
 
     public Server shutdown();
 }

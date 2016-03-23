@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.client;
+
+import java.net.InetSocketAddress;
 
 /**
  * connetcion factory.
@@ -23,7 +26,9 @@ package com.dinstone.jrpc.client;
  */
 public interface ConnectionFactory {
 
-    public abstract Connection create();
+    public abstract Connection create(String host, int port);
+
+    public abstract Connection create(InetSocketAddress sa);
 
     public abstract void destroy();
 }

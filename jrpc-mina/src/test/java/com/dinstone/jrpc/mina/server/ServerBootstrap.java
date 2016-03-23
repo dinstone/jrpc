@@ -27,7 +27,7 @@ public class ServerBootstrap {
     public static void main(String[] args) {
         MinaServer server = new MinaServer("localhost", 1234);
         server.setMaxObjectSize(4 * 1024).regist(HelloService.class, new HelloServiceImpl());
-        server.bind();
+        server.start();
 
         try {
             Thread.sleep(2000);

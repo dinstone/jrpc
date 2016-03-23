@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.service;
 
 import org.junit.Test;
@@ -22,8 +23,6 @@ import com.dinstone.jrpc.cases.HelloServiceImpl;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.serialize.SerializeType;
-import com.dinstone.jrpc.service.DefaultServiceHandler;
-import com.dinstone.jrpc.service.ServiceHandler;
 
 public class ServiceHandlerTest {
 
@@ -50,7 +49,7 @@ public class ServiceHandlerTest {
         }
         final String name = new String(mb);
 
-        return new Request(1, SerializeType.JACKSON, new Call("com.dinstone.rpc.cases.HelloService.sayHello",
-            new Object[] { name }));
+        return new Request(1, SerializeType.JACKSON, new Call("com.dinstone.jrpc.cases.HelloService", "", 3000,
+            "sayHello", new Object[] { name }));
     }
 }

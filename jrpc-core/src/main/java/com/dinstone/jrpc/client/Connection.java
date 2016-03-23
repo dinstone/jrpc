@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.client;
 
 import com.dinstone.jrpc.protocol.Call;
@@ -32,5 +33,7 @@ public interface Connection {
      * @return
      */
     public CallFuture call(Call call);
+
+    public void destroy();
 
 }

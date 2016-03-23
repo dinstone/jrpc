@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.x.discovery.ServiceDiscovery;
 import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
 import org.apache.curator.x.discovery.ServiceInstance;
@@ -21,13 +23,22 @@ public class ZookeeperServiceDiscovery implements DistributedServiceDiscovery {
 
     private Map<String, ServiceProvider<ServiceAttribute>> providers = new HashMap<String, ServiceProvider<ServiceAttribute>>();
 
-    public ZookeeperServiceDiscovery(CuratorFramework zkClient, String basePath) {
-        if (zkClient == null) {
-            throw new IllegalArgumentException("zkClient is null");
+    private CuratorFramework zkClient;
+
+    public ZookeeperServiceDiscovery(RegistryDiscoveryConfig discoveryConfig) {
+        String zkNodes = discoveryConfig.getZookeeperNodes();
+        if (zkNodes == null || zkNodes.length() == 0) {
+            throw new IllegalArgumentException("zookeeper.node.list is empty");
         }
+
+        String basePath = discoveryConfig.getBasePath();
         if (basePath == null || basePath.length() == 0) {
             throw new IllegalArgumentException("basePath is empty");
         }
+
+        zkClient = CuratorFrameworkFactory.newClient(zkNodes,
+            new ExponentialBackoffRetry(discoveryConfig.getBaseSleepTime(), discoveryConfig.getMaxRetries()));
+        zkClient.start();
 
         try {
             serviceDiscovery = ServiceDiscoveryBuilder.builder(ServiceAttribute.class).client(zkClient)
@@ -121,6 +132,8 @@ public class ZookeeperServiceDiscovery implements DistributedServiceDiscovery {
             serviceDiscovery.close();
         } catch (IOException e) {
         }
+
+        zkClient.close();
     }
 
 }

@@ -16,57 +16,26 @@
 
 package com.dinstone.jrpc.mina.client;
 
-import com.dinstone.jrpc.Configuration;
+import java.net.InetSocketAddress;
+
+import com.dinstone.jrpc.client.AbstractConnectionFactory;
 import com.dinstone.jrpc.client.Connection;
-import com.dinstone.jrpc.client.ConnectionFactory;
+import com.dinstone.jrpc.client.TransportConfig;
 
-public class MinaConnectionFactory implements ConnectionFactory {
+public class MinaConnectionFactory extends AbstractConnectionFactory {
 
-    private Configuration config;
+    private TransportConfig config;
 
-    private MinaConnector connector;
-
-    private MinaConnection[] connections;
-
-    private int count;
-
-    protected MinaConnectionFactory(Configuration config) {
+    public MinaConnectionFactory(TransportConfig config) {
         if (config == null) {
             throw new IllegalArgumentException("config is null");
         }
         this.config = config;
-
-        this.connector = new MinaConnector(config);
-
-        this.connections = new MinaConnection[config.getParallelCount()];
     }
 
-    public synchronized Connection create() {
-        int index = count++ % connections.length;
-        MinaConnection connection = connections[index];
-        if (connection == null || !connection.isAlive()) {
-            if (connection != null) {
-                connections[index] = null;
-                connection.close();
-            }
-
-            connection = new MinaConnection(connector.createSession(), config);
-            connections[index] = connection;
-        }
-
-        return connection;
-    }
-
-    public synchronized void destroy() {
-        for (MinaConnection connection : connections) {
-            if (connection != null) {
-                connection.close();
-            }
-        }
-
-        if (connector != null) {
-            connector.dispose();
-        }
+    @Override
+    protected Connection createConnection(InetSocketAddress sa) {
+        return new MinaConnection(sa, config);
     }
 
 }

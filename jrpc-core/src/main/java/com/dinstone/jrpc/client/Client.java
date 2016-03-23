@@ -16,7 +16,6 @@
 
 package com.dinstone.jrpc.client;
 
-import com.dinstone.jrpc.Configuration;
 
 /**
  * RPC Client API.
@@ -25,8 +24,6 @@ import com.dinstone.jrpc.Configuration;
  * @version 1.0.0.2014-6-20
  */
 public interface Client {
-
-    public abstract Configuration getConfiguration();
 
     public abstract <T> T getService(Class<T> sic);
 

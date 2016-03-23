@@ -3,23 +3,19 @@ package com.dinstone.jrpc.reference;
 
 import java.io.IOException;
 
-import com.dinstone.jrpc.Configuration;
 import com.dinstone.jrpc.client.Client;
-import com.dinstone.jrpc.cluster.ClusterServiceInvoker;
 import com.dinstone.jrpc.demo.HelloService;
-import com.dinstone.jrpc.invoker.ServiceInvoker;
 import com.dinstone.jrpc.mina.client.MinaClient;
-import com.dinstone.jrpc.mina.client.MinaConnectionManager;
 
 public class CluasterBalanceClient {
 
     public static void main(String[] args) {
-        Configuration config = new Configuration();
-        config.set("zookeeper.node.list", "localhost:2181");
+        // Configuration config = new Configuration();
+        // config.set("zookeeper.node.list", "localhost:2181");
 
-        MinaConnectionManager connectionManager = new MinaConnectionManager();
-        ServiceInvoker serviceInvoker = new ClusterServiceInvoker(config, connectionManager);
-        MinaClient client = new MinaClient(serviceInvoker);
+        // RegistryDiscoveryConfig discoveryConfig = new RegistryDiscoveryConfig();
+        // new DiscoveryReferenceBinding(discoveryConfig, connectionFactory);
+        MinaClient client = new MinaClient("localhost:9090");
 
         System.out.println("start");
 
@@ -37,8 +33,6 @@ public class CluasterBalanceClient {
 
         System.out.println("stop");
         client.destroy();
-        serviceInvoker.destroy();
-        connectionManager.destroy();
     }
 
     protected static void testHot(Client client) {

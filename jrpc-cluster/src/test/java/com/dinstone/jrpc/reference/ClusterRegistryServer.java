@@ -21,7 +21,7 @@ public class ClusterRegistryServer {
         ServiceProcessor serviceProcessor = new ClusterServiceProcessor(config);
         MinaServer server = new MinaServer(config, serviceProcessor);
         server.regist(HelloService.class, new HelloServiceImpl());
-        server.bind();
+        server.start();
 
         System.out.println("server start");
 

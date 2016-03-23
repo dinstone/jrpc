@@ -16,6 +16,7 @@
 
 package com.dinstone.jrpc.mina.client;
 
+import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -25,9 +26,9 @@ import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.Configuration;
 import com.dinstone.jrpc.client.CallFuture;
 import com.dinstone.jrpc.client.Connection;
+import com.dinstone.jrpc.client.TransportConfig;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Result;
@@ -37,26 +38,26 @@ public class MinaConnection implements Connection {
 
     private static final Logger LOG = LoggerFactory.getLogger(MinaConnection.class);
 
-    private static final AtomicInteger IDGEN = new AtomicInteger();
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
+
+    private MinaConnector connector;
 
     private IoSession ioSession;
 
     private SerializeType serializeType;
 
-    public MinaConnection(IoSession ioSession, Configuration config) {
-        this.ioSession = ioSession;
-        this.serializeType = config.getSerializeType();
-
-        LOG.info("session {} created", ioSession.getId());
+    public MinaConnection(String host, int port, TransportConfig config) {
+        this(new InetSocketAddress(host, port), config);
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.client.Connection#call(com.dinstone.jrpc.protocol.Call)
-     */
+    public MinaConnection(InetSocketAddress isa, TransportConfig config) {
+        connector = new MinaConnector(isa, config);
+        ioSession = connector.createSession();
+        serializeType = config.getSerializeType();
+    }
+
     public CallFuture call(Call call) {
-        final int id = getId();
+        final int id = ID_GENERATOR.incrementAndGet();
         Map<Integer, CallFuture> futureMap = SessionUtil.getCallFutureMap(ioSession);
         final CallFuture callFuture = new CallFuture();
         futureMap.put(id, callFuture);
@@ -75,13 +76,6 @@ public class MinaConnection implements Connection {
         return callFuture;
     }
 
-    /**
-     * @return
-     */
-    private int getId() {
-        return IDGEN.incrementAndGet();
-    }
-
     public void close() {
         if (ioSession != null) {
             ioSession.close(true);
@@ -91,6 +85,21 @@ public class MinaConnection implements Connection {
 
     public boolean isAlive() {
         return ioSession.isConnected() && !ioSession.isClosing();
+    }
+
+    @Override
+    public void destroy() {
+        if (ioSession != null) {
+            ioSession.close(true);
+            LOG.info("session {} closed", ioSession.getId());
+            ioSession = null;
+        }
+
+        if (connector != null) {
+            connector.dispose();
+            connector = null;
+        }
+
     }
 
 }

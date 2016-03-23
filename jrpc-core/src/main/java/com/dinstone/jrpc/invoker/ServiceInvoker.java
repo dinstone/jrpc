@@ -1,18 +1,14 @@
 
 package com.dinstone.jrpc.invoker;
 
+import java.lang.reflect.Method;
+
+import com.dinstone.jrpc.client.ConnectionFactory;
+
 public interface ServiceInvoker {
 
-    /**
-     * service reference bind
-     * 
-     * @param serviceInterface
-     * @param serviceReference
-     * @param group
-     */
-    public <T> void bind(Class<T> serviceInterface, T serviceReference, String group);
-
-    Object invoke(String serviceName, String group, int callTimeout, String methodName, Object[] args) throws Exception;
+    <T> Object invoke(ReferenceBinding referenceBinding, ConnectionFactory connectionFactory,
+            Class<T> serviceInterface, String group, int timeout, Method method, Object[] args) throws Exception;
 
     void destroy();
 }
