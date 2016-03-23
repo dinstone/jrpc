@@ -1,5 +1,5 @@
 
-package com.dinstone.jrpc.client;
+package com.dinstone.jrpc.transport;
 
 import com.dinstone.jrpc.Configuration;
 import com.dinstone.jrpc.serialize.SerializeType;

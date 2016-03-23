@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.client;
+package com.dinstone.jrpc.transport;
 
-import com.dinstone.jrpc.protocol.Call;
+import java.net.InetSocketAddress;
 
 /**
- * connection abstract.
+ * connetcion factory.
  * 
- * @author guojf
- * @version 1.0.0.2013-4-10
+ * @author guojinfei
+ * @version 2.0.0.2015-11-3
  */
-public interface Connection {
+public interface ConnectionFactory {
 
-    /**
-     * asynchronous call.
-     * 
-     * @param call
-     * @return
-     */
-    public CallFuture call(Call call);
+    public abstract Connection create(String host, int port);
 
-    public void destroy();
+    public abstract Connection create(InetSocketAddress sa);
 
+    public abstract void destroy();
 }

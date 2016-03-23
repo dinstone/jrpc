@@ -19,9 +19,9 @@ package com.dinstone.jrpc.mina.client;
 import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.client.AbstractClient;
 import com.dinstone.jrpc.client.Client;
-import com.dinstone.jrpc.client.ConnectionFactory;
-import com.dinstone.jrpc.client.TransportConfig;
 import com.dinstone.jrpc.invoker.DefaultReferenceBinding;
+import com.dinstone.jrpc.transport.ConnectionFactory;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 /**
  * @author guojf

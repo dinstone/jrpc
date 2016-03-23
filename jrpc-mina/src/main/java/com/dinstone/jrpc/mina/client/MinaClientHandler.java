@@ -23,9 +23,9 @@ import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.client.CallFuture;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.protocol.Result;
+import com.dinstone.jrpc.transport.ResultFuture;
 
 public class MinaClientHandler extends IoHandlerAdapter {
 
@@ -44,8 +44,8 @@ public class MinaClientHandler extends IoHandlerAdapter {
     @Override
     public void sessionClosed(IoSession session) throws Exception {
         LOG.debug("Session[{}] is closed", session.getId());
-        Map<Integer, CallFuture> futureMap = SessionUtil.getCallFutureMap(session);
-        for (CallFuture future : futureMap.values()) {
+        Map<Integer, ResultFuture> futureMap = SessionUtil.getCallFutureMap(session);
+        for (ResultFuture future : futureMap.values()) {
             future.setResult(new Result(400, "connection is closed"));
         }
     }
@@ -68,8 +68,8 @@ public class MinaClientHandler extends IoHandlerAdapter {
     }
 
     private void handle(IoSession session, Response response) {
-        Map<Integer, CallFuture> cfMap = SessionUtil.getCallFutureMap(session);
-        CallFuture future = cfMap.remove(response.getMessageId());
+        Map<Integer, ResultFuture> cfMap = SessionUtil.getCallFutureMap(session);
+        ResultFuture future = cfMap.remove(response.getMessageId());
         if (future != null) {
             future.setResult(response.getResult());
         }

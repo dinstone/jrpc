@@ -20,16 +20,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.mina.core.session.IoSession;
 
-import com.dinstone.jrpc.client.CallFuture;
+import com.dinstone.jrpc.transport.ResultFuture;
 
 public class SessionUtil {
 
     public static void setCallFutureMap(IoSession session) {
-        session.setAttribute(ConcurrentHashMap.class.getName(), new ConcurrentHashMap<Integer, CallFuture>());
+        session.setAttribute(ConcurrentHashMap.class.getName(), new ConcurrentHashMap<Integer, ResultFuture>());
     }
 
     @SuppressWarnings("unchecked")
-    public static Map<Integer, CallFuture> getCallFutureMap(IoSession session) {
-        return (Map<Integer, CallFuture>) session.getAttribute(ConcurrentHashMap.class.getName());
+    public static Map<Integer, ResultFuture> getCallFutureMap(IoSession session) {
+        return (Map<Integer, ResultFuture>) session.getAttribute(ConcurrentHashMap.class.getName());
     }
 }

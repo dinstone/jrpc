@@ -3,7 +3,7 @@ package com.dinstone.jrpc.invoker;
 
 import java.lang.reflect.Method;
 
-import com.dinstone.jrpc.client.ConnectionFactory;
+import com.dinstone.jrpc.transport.ConnectionFactory;
 
 public interface ServiceInvoker {
 

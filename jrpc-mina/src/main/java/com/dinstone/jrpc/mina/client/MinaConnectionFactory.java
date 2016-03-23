@@ -18,9 +18,9 @@ package com.dinstone.jrpc.mina.client;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.client.AbstractConnectionFactory;
-import com.dinstone.jrpc.client.Connection;
-import com.dinstone.jrpc.client.TransportConfig;
+import com.dinstone.jrpc.transport.AbstractConnectionFactory;
+import com.dinstone.jrpc.transport.Connection;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaConnectionFactory extends AbstractConnectionFactory {
 

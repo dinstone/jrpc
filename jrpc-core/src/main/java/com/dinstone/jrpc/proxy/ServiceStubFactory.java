@@ -5,9 +5,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import com.dinstone.jrpc.client.ConnectionFactory;
 import com.dinstone.jrpc.invoker.ReferenceBinding;
 import com.dinstone.jrpc.invoker.ServiceInvoker;
+import com.dinstone.jrpc.transport.ConnectionFactory;
 
 public class ServiceStubFactory implements ServiceProxyFactory {
 

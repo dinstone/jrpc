@@ -1,12 +1,12 @@
 
 package com.dinstone.jrpc.api;
 
-import com.dinstone.jrpc.client.ConnectionFactory;
 import com.dinstone.jrpc.invoker.DefaultServiceInvoker;
 import com.dinstone.jrpc.invoker.ReferenceBinding;
 import com.dinstone.jrpc.invoker.ServiceInvoker;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
 import com.dinstone.jrpc.proxy.ServiceStubFactory;
+import com.dinstone.jrpc.transport.ConnectionFactory;
 
 public class ServiceImporter {
 

@@ -26,12 +26,12 @@ import org.junit.Test;
 
 import com.dinstone.jrpc.cases.HelloService;
 import com.dinstone.jrpc.cases.HelloServiceImpl;
-import com.dinstone.jrpc.client.CallFuture;
-import com.dinstone.jrpc.client.CallFutureListener;
-import com.dinstone.jrpc.client.Connection;
-import com.dinstone.jrpc.client.TransportConfig;
 import com.dinstone.jrpc.mina.server.MinaServer;
 import com.dinstone.jrpc.protocol.Call;
+import com.dinstone.jrpc.transport.ResultFuture;
+import com.dinstone.jrpc.transport.ResultFutureListener;
+import com.dinstone.jrpc.transport.Connection;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 /**
  * @author guojf
@@ -85,7 +85,7 @@ public class DefaultConnectionTest {
     public void testCall() {
         long st = System.currentTimeMillis();
 
-        CallFuture cf = connect.call(new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello",
+        ResultFuture cf = connect.call(new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello",
             new Object[] { "dddd" }));
         try {
             cf.get();
@@ -108,16 +108,16 @@ public class DefaultConnectionTest {
         long st = System.currentTimeMillis();
 
         final Semaphore s = new Semaphore(0);
-        CallFutureListener listener = new CallFutureListener() {
+        ResultFutureListener listener = new ResultFutureListener() {
 
-            public void complete(CallFuture future) {
+            public void complete(ResultFuture future) {
                 s.release();
             }
         };
 
         int count = 10000;
         for (int i = 0; i < count; i++) {
-            CallFuture f = connect.call(new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello",
+            ResultFuture f = connect.call(new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello",
                 new Object[] { name }));
             f.addListener(listener);
         }

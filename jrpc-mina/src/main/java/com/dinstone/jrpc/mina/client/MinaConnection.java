@@ -26,13 +26,13 @@ import org.apache.mina.core.session.IoSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.client.CallFuture;
-import com.dinstone.jrpc.client.Connection;
-import com.dinstone.jrpc.client.TransportConfig;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Result;
 import com.dinstone.jrpc.serialize.SerializeType;
+import com.dinstone.jrpc.transport.ResultFuture;
+import com.dinstone.jrpc.transport.Connection;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaConnection implements Connection {
 
@@ -56,10 +56,10 @@ public class MinaConnection implements Connection {
         serializeType = config.getSerializeType();
     }
 
-    public CallFuture call(Call call) {
+    public ResultFuture call(Call call) {
         final int id = ID_GENERATOR.incrementAndGet();
-        Map<Integer, CallFuture> futureMap = SessionUtil.getCallFutureMap(ioSession);
-        final CallFuture callFuture = new CallFuture();
+        Map<Integer, ResultFuture> futureMap = SessionUtil.getCallFutureMap(ioSession);
+        final ResultFuture callFuture = new ResultFuture();
         futureMap.put(id, callFuture);
 
         WriteFuture wf = ioSession.write(new Request(id, serializeType, call));

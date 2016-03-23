@@ -1,5 +1,5 @@
 
-package com.dinstone.jrpc.client;
+package com.dinstone.jrpc.transport;
 
 import java.net.InetSocketAddress;
 import java.util.HashMap;

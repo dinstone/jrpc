@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.client;
-
-import java.net.InetSocketAddress;
+package com.dinstone.jrpc.transport;
 
 /**
- * connetcion factory.
- * 
- * @author guojinfei
- * @version 2.0.0.2015-11-3
+ * @author guojf
+ * @version 1.0.0.2013-11-7
  */
-public interface ConnectionFactory {
+public interface ResultFutureListener {
 
-    public abstract Connection create(String host, int port);
-
-    public abstract Connection create(InetSocketAddress sa);
-
-    public abstract void destroy();
+    void complete(ResultFuture future);
 }

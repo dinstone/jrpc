@@ -33,12 +33,12 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.client.TransportConfig;
 import com.dinstone.jrpc.mina.TransportProtocolDecoder;
 import com.dinstone.jrpc.mina.TransportProtocolEncoder;
 import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Tick;
 import com.dinstone.jrpc.serialize.SerializeType;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 /**
  * @author guojf

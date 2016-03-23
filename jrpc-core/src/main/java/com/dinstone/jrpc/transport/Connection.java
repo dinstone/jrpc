@@ -13,13 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.client;
+
+package com.dinstone.jrpc.transport;
+
+import com.dinstone.jrpc.protocol.Call;
 
 /**
+ * connection abstract.
+ * 
  * @author guojf
- * @version 1.0.0.2013-11-7
+ * @version 1.0.0.2013-4-10
  */
-public interface CallFutureListener {
+public interface Connection {
 
-    void complete(CallFuture future);
+    /**
+     * asynchronous call.
+     * 
+     * @param call
+     * @return
+     */
+    public ResultFuture call(Call call);
+
+    public void destroy();
+
 }

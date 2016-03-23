@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.client;
+package com.dinstone.jrpc.transport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ import com.dinstone.jrpc.protocol.Result;
  * @author guojf
  * @version 1.0.0.2013-5-2
  */
-public class CallFuture {
+public class ResultFuture {
 
     private Lock lock = new ReentrantLock();
 
@@ -41,12 +41,12 @@ public class CallFuture {
 
     private Result result;
 
-    private List<CallFutureListener> listeners;
+    private List<ResultFutureListener> listeners;
 
     /**
      * 
      */
-    public CallFuture() {
+    public ResultFuture() {
         super();
     }
 
@@ -113,14 +113,14 @@ public class CallFuture {
         }
 
         if (listeners != null) {
-            for (CallFutureListener listener : listeners) {
+            for (ResultFutureListener listener : listeners) {
                 notifyListener(listener);
             }
             listeners = null;
         }
     }
 
-    private void notifyListener(CallFutureListener listener) {
+    private void notifyListener(ResultFutureListener listener) {
         if (listener != null) {
             try {
                 listener.complete(this);
@@ -129,7 +129,7 @@ public class CallFuture {
         }
     }
 
-    public CallFuture addListener(CallFutureListener listener) {
+    public ResultFuture addListener(ResultFutureListener listener) {
         if (listener == null) {
             throw new IllegalArgumentException("listener");
         }
@@ -141,7 +141,7 @@ public class CallFuture {
                 notifyNow = true;
             } else {
                 if (listeners == null) {
-                    listeners = new ArrayList<CallFutureListener>(1);
+                    listeners = new ArrayList<ResultFutureListener>(1);
                 }
                 listeners.add(listener);
             }
