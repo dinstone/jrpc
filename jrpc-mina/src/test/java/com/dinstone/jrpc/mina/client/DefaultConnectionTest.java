@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.client;
 
 import java.util.concurrent.Semaphore;
@@ -27,9 +28,9 @@ import com.dinstone.jrpc.cases.HelloService;
 import com.dinstone.jrpc.cases.HelloServiceImpl;
 import com.dinstone.jrpc.mina.server.MinaServer;
 import com.dinstone.jrpc.protocol.Call;
+import com.dinstone.jrpc.transport.Connection;
 import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.ResultFutureListener;
-import com.dinstone.jrpc.transport.Connection;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 /**

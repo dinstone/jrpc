@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.api;
 
+package com.dinstone.jrpc.api;
 
 /**
  * RPC Server API.
@@ -27,4 +27,10 @@ public interface Server {
     public void start();
 
     public void stop();
+
+    <T> void regist(Class<T> serviceInterface, T serviceImplement);
+
+    <T> void regist(Class<T> serviceInterface, String group, T serviceImplement);
+
+    <T> void regist(Class<T> serviceInterface, String group, int timeout, T serviceImplement);
 }

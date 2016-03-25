@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.server;
 
 import org.slf4j.Logger;
@@ -29,11 +30,9 @@ import com.dinstone.jrpc.transport.TransportConfig;
  * @author guojinfei
  * @version 1.0.0.2014-7-29
  */
-public class MinaServer implements Server, ServiceExporter {
+public class MinaServer implements Server {
 
     private static final Logger LOG = LoggerFactory.getLogger(MinaServer.class);
-
-    private TransportConfig transportConfig = new TransportConfig();
 
     private ImplementBinding implementBinding;
 
@@ -42,6 +41,13 @@ public class MinaServer implements Server, ServiceExporter {
     private MinaAcceptance acceptance;
 
     public MinaServer(String host, int port) {
+        implementBinding = new DefaultImplementBinding(host, port);
+        serviceExporter = new DefaultServiceExporter(implementBinding);
+
+        acceptance = new MinaAcceptance(new TransportConfig(), implementBinding);
+    }
+
+    public MinaServer(String host, int port, TransportConfig transportConfig) {
         implementBinding = new DefaultImplementBinding(host, port);
         serviceExporter = new DefaultServiceExporter(implementBinding);
 
@@ -66,42 +72,30 @@ public class MinaServer implements Server, ServiceExporter {
      */
     @Override
     public void stop() {
-        destroy();
+        acceptance.destroy();
+        serviceExporter.destroy();
+        implementBinding.destroy();
+
         LOG.info("jrpc server stop on {}", implementBinding.getServiceAddress());
     }
 
-    public <T> void regist(Class<T> serviceInterface, T serviceImplement) {
-        serviceExporter.exportService(serviceInterface, "", 3000, serviceImplement);
-    }
-
-    public <T> void regist(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
-        serviceExporter.exportService(serviceInterface, group, timeout, serviceImplement);
-    }
-
     @Override
-    public <T> void exportService(Class<T> serviceInterface, T serviceImplement) {
+    public <T> void regist(Class<T> serviceInterface, T serviceImplement) {
         serviceExporter.exportService(serviceInterface, serviceImplement);
     }
 
     @Override
-    public <T> void exportService(Class<T> serviceInterface, String group, T serviceImplement) {
+    public <T> void regist(Class<T> serviceInterface, String group, T serviceImplement) {
         serviceExporter.exportService(serviceInterface, group, serviceImplement);
     }
 
     @Override
-    public <T> void exportService(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
+    public <T> void regist(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
         serviceExporter.exportService(serviceInterface, group, timeout, serviceImplement);
     }
 
-    @Override
     public void setDefaultTimeout(int defaultTimeout) {
         serviceExporter.setDefaultTimeout(defaultTimeout);
     }
 
-    @Override
-    public void destroy() {
-        acceptance.destroy();
-        serviceExporter.destroy();
-        implementBinding.destroy();
-    }
 }

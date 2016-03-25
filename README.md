@@ -1,5 +1,5 @@
 # What
-	JRPC is a lightweight Java RPC framework.
+	JRPC is a lightweight Java RPC framework. it supports service registry and discovery by the zookeeper framework.
 # How
 ## step 1:
 	git clone https://github.com/dinstone/jrpc.git
@@ -9,21 +9,25 @@
 
 ## step 3:
 	add dependency to classpath.
-	jrpc-core-xxx.jar
-	jrpc-min-xxx.jar
+	jrpc-core-2.0.0.jar
+	jrpc-mina-2.0.0.jar
+	
+	service registry discovery libs :
+	jrpc-srd-2.0.0.jar
+	jrpc-cluster-2.0.0.jar
 	
 # Example
 
 ## export service:
 ```java
-MinaServer server = new MinaServer("localhost", 1234);
-server.regist(HelloService.class, new HelloServiceImpl());
-server.bind();
+	MinaServer server = new MinaServer("localhost", 1234);
+    server.regist(HelloService.class, new HelloServiceImpl());
+    server.start();
 ```
 
 ## import service:
 ```java
-Client client = new MinaClient("localhost", 1234).setParallelCount(2).setCallTimeout(5000).build();
-HelloService service = client.getProxy(HelloService.class);
-service.sayHello("dinstone");
+	Client client = new MinaClient("localhost", 1234).setDefaultTimeout(5000);
+	HelloService service = client.getService(HelloService.class);
+    service.sayHello("dinstone");
 ```

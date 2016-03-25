@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.client;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class ClientTest {
         server.regist(HelloService.class, new HelloServiceImpl());
         server.start();
 
-        client = new MinaClient("localhost", 1234).setCallTimeout(5000);
+        client = new MinaClient("localhost", 1234).setDefaultTimeout(5000);
     }
 
     @AfterClass

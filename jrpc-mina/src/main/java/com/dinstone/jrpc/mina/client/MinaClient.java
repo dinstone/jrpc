@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.client;
 
 import com.dinstone.jrpc.api.Client;
-import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.api.DefaultServiceImporter;
+import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.invoker.DefaultReferenceBinding;
 import com.dinstone.jrpc.transport.ConnectionFactory;
 import com.dinstone.jrpc.transport.TransportConfig;
@@ -28,8 +29,6 @@ import com.dinstone.jrpc.transport.TransportConfig;
  */
 public class MinaClient implements Client {
 
-    private TransportConfig config = new TransportConfig();
-
     private ConnectionFactory connectionFactory;
 
     private DefaultReferenceBinding referenceBinding;
@@ -37,12 +36,20 @@ public class MinaClient implements Client {
     private ServiceImporter serviceImporter;
 
     public MinaClient(final String host, final int port) {
+        this(host, port, new TransportConfig());
+    }
+
+    public MinaClient(final String host, final int port, TransportConfig config) {
         connectionFactory = new MinaConnectionFactory(config);
         referenceBinding = new DefaultReferenceBinding(host, port);
         serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
     }
 
     public MinaClient(String serviceAddresses) {
+        this(serviceAddresses, new TransportConfig());
+    }
+
+    public MinaClient(String serviceAddresses, TransportConfig config) {
         connectionFactory = new MinaConnectionFactory(config);
         referenceBinding = new DefaultReferenceBinding(serviceAddresses);
         serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
@@ -63,9 +70,8 @@ public class MinaClient implements Client {
         connectionFactory.destroy();
     }
 
-    public MinaClient setCallTimeout(int timeout) {
-        config.setConnectTimeout(timeout);
-
+    public MinaClient setDefaultTimeout(int timeout) {
+        serviceImporter.setDefaultTimeout(timeout);
         return this;
     }
 
