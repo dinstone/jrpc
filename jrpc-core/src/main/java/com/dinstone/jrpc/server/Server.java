@@ -16,7 +16,6 @@
 
 package com.dinstone.jrpc.server;
 
-import com.dinstone.jrpc.Configuration;
 
 /**
  * RPC Server API.
@@ -26,11 +25,7 @@ import com.dinstone.jrpc.Configuration;
  */
 public interface Server {
 
-    public Configuration getConfiguration();
+    public void start();
 
-    public <T> Server regist(Class<T> serviceInterface, T serviceObject);
-
-    public Server start();
-
-    public Server shutdown();
+    public void stop();
 }

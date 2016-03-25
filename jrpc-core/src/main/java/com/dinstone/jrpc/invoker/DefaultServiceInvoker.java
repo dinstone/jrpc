@@ -11,12 +11,15 @@ import com.dinstone.jrpc.transport.ConnectionFactory;
 
 public class DefaultServiceInvoker implements ServiceInvoker {
 
-    public DefaultServiceInvoker() {
+    private ConnectionFactory connectionFactory;
+
+    public DefaultServiceInvoker(ConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
     }
 
     @Override
-    public <T> Object invoke(ReferenceBinding referenceBinding, ConnectionFactory connectionFactory,
-            Class<T> serviceInterface, String group, int timeout, Method method, Object[] args) throws Exception {
+    public <T> Object invoke(ReferenceBinding referenceBinding, Class<T> serviceInterface,
+            String group, int timeout, Method method, Object[] args) throws Exception {
 
         InetSocketAddress address = referenceBinding.getServiceAddress(serviceInterface, group);
         Connection connection = connectionFactory.create(address);

@@ -42,7 +42,7 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     }
 
     @Override
-    public <T> void bind(Class<T> serviceInterface, String group, T serviceReference) {
+    public <T> void bind(Class<T> serviceInterface, String group, int timeout, T serviceReference) {
     }
 
     @Override

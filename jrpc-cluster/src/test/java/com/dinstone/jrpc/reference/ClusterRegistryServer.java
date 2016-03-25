@@ -3,25 +3,28 @@ package com.dinstone.jrpc.reference;
 
 import java.io.IOException;
 
-import com.dinstone.jrpc.Configuration;
-import com.dinstone.jrpc.cluster.ClusterServiceProcessor;
+import com.dinstone.jrpc.api.ServiceExporter;
+import com.dinstone.jrpc.cluster.RegistryImplementBinding;
 import com.dinstone.jrpc.demo.HelloService;
 import com.dinstone.jrpc.demo.HelloServiceImpl;
-import com.dinstone.jrpc.mina.server.MinaServer;
-import com.dinstone.jrpc.processor.ServiceProcessor;
+import com.dinstone.jrpc.mina.server.MinaAcceptanceFactory;
+import com.dinstone.jrpc.processor.ImplementBinding;
+import com.dinstone.jrpc.server.AcceptanceFactory;
+import com.dinstone.jrpc.srd.RegistryDiscoveryConfig;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ClusterRegistryServer {
 
     public static void main(String[] args) {
-        Configuration config = new Configuration();
-        config.set("zookeeper.node.list", "localhost:2181");
-        config.setServiceHost("127.0.0.1");
-        config.setServicePort(1234);
 
-        ServiceProcessor serviceProcessor = new ClusterServiceProcessor(config);
-        MinaServer server = new MinaServer(config, serviceProcessor);
-        server.regist(HelloService.class, new HelloServiceImpl());
-        server.start();
+        RegistryDiscoveryConfig registryConfig = new RegistryDiscoveryConfig();
+        registryConfig.set("zookeeper.node.list", "localhost:2181");
+        ImplementBinding implementBinding = new RegistryImplementBinding("localhost", 9090, registryConfig);
+
+        AcceptanceFactory acceptanceFactory = new MinaAcceptanceFactory(new TransportConfig());
+
+        ServiceExporter exporter = new ServiceExporter(implementBinding, acceptanceFactory);
+        exporter.exportService(HelloService.class, "", 2000, new HelloServiceImpl());
 
         System.out.println("server start");
 
@@ -30,9 +33,9 @@ public class ClusterRegistryServer {
         } catch (IOException e) {
         }
 
-        server.shutdown();
-        serviceProcessor.destroy();
-        
+        exporter.destroy();
+        implementBinding.destroy();
+
         System.out.println("server stop");
     }
 

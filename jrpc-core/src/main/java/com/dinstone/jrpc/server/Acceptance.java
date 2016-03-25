@@ -7,4 +7,8 @@ import com.dinstone.jrpc.protocol.Response;
 public interface Acceptance {
 
     public abstract Response handle(Request request);
+
+    public abstract void destroy();
+
+    public abstract void bind();
 }

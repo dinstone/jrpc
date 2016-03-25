@@ -55,7 +55,7 @@ public class DefaultConnectionTest {
     @AfterClass
     public static void stopServer() {
         if (server != null) {
-            server.shutdown();
+            server.stop();
         }
     }
 

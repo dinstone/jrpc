@@ -3,17 +3,22 @@ package com.dinstone.jrpc.server;
 
 import java.lang.reflect.InvocationTargetException;
 
+import com.dinstone.jrpc.processor.ImplementBinding;
+import com.dinstone.jrpc.processor.Service;
 import com.dinstone.jrpc.processor.ServiceProcessor;
+import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.protocol.Result;
 
-public class DefaultAcceptance implements Acceptance {
+public abstract class AbstractAcceptance implements Acceptance {
 
-    private ServiceProcessor serviceProcessor;
+    protected ServiceProcessor serviceProcessor;
 
-    public DefaultAcceptance(ServiceProcessor serviceProcessor) {
-        super();
+    protected ImplementBinding implementBinding;
+
+    public AbstractAcceptance(ImplementBinding implementBinding, ServiceProcessor serviceProcessor) {
+        this.implementBinding = implementBinding;
         this.serviceProcessor = serviceProcessor;
     }
 
@@ -21,8 +26,14 @@ public class DefaultAcceptance implements Acceptance {
     public Response handle(Request request) {
         Result result = null;
         try {
-            Object resObj = serviceProcessor.process(request.getCall());
-            result = new Result(200, resObj);
+            Call call = request.getCall();
+            Service<?> service = implementBinding.findService(call.getService(), call.getGroup(), call.getMethod());
+            if (service != null) {
+                Object resObj = serviceProcessor.process(service, call);
+                result = new Result(200, resObj);
+            } else {
+                result = new Result(404, "unkown service");
+            }
         } catch (IllegalArgumentException e) {
             result = new Result(600, e.getMessage(), e);
         } catch (IllegalAccessException e) {
@@ -36,4 +47,5 @@ public class DefaultAcceptance implements Acceptance {
 
         return new Response(request.getMessageId(), request.getSerializeType(), result);
     }
+
 }

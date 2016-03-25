@@ -3,7 +3,6 @@ package com.dinstone.jrpc.api;
 
 import com.dinstone.jrpc.invoker.DefaultServiceInvoker;
 import com.dinstone.jrpc.invoker.ReferenceBinding;
-import com.dinstone.jrpc.invoker.ServiceInvoker;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
 import com.dinstone.jrpc.proxy.ServiceStubFactory;
 import com.dinstone.jrpc.transport.ConnectionFactory;
@@ -12,16 +11,11 @@ public class ServiceImporter {
 
     private static final int DEFAULT_TIMEOUT = 3000;
 
-    private ServiceProxyFactory serviceProxyFactory;
+    private ServiceProxyFactory serviceStubFactory;
 
     private int timeout = DEFAULT_TIMEOUT;
 
     public ServiceImporter(ReferenceBinding referenceBinding, ConnectionFactory connectionFactory) {
-        this(referenceBinding, connectionFactory, new DefaultServiceInvoker());
-    }
-
-    public ServiceImporter(ReferenceBinding referenceBinding, ConnectionFactory connectionFactory,
-            ServiceInvoker serviceInvoker) {
         if (referenceBinding == null) {
             throw new IllegalArgumentException("referenceBinding is null");
         }
@@ -30,10 +24,7 @@ public class ServiceImporter {
             throw new IllegalArgumentException("connectionFactory is null");
         }
 
-        if (serviceInvoker == null) {
-            throw new IllegalArgumentException("serviceInvoker is null");
-        }
-        serviceProxyFactory = new ServiceStubFactory(referenceBinding, connectionFactory, serviceInvoker);
+        serviceStubFactory = new ServiceStubFactory(referenceBinding, new DefaultServiceInvoker(connectionFactory));
     }
 
     public <T> T getService(Class<T> sic) {
@@ -46,15 +37,15 @@ public class ServiceImporter {
 
     public <T> T getService(Class<T> sic, String group, int timeout) {
         try {
-            return serviceProxyFactory.createProxy(sic, group, timeout);
+            return serviceStubFactory.createStub(sic, group, timeout);
         } catch (Exception e) {
             throw new RuntimeException("can't create service proxy", e);
         }
     }
 
     public void destroy() {
-        if (serviceProxyFactory != null) {
-            serviceProxyFactory.destroy();
+        if (serviceStubFactory != null) {
+            serviceStubFactory.destroy();
         }
     }
 

@@ -16,77 +16,32 @@
 
 package com.dinstone.jrpc.processor;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.service.Service;
-import com.dinstone.jrpc.service.ServiceStats;
+import com.dinstone.jrpc.protocol.Call;
 
 /**
  * @author guojinfei
  * @version 1.0.0.2014-7-29
  */
-public class DefaultServiceProcessor extends AbstractServiceProcessor implements ServiceStats {
+public class DefaultServiceProcessor implements ServiceProcessor {
 
     static final Logger LOG = LoggerFactory.getLogger(DefaultServiceProcessor.class);
 
-    public DefaultServiceProcessor() {
-        bind(ServiceStats.class, this);
+    @Override
+    public Object process(Service<?> service, Call call) throws IllegalArgumentException, IllegalAccessException,
+            InvocationTargetException {
+        Method method = service.getMethodMap().get(call.getMethod());
+        return method.invoke(service.getInstance(), call.getParams());
     }
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.service.ServiceStats#serviceList()
-     */
-    public List<String> serviceList() {
-        List<String> services = new ArrayList<String>(serviceMap.size());
-        for (Service service : serviceMap.values()) {
-            services.add(description(service));
-        }
-        return services;
-    }
+    @Override
+    public void destroy() {
 
-    private String description(Service service) {
-        Method method = service.getMethod();
-        StringBuilder desc = new StringBuilder();
-        desc.append(getTypeName(method.getReturnType()) + " ");
-        desc.append(getTypeName(method.getDeclaringClass()) + ".");
-        desc.append(method.getName() + "(");
-        Class<?>[] params = method.getParameterTypes();
-        for (int j = 0; j < params.length; j++) {
-            desc.append(getTypeName(params[j]));
-            if (j < (params.length - 1)) {
-                desc.append(",");
-            }
-        }
-        desc.append(")");
-        return desc.toString();
-    }
-
-    private static String getTypeName(Class<?> type) {
-        if (type.isArray()) {
-            try {
-                Class<?> cl = type;
-                int dimensions = 0;
-                while (cl.isArray()) {
-                    dimensions++;
-                    cl = cl.getComponentType();
-                }
-                StringBuilder sb = new StringBuilder();
-                sb.append(cl.getName());
-                for (int i = 0; i < dimensions; i++) {
-                    sb.append("[]");
-                }
-                return sb.toString();
-            } catch (Throwable e) {
-            }
-        }
-        return type.getName();
     }
 
 }

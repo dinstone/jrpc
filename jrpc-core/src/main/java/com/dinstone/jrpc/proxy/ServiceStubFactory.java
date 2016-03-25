@@ -7,7 +7,6 @@ import java.lang.reflect.Proxy;
 
 import com.dinstone.jrpc.invoker.ReferenceBinding;
 import com.dinstone.jrpc.invoker.ServiceInvoker;
-import com.dinstone.jrpc.transport.ConnectionFactory;
 
 public class ServiceStubFactory implements ServiceProxyFactory {
 
@@ -15,22 +14,18 @@ public class ServiceStubFactory implements ServiceProxyFactory {
 
     private ReferenceBinding referenceBinding;
 
-    private ConnectionFactory connectionFactory;
-
-    public ServiceStubFactory(ReferenceBinding referenceBinding, ConnectionFactory connectionFactory,
-            ServiceInvoker serviceInvoker) {
+    public ServiceStubFactory(ReferenceBinding referenceBinding, ServiceInvoker serviceInvoker) {
         super();
         this.referenceBinding = referenceBinding;
-        this.connectionFactory = connectionFactory;
         this.serviceInvoker = serviceInvoker;
     }
 
     @Override
-    public <T> T createProxy(Class<T> si, String group, int timeout) throws Exception {
-        JdkInvocationHandler<T> handler = new JdkInvocationHandler<T>(si, group, timeout);
+    public <T> T createStub(Class<T> si, String group, int timeout) throws Exception {
+        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<T>(si, group, timeout);
         T sr = si.cast(Proxy.newProxyInstance(si.getClassLoader(), new Class[] { si }, handler));
 
-        referenceBinding.bind(si, group, sr);
+        referenceBinding.bind(si, group, timeout, sr);
 
         return sr;
     }
@@ -39,7 +34,7 @@ public class ServiceStubFactory implements ServiceProxyFactory {
     public void destroy() {
     }
 
-    private class JdkInvocationHandler<T> implements InvocationHandler {
+    private class ProxyInvocationHandler<T> implements InvocationHandler {
 
         private Class<T> serviceInterface;
 
@@ -47,7 +42,7 @@ public class ServiceStubFactory implements ServiceProxyFactory {
 
         private int timeout;
 
-        public JdkInvocationHandler(Class<T> serviceInterface, String group, int timeout) {
+        public ProxyInvocationHandler(Class<T> serviceInterface, String group, int timeout) {
             this.serviceInterface = serviceInterface;
             this.group = group;
             this.timeout = timeout;
@@ -63,10 +58,14 @@ public class ServiceStubFactory implements ServiceProxyFactory {
                 return proxyObj.getClass().getName() + '@' + Integer.toHexString(proxyObj.hashCode());
             }
 
-            return serviceInvoker.invoke(referenceBinding, connectionFactory, serviceInterface, group, timeout, method,
-                args);
+            return serviceInvoker.invoke(referenceBinding, serviceInterface, group, timeout, method, args);
         }
 
+    }
+
+    @Override
+    public <T> void createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject) {
+        // ignore
     }
 
 }

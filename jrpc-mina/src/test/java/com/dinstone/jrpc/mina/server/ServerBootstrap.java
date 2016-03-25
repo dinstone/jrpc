@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.server;
 
 import com.dinstone.jrpc.cases.HelloService;
@@ -26,7 +27,7 @@ public class ServerBootstrap {
 
     public static void main(String[] args) {
         MinaServer server = new MinaServer("localhost", 1234);
-        server.setMaxObjectSize(4 * 1024).regist(HelloService.class, new HelloServiceImpl());
+        server.regist(HelloService.class, new HelloServiceImpl());
         server.start();
 
         try {
@@ -35,6 +36,6 @@ public class ServerBootstrap {
             e.printStackTrace();
         }
 
-        server.shutdown();
+        server.stop();
     }
 }

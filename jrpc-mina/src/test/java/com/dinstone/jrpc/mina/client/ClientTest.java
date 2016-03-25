@@ -56,7 +56,7 @@ public class ClientTest {
         client.destroy();
 
         if (server != null) {
-            server.shutdown();
+            server.stop();
         }
     }
 
