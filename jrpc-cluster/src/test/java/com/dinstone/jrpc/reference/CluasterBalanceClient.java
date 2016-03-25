@@ -3,7 +3,7 @@ package com.dinstone.jrpc.reference;
 
 import java.io.IOException;
 
-import com.dinstone.jrpc.client.Client;
+import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.demo.HelloService;
 import com.dinstone.jrpc.mina.client.MinaClient;
 

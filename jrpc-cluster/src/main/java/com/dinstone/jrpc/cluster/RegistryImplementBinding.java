@@ -4,9 +4,7 @@ package com.dinstone.jrpc.cluster;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.dinstone.jrpc.processor.AbstractImplementBinding;
 import com.dinstone.jrpc.processor.Service;
@@ -38,16 +36,15 @@ public class RegistryImplementBinding extends AbstractImplementBinding {
         description.setName(serviceInterface.getName());
         description.setGroup(group);
 
-        Map<String, Object> attributes = new HashMap<String, Object>();
-        List<String> md = new ArrayList<String>();
+        ServiceAttribute serviceAttribute = new ServiceAttribute();
+        List<String> methodDescList = new ArrayList<String>();
         for (Method method : wrapper.getMethodMap().values()) {
-            md.add(description(method));
+            methodDescList.add(description(method));
         }
-        attributes.put("timeout", wrapper.getTimeout());
-        attributes.put("methods", md);
+        serviceAttribute.addAttribute("timeout", wrapper.getTimeout());
+        serviceAttribute.addAttribute("methods", methodDescList);
 
-        ServiceAttribute attribute = new ServiceAttribute(attributes);
-        description.setServiceAttribute(attribute);
+        description.setServiceAttribute(serviceAttribute);
         try {
             serviceRegistry.publish(description);
         } catch (Exception e) {

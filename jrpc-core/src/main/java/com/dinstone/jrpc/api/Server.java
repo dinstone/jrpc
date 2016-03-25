@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.client;
+package com.dinstone.jrpc.api;
 
-import com.dinstone.jrpc.api.ServiceImporter;
 
 /**
- * the interface Client implements.
+ * RPC Server API.
  * 
  * @author guojinfei
- * @version 1.0.0.2014-6-30
+ * @version 1.0.0.2014-6-20
  */
-public abstract class AbstractClient implements Client {
+public interface Server {
 
-    protected ServiceImporter serviceImporter;
+    public void start();
 
-    public AbstractClient() {
-    }
-
-    public <T> T getService(Class<T> sic) {
-        return serviceImporter.getService(sic);
-    }
-
-    public <T> T getService(Class<T> sic, String group) {
-        return serviceImporter.getService(sic, group);
-    }
+    public void stop();
 }

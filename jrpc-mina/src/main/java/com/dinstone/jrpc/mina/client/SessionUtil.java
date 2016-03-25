@@ -24,12 +24,12 @@ import com.dinstone.jrpc.transport.ResultFuture;
 
 public class SessionUtil {
 
-    public static void setCallFutureMap(IoSession session) {
+    public static void setResultFutureMap(IoSession session) {
         session.setAttribute(ConcurrentHashMap.class.getName(), new ConcurrentHashMap<Integer, ResultFuture>());
     }
 
     @SuppressWarnings("unchecked")
-    public static Map<Integer, ResultFuture> getCallFutureMap(IoSession session) {
+    public static Map<Integer, ResultFuture> getResultFutureMap(IoSession session) {
         return (Map<Integer, ResultFuture>) session.getAttribute(ConcurrentHashMap.class.getName());
     }
 }

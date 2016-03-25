@@ -1,5 +1,5 @@
 
-package com.dinstone.jrpc.server;
+package com.dinstone.jrpc.transport;
 
 import java.lang.reflect.InvocationTargetException;
 

@@ -92,6 +92,7 @@ public class MinaConnector {
     private void initConnector(InetSocketAddress isa, TransportConfig config) {
         // create connector
         ioConnector = new NioSocketConnector();
+        ioConnector.setConnectTimeoutMillis(config.getConnectTimeout());
         SocketSessionConfig sessionConfig = ioConnector.getSessionConfig();
 
         // set read buffer size

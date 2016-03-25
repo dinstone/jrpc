@@ -16,9 +16,9 @@
 
 package com.dinstone.jrpc.mina.client;
 
+import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.ServiceImporter;
-import com.dinstone.jrpc.client.AbstractClient;
-import com.dinstone.jrpc.client.Client;
+import com.dinstone.jrpc.api.DefaultServiceImporter;
 import com.dinstone.jrpc.invoker.DefaultReferenceBinding;
 import com.dinstone.jrpc.transport.ConnectionFactory;
 import com.dinstone.jrpc.transport.TransportConfig;
@@ -27,7 +27,7 @@ import com.dinstone.jrpc.transport.TransportConfig;
  * @author guojf
  * @version 1.0.0.2013-5-2
  */
-public class MinaClient extends AbstractClient implements Client {
+public class MinaClient implements Client {
 
     private TransportConfig config = new TransportConfig();
 
@@ -35,16 +35,26 @@ public class MinaClient extends AbstractClient implements Client {
 
     private DefaultReferenceBinding referenceBinding;
 
+    private ServiceImporter serviceImporter;
+
     public MinaClient(final String host, final int port) {
         connectionFactory = new MinaConnectionFactory(config);
         referenceBinding = new DefaultReferenceBinding(host, port);
-        serviceImporter = new ServiceImporter(referenceBinding, connectionFactory);
+        serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
     }
 
     public MinaClient(String serviceAddresses) {
         connectionFactory = new MinaConnectionFactory(config);
         referenceBinding = new DefaultReferenceBinding(serviceAddresses);
-        serviceImporter = new ServiceImporter(referenceBinding, connectionFactory);
+        serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
+    }
+
+    public <T> T getService(Class<T> sic) {
+        return serviceImporter.importService(sic);
+    }
+
+    public <T> T getService(Class<T> sic, String group) {
+        return serviceImporter.importService(sic, group);
     }
 
     @Override
@@ -55,7 +65,7 @@ public class MinaClient extends AbstractClient implements Client {
     }
 
     public MinaClient setCallTimeout(int timeout) {
-        config.setCallTimeout(timeout);
+        config.setConnectTimeout(timeout);
 
         return this;
     }

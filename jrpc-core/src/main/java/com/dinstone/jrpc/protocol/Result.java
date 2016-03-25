@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.protocol;
 
 import java.io.Serializable;
 
 /**
- * Method call results, RPC protocol body part.
+ * Method call results, RPC protocol payload part.
  * 
  * @author guojinfei
  * @version 1.0.0.2014-6-23
  */
-public class Result implements Content, Serializable {
+public class Result implements Serializable {
 
     /**  */
     private static final long serialVersionUID = 1L;

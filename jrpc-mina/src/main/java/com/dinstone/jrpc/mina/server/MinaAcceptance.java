@@ -7,12 +7,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.ProtocolDecoder;
+import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.keepalive.KeepAliveFilter;
@@ -25,10 +27,13 @@ import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.mina.TransportProtocolDecoder;
 import com.dinstone.jrpc.mina.TransportProtocolEncoder;
+import com.dinstone.jrpc.processor.DefaultServiceProcessor;
 import com.dinstone.jrpc.processor.ImplementBinding;
-import com.dinstone.jrpc.processor.ServiceProcessor;
 import com.dinstone.jrpc.protocol.Heartbeat;
-import com.dinstone.jrpc.server.AbstractAcceptance;
+import com.dinstone.jrpc.protocol.Request;
+import com.dinstone.jrpc.protocol.Response;
+import com.dinstone.jrpc.transport.AbstractAcceptance;
+import com.dinstone.jrpc.transport.Acceptance;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaAcceptance extends AbstractAcceptance {
@@ -41,14 +46,13 @@ public class MinaAcceptance extends AbstractAcceptance {
 
     private TransportConfig transportConfig;
 
-    public MinaAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding,
-            ServiceProcessor serviceProcessor) {
-        super(implementBinding, serviceProcessor);
+    public MinaAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding) {
+        super(implementBinding, new DefaultServiceProcessor());
         this.transportConfig = transportConfig;
     }
 
     @Override
-    public void bind() {
+    public MinaAcceptance bind() {
         // This socket acceptor will handle incoming connections
         acceptor = new NioSocketAcceptor();
         acceptor.setReuseAddress(true);
@@ -89,7 +93,7 @@ public class MinaAcceptance extends AbstractAcceptance {
         chainBuilder.addLast("keepAlive", kaFilter);
 
         // add business handler
-        acceptor.setHandler(new MinaServerHandler(this));
+        acceptor.setHandler(new MinaIoHandler(this));
 
         InetSocketAddress serviceAddress = implementBinding.getServiceAddress();
         try {
@@ -98,6 +102,8 @@ public class MinaAcceptance extends AbstractAcceptance {
             throw new RuntimeException("can't bind service on " + serviceAddress, e);
         }
         LOG.info("jrpc service start on {}", serviceAddress);
+
+        return this;
     }
 
     @Override
@@ -115,6 +121,49 @@ public class MinaAcceptance extends AbstractAcceptance {
         }
 
         LOG.info("jrpc service stop on {}", implementBinding.getServiceAddress());
+    }
+
+    private class MinaIoHandler extends IoHandlerAdapter {
+
+        private Acceptance acceptance;
+
+        /**
+         * @param acceptance
+         */
+        public MinaIoHandler(Acceptance acceptance) {
+            this.acceptance = acceptance;
+        }
+
+        @Override
+        public void messageReceived(IoSession session, Object message) throws Exception {
+            if (message instanceof Request) {
+                Response response = acceptance.handle((Request) message);
+                session.write(response);
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see org.apache.mina.core.service.IoHandlerAdapter#sessionClosed(org.apache.mina.core.session.IoSession)
+         */
+        @Override
+        public void sessionClosed(IoSession session) throws Exception {
+            long id = session.getId();
+            LOG.debug("Session[{}] is closed", id);
+        }
+
+        @Override
+        public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+            if (cause instanceof ProtocolDecoderException) {
+                session.close(true);
+            }
+        }
+
+        @Override
+        public void sessionIdle(IoSession session, IdleStatus status) throws Exception {
+            LOG.debug("Session[{}] is idle with status[{}]", session.getId(), status);
+        }
     }
 
     private final class PassiveKeepAliveMessageFactory implements KeepAliveMessageFactory {

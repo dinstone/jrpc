@@ -18,7 +18,7 @@ package com.dinstone.jrpc.protocol;
 
 import java.io.Serializable;
 
-public class Tick implements Content, Serializable {
+public class Tick implements Serializable {
 
     /**  */
     private static final long serialVersionUID = 1L;

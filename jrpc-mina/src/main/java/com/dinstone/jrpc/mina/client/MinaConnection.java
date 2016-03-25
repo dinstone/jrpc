@@ -58,7 +58,7 @@ public class MinaConnection implements Connection {
 
     public ResultFuture call(Call call) {
         final int id = ID_GENERATOR.incrementAndGet();
-        Map<Integer, ResultFuture> futureMap = SessionUtil.getCallFutureMap(ioSession);
+        Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(ioSession);
         final ResultFuture callFuture = new ResultFuture();
         futureMap.put(id, callFuture);
 

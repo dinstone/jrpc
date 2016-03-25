@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.protocol;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -43,8 +45,8 @@ public class MessageCodec {
      * @throws Exception
      *         serializable exception
      */
-    public static byte[] encodeMessage(Message<? extends Content> message) throws Exception {
-        Content body = message.getContent();
+    public static byte[] encodeMessage(Message<? extends Serializable> message) throws Exception {
+        Serializable body = message.getContent();
         byte[] bodyBytes = REGISTER.find(message.getSerializeType()).serialize(body);
 
         ByteBuffer messageBuf = ByteBuffer.allocate(6 + bodyBytes.length);
@@ -66,7 +68,7 @@ public class MessageCodec {
      * @throws Exception
      *         deserialize exception
      */
-    public static Message<? extends Content> decodeMessage(byte[] rpcBytes) throws Exception {
+    public static Message<? extends Serializable> decodeMessage(byte[] rpcBytes) throws Exception {
         ByteBuffer messageBuf = ByteBuffer.wrap(rpcBytes);
         // parse header
         int messageId = messageBuf.getInt();

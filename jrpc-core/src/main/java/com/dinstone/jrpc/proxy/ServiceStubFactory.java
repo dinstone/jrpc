@@ -21,6 +21,11 @@ public class ServiceStubFactory implements ServiceProxyFactory {
     }
 
     @Override
+    public <T> void createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public <T> T createStub(Class<T> si, String group, int timeout) throws Exception {
         ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<T>(si, group, timeout);
         T sr = si.cast(Proxy.newProxyInstance(si.getClassLoader(), new Class[] { si }, handler));
@@ -58,14 +63,9 @@ public class ServiceStubFactory implements ServiceProxyFactory {
                 return proxyObj.getClass().getName() + '@' + Integer.toHexString(proxyObj.hashCode());
             }
 
-            return serviceInvoker.invoke(referenceBinding, serviceInterface, group, timeout, method, args);
+            return serviceInvoker.invoke(serviceInterface, group, timeout, method, args);
         }
 
-    }
-
-    @Override
-    public <T> void createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject) {
-        // ignore
     }
 
 }

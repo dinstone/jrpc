@@ -26,10 +26,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.dinstone.jrpc.RpcException;
+import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.cases.HelloService;
 import com.dinstone.jrpc.cases.HelloServiceImpl;
 import com.dinstone.jrpc.cases.SuperInterface;
-import com.dinstone.jrpc.client.Client;
 import com.dinstone.jrpc.mina.server.MinaServer;
 
 /**

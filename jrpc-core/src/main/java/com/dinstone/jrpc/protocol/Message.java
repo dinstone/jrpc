@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.protocol;
 
 import java.io.Serializable;
@@ -25,7 +26,7 @@ import com.dinstone.jrpc.serialize.SerializeType;
  * @author guojinfei
  * @version 1.0.0.2014-7-29
  */
-public abstract class Message<C extends Content> implements Serializable {
+public abstract class Message<C extends Serializable> implements Serializable {
 
     /**  */
     private static final long serialVersionUID = 1L;

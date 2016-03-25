@@ -19,17 +19,18 @@ package com.dinstone.jrpc.mina.server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dinstone.jrpc.api.DefaultServiceExporter;
+import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServiceExporter;
 import com.dinstone.jrpc.processor.DefaultImplementBinding;
 import com.dinstone.jrpc.processor.ImplementBinding;
-import com.dinstone.jrpc.server.Server;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 /**
  * @author guojinfei
  * @version 1.0.0.2014-7-29
  */
-public class MinaServer implements Server {
+public class MinaServer implements Server, ServiceExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(MinaServer.class);
 
@@ -37,33 +38,37 @@ public class MinaServer implements Server {
 
     private ImplementBinding implementBinding;
 
-    private MinaAcceptance acceptance;
-
     private ServiceExporter serviceExporter;
+
+    private MinaAcceptance acceptance;
 
     public MinaServer(String host, int port) {
         implementBinding = new DefaultImplementBinding(host, port);
-        serviceExporter = new ServiceExporter(implementBinding, new MinaAcceptanceFactory(transportConfig));
+        serviceExporter = new DefaultServiceExporter(implementBinding);
+
+        acceptance = new MinaAcceptance(transportConfig, implementBinding);
     }
 
     /**
      * {@inheritDoc}
      * 
-     * @see com.dinstone.jrpc.server.Server#stop()
-     */
-    @Override
-    public void stop() {
-        serviceExporter.destroy();
-        implementBinding.destroy();
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.server.Server#start()
+     * @see com.dinstone.jrpc.api.Server#start()
      */
     @Override
     public void start() {
+        acceptance.bind();
+        LOG.info("jrpc server start on {}", implementBinding.getServiceAddress());
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @see com.dinstone.jrpc.api.Server#stop()
+     */
+    @Override
+    public void stop() {
+        destroy();
+        LOG.info("jrpc server stop on {}", implementBinding.getServiceAddress());
     }
 
     public <T> void regist(Class<T> serviceInterface, T serviceImplement) {
@@ -72,5 +77,32 @@ public class MinaServer implements Server {
 
     public <T> void regist(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
         serviceExporter.exportService(serviceInterface, group, timeout, serviceImplement);
+    }
+
+    @Override
+    public <T> void exportService(Class<T> serviceInterface, T serviceImplement) {
+        serviceExporter.exportService(serviceInterface, serviceImplement);
+    }
+
+    @Override
+    public <T> void exportService(Class<T> serviceInterface, String group, T serviceImplement) {
+        serviceExporter.exportService(serviceInterface, group, serviceImplement);
+    }
+
+    @Override
+    public <T> void exportService(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
+        serviceExporter.exportService(serviceInterface, group, timeout, serviceImplement);
+    }
+
+    @Override
+    public void setDefaultTimeout(int defaultTimeout) {
+        serviceExporter.setDefaultTimeout(defaultTimeout);
+    }
+
+    @Override
+    public void destroy() {
+        acceptance.destroy();
+        serviceExporter.destroy();
+        implementBinding.destroy();
     }
 }

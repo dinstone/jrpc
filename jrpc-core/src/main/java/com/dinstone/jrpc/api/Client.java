@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.server;
+package com.dinstone.jrpc.api;
 
 
 /**
- * RPC Server API.
+ * RPC Client API.
  * 
  * @author guojinfei
  * @version 1.0.0.2014-6-20
  */
-public interface Server {
+public interface Client {
 
-    public void start();
+    public abstract <T> T getService(Class<T> sic);
 
-    public void stop();
+    public abstract <T> T getService(Class<T> sic, String group);
+
+    public abstract void destroy();
+
 }

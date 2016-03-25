@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina;
+
+import java.io.Serializable;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
-import com.dinstone.jrpc.protocol.Content;
 import com.dinstone.jrpc.protocol.Message;
 import com.dinstone.jrpc.protocol.MessageCodec;
 
@@ -69,7 +71,7 @@ public class TransportProtocolDecoder extends CumulativeProtocolDecoder {
             return false;
         }
 
-        Message<? extends Content> message = MessageCodec.decodeMessage(rpcBytes);
+        Message<? extends Serializable> message = MessageCodec.decodeMessage(rpcBytes);
         out.write(message);
 
         return true;

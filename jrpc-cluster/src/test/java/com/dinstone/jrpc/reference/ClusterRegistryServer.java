@@ -3,13 +3,12 @@ package com.dinstone.jrpc.reference;
 
 import java.io.IOException;
 
-import com.dinstone.jrpc.api.ServiceExporter;
+import com.dinstone.jrpc.api.DefaultServiceExporter;
 import com.dinstone.jrpc.cluster.RegistryImplementBinding;
 import com.dinstone.jrpc.demo.HelloService;
 import com.dinstone.jrpc.demo.HelloServiceImpl;
-import com.dinstone.jrpc.mina.server.MinaAcceptanceFactory;
+import com.dinstone.jrpc.mina.server.MinaAcceptance;
 import com.dinstone.jrpc.processor.ImplementBinding;
-import com.dinstone.jrpc.server.AcceptanceFactory;
 import com.dinstone.jrpc.srd.RegistryDiscoveryConfig;
 import com.dinstone.jrpc.transport.TransportConfig;
 
@@ -21,11 +20,12 @@ public class ClusterRegistryServer {
         registryConfig.set("zookeeper.node.list", "localhost:2181");
         ImplementBinding implementBinding = new RegistryImplementBinding("localhost", 9090, registryConfig);
 
-        AcceptanceFactory acceptanceFactory = new MinaAcceptanceFactory(new TransportConfig());
-
-        ServiceExporter exporter = new ServiceExporter(implementBinding, acceptanceFactory);
+        DefaultServiceExporter exporter = new DefaultServiceExporter(implementBinding);
         exporter.exportService(HelloService.class, "", 2000, new HelloServiceImpl());
 
+        MinaAcceptance acceptance = new MinaAcceptance(new TransportConfig(), implementBinding);
+        acceptance.bind();
+        
         System.out.println("server start");
 
         try {
@@ -35,6 +35,7 @@ public class ClusterRegistryServer {
 
         exporter.destroy();
         implementBinding.destroy();
+        acceptance.destroy();
 
         System.out.println("server stop");
     }

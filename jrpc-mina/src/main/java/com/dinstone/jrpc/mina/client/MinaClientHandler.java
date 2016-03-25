@@ -38,13 +38,13 @@ public class MinaClientHandler extends IoHandlerAdapter {
      */
     @Override
     public void sessionCreated(IoSession session) throws Exception {
-        SessionUtil.setCallFutureMap(session);
+        SessionUtil.setResultFutureMap(session);
     }
 
     @Override
     public void sessionClosed(IoSession session) throws Exception {
         LOG.debug("Session[{}] is closed", session.getId());
-        Map<Integer, ResultFuture> futureMap = SessionUtil.getCallFutureMap(session);
+        Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(session);
         for (ResultFuture future : futureMap.values()) {
             future.setResult(new Result(400, "connection is closed"));
         }
@@ -68,7 +68,7 @@ public class MinaClientHandler extends IoHandlerAdapter {
     }
 
     private void handle(IoSession session, Response response) {
-        Map<Integer, ResultFuture> cfMap = SessionUtil.getCallFutureMap(session);
+        Map<Integer, ResultFuture> cfMap = SessionUtil.getResultFutureMap(session);
         ResultFuture future = cfMap.remove(response.getMessageId());
         if (future != null) {
             future.setResult(response.getResult());
