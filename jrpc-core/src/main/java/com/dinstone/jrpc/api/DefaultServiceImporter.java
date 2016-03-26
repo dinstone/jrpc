@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.api;
 
-import com.dinstone.jrpc.invoker.DefaultServiceInvoker;
-import com.dinstone.jrpc.invoker.ReferenceBinding;
+import com.dinstone.jrpc.binding.ReferenceBinding;
+import com.dinstone.jrpc.invoker.StubServiceInvoker;
+import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
-import com.dinstone.jrpc.proxy.ServiceStubFactory;
+import com.dinstone.jrpc.proxy.StubProxyFactory;
 import com.dinstone.jrpc.transport.ConnectionFactory;
 
 public class DefaultServiceImporter implements ServiceImporter {
@@ -27,17 +29,19 @@ public class DefaultServiceImporter implements ServiceImporter {
 
     private ServiceProxyFactory serviceStubFactory;
 
+    private ReferenceBinding referenceBinding;
+
     public DefaultServiceImporter(ReferenceBinding referenceBinding, ConnectionFactory connectionFactory) {
         if (referenceBinding == null) {
             throw new IllegalArgumentException("referenceBinding is null");
         }
+        this.referenceBinding = referenceBinding;
 
         if (connectionFactory == null) {
             throw new IllegalArgumentException("connectionFactory is null");
         }
 
-        serviceStubFactory = new ServiceStubFactory(referenceBinding, new DefaultServiceInvoker(referenceBinding,
-            connectionFactory));
+        serviceStubFactory = new StubProxyFactory(new StubServiceInvoker(referenceBinding, connectionFactory));
     }
 
     /**
@@ -68,7 +72,9 @@ public class DefaultServiceImporter implements ServiceImporter {
     @Override
     public <T> T importService(Class<T> sic, String group, int timeout) {
         try {
-            return serviceStubFactory.createStub(sic, group, timeout);
+            ServiceProxy<T> wrapper = serviceStubFactory.createStub(sic, group, timeout);
+            referenceBinding.bind(wrapper);
+            return wrapper.getInstance();
         } catch (Exception e) {
             throw new RuntimeException("can't create service proxy", e);
         }

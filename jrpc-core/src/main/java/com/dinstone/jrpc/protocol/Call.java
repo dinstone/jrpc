@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.protocol;
 
 import java.io.Serializable;
@@ -39,17 +40,20 @@ public class Call implements Serializable {
 
     private Object[] params;
 
+    private Class<?>[] paramTypes;
+
     public Call() {
         super();
     }
 
-    public Call(String service, String group, int timeout, String method, Object[] params) {
+    public Call(String service, String group, int timeout, String method, Object[] params, Class<?>[] paramTypes) {
         super();
         this.group = group;
         this.service = service;
         this.method = method;
         this.timeout = timeout;
         this.params = params;
+        this.paramTypes = paramTypes;
     }
 
     /**
@@ -114,6 +118,14 @@ public class Call implements Serializable {
 
     public void setTimeout(int timeout) {
         this.timeout = timeout;
+    }
+
+    public Class<?>[] getParamTypes() {
+        return paramTypes;
+    }
+
+    public void setParamTypes(Class<?>[] paramTypes) {
+        this.paramTypes = paramTypes;
     }
 
     @Override

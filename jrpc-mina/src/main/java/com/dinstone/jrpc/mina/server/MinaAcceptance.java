@@ -39,10 +39,10 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dinstone.jrpc.binding.ImplementBinding;
+import com.dinstone.jrpc.invoker.SkelectonServiceInvoker;
 import com.dinstone.jrpc.mina.TransportProtocolDecoder;
 import com.dinstone.jrpc.mina.TransportProtocolEncoder;
-import com.dinstone.jrpc.processor.DefaultServiceProcessor;
-import com.dinstone.jrpc.processor.ImplementBinding;
 import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
@@ -61,7 +61,7 @@ public class MinaAcceptance extends AbstractAcceptance {
     private TransportConfig transportConfig;
 
     public MinaAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding) {
-        super(implementBinding, new DefaultServiceProcessor());
+        super(implementBinding, new SkelectonServiceInvoker());
         this.transportConfig = transportConfig;
     }
 

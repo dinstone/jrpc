@@ -13,14 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.invoker;
 
 import java.lang.reflect.Method;
 
 public interface ServiceInvoker {
 
-    <T> Object invoke(Class<T> serviceInterface, String group,
-            int timeout, Method method, Object[] args) throws Exception;
+    /**
+     * client/server side {@link Invocation} invoke.
+     * 
+     * @param serviceInterface
+     * @param group
+     * @param timeout
+     * @param instance
+     * @param method
+     * @param args
+     * @return
+     * @throws Exception
+     */
+    Object invoke(Class<?> serviceInterface, String group, int timeout, Object instance, Method method, Object[] args)
+            throws Exception;
 
     void destroy();
 }

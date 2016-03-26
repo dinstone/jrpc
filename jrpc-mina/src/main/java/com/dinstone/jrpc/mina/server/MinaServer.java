@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import com.dinstone.jrpc.api.DefaultServiceExporter;
 import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServiceExporter;
-import com.dinstone.jrpc.processor.DefaultImplementBinding;
-import com.dinstone.jrpc.processor.ImplementBinding;
+import com.dinstone.jrpc.binding.DefaultImplementBinding;
+import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 /**

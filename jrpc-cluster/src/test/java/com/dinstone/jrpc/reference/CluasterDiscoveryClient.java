@@ -18,9 +18,9 @@ package com.dinstone.jrpc.reference;
 import java.io.IOException;
 
 import com.dinstone.jrpc.api.DefaultServiceImporter;
+import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.cluster.DiscoveryReferenceBinding;
 import com.dinstone.jrpc.demo.HelloService;
-import com.dinstone.jrpc.invoker.ReferenceBinding;
 import com.dinstone.jrpc.mina.client.MinaConnectionFactory;
 import com.dinstone.jrpc.srd.RegistryDiscoveryConfig;
 import com.dinstone.jrpc.transport.ConnectionFactory;

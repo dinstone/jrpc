@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.processor;
+
+package com.dinstone.jrpc.proxy;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Service<T> {
+public class ServiceProxy<T> {
 
-    private Class<T> serviceInterface;
+    private Class<T> service;
 
     private String group;
 
@@ -31,17 +32,25 @@ public class Service<T> {
 
     private Map<String, Method> methodMap = new HashMap<String, Method>();
 
-    public Service(Class<T> serviceInterface, String group, int timeout, T instance, Map<String, Method> methodMap) {
+    public ServiceProxy(Class<T> service, String group, int timeout, T instance) {
         super();
-        this.serviceInterface = serviceInterface;
+        this.service = service;
+        this.group = group;
+        this.timeout = timeout;
+        this.instance = instance;
+    }
+
+    public ServiceProxy(Class<T> service, String group, int timeout, T instance, Map<String, Method> methodMap) {
+        super();
+        this.service = service;
         this.group = group;
         this.timeout = timeout;
         this.instance = instance;
         this.methodMap.putAll(methodMap);
     }
 
-    public Class<T> getServiceInterface() {
-        return serviceInterface;
+    public Class<T> getService() {
+        return service;
     }
 
     public String getGroup() {

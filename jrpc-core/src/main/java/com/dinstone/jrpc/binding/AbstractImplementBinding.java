@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.processor;
+
+package com.dinstone.jrpc.binding;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dinstone.jrpc.proxy.ServiceProxy;
+
 public abstract class AbstractImplementBinding implements ImplementBinding {
 
-    protected Map<String, Service<?>> serviceMap = new ConcurrentHashMap<String, Service<?>>();
+    protected Map<String, ServiceProxy<?>> serviceMap = new ConcurrentHashMap<String, ServiceProxy<?>>();
 
     protected InetSocketAddress serviceAddress;
 
-    public <T> void bind(Class<T> serviceInterface, String group, Service<T> serviceWrapper) {
-        String serviceId = serviceInterface.getName() + "-" + group;
-        Service<?> wrapper = serviceMap.get(serviceId);
+    public <T> void bind(ServiceProxy<T> serviceWrapper) {
+        String serviceId = serviceWrapper.getService().getName() + "-" + serviceWrapper.getGroup();
+        ServiceProxy<?> wrapper = serviceMap.get(serviceId);
         if (wrapper != null) {
             throw new RuntimeException("multiple object registed with the service interface " + serviceId);
         }
@@ -35,18 +38,13 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
     }
 
     @Override
-    public Service<?> findService(String service, String group, String method) {
+    public ServiceProxy<?> find(String service, String group) {
         String serviceId = service + "-" + group;
-        Service<?> wrapper = serviceMap.get(serviceId);
-        if (wrapper != null && wrapper.getMethodMap().containsKey(method)) {
-            return wrapper;
-        }
-
-        return null;
+        return serviceMap.get(serviceId);
     }
 
     @Override
-    public <T> InetSocketAddress getServiceAddress() {
+    public InetSocketAddress getServiceAddress() {
         return serviceAddress;
     }
 

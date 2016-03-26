@@ -13,30 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.invoker;
+
+package com.dinstone.jrpc.binding;
 
 import java.net.InetSocketAddress;
 
+import com.dinstone.jrpc.proxy.ServiceProxy;
+
 /**
- * service reference binding
+ * service implement binding
  * 
  * @author dinstone
  * @version 1.0.0
  */
-public interface ReferenceBinding {
+public interface ImplementBinding {
 
     /**
-     * service reference bind
+     * binding service implement
      * 
-     * @param serviceInterface
-     * @param group
-     * @param timeout
-     * @param serviceReference
+     * @param wrapper
      */
-    public <T> void bind(Class<T> serviceInterface, String group, int timeout, T serviceReference);
+    public <T> void bind(ServiceProxy<T> wrapper);
 
-    public <T> InetSocketAddress getServiceAddress(Class<T> serviceInterface, String group);
+    public ServiceProxy<?> find(String service, String group);
+
+    public InetSocketAddress getServiceAddress();
 
     public void destroy();
-
 }

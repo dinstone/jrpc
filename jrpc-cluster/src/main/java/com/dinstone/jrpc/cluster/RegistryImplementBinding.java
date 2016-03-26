@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.cluster;
 
 import java.lang.reflect.Method;
@@ -20,8 +21,8 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.dinstone.jrpc.processor.AbstractImplementBinding;
-import com.dinstone.jrpc.processor.Service;
+import com.dinstone.jrpc.binding.AbstractImplementBinding;
+import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.srd.DistributedServiceRegistry;
 import com.dinstone.jrpc.srd.RegistryDiscoveryConfig;
 import com.dinstone.jrpc.srd.ServiceAttribute;
@@ -38,8 +39,8 @@ public class RegistryImplementBinding extends AbstractImplementBinding {
     }
 
     @Override
-    public <T> void bind(Class<T> serviceInterface, String group, Service<T> wrapper) {
-        super.bind(serviceInterface, group, wrapper);
+    public <T> void bind(ServiceProxy<T> wrapper) {
+        super.bind(wrapper);
 
         ServiceDescription description = new ServiceDescription();
         String host = serviceAddress.getAddress().getHostAddress();
@@ -47,8 +48,8 @@ public class RegistryImplementBinding extends AbstractImplementBinding {
         description.setId(host + ":" + port);
         description.setHost(host);
         description.setPort(port);
-        description.setName(serviceInterface.getName());
-        description.setGroup(group);
+        description.setName(wrapper.getService().getName());
+        description.setGroup(wrapper.getGroup());
 
         ServiceAttribute serviceAttribute = new ServiceAttribute();
         List<String> methodDescList = new ArrayList<String>();

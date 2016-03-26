@@ -86,7 +86,7 @@ public class DefaultConnectionTest {
         long st = System.currentTimeMillis();
 
         ResultFuture cf = connect.call(new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello",
-            new Object[] { "dddd" }));
+            new Object[] { "dddd" }, null));
         try {
             cf.get();
         } catch (InterruptedException e) {
@@ -118,7 +118,7 @@ public class DefaultConnectionTest {
         int count = 10000;
         for (int i = 0; i < count; i++) {
             ResultFuture f = connect.call(new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello",
-                new Object[] { name }));
+                new Object[] { name }, null));
             f.addListener(listener);
         }
 

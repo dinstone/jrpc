@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.processor;
+package com.dinstone.jrpc.binding;
 
-import java.lang.reflect.InvocationTargetException;
+import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.protocol.Call;
+public class DefaultImplementBinding extends AbstractImplementBinding {
 
-public interface ServiceProcessor {
+    public DefaultImplementBinding(String host, int port) {
+        this.serviceAddress = new InetSocketAddress(host, port);
+    }
 
-    public Object process(Service<?> service, Call call) throws IllegalArgumentException, IllegalAccessException,
-            InvocationTargetException;
-
-    public void destroy();
 }

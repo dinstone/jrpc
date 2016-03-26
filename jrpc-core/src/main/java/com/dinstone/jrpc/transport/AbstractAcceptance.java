@@ -13,27 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-import com.dinstone.jrpc.processor.ImplementBinding;
-import com.dinstone.jrpc.processor.Service;
-import com.dinstone.jrpc.processor.ServiceProcessor;
+import com.dinstone.jrpc.binding.ImplementBinding;
+import com.dinstone.jrpc.invoker.ServiceInvoker;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.protocol.Result;
+import com.dinstone.jrpc.proxy.ServiceProxy;
 
 public abstract class AbstractAcceptance implements Acceptance {
 
-    protected ServiceProcessor serviceProcessor;
+    protected ServiceInvoker serviceInvoker;
 
     protected ImplementBinding implementBinding;
 
-    public AbstractAcceptance(ImplementBinding implementBinding, ServiceProcessor serviceProcessor) {
+    public AbstractAcceptance(ImplementBinding implementBinding, ServiceInvoker serviceInvoker) {
         this.implementBinding = implementBinding;
-        this.serviceProcessor = serviceProcessor;
+        this.serviceInvoker = serviceInvoker;
     }
 
     @Override
@@ -41,10 +43,16 @@ public abstract class AbstractAcceptance implements Acceptance {
         Result result = null;
         try {
             Call call = request.getCall();
-            Service<?> service = implementBinding.findService(call.getService(), call.getGroup(), call.getMethod());
+            ServiceProxy<?> service = implementBinding.find(call.getService(), call.getGroup());
             if (service != null) {
-                Object resObj = serviceProcessor.process(service, call);
-                result = new Result(200, resObj);
+                Method method = service.getMethodMap().get(call.getMethod());
+                if (method != null) {
+                    Object resObj = serviceInvoker.invoke(service.getService(), call.getGroup(), call.getTimeout(),
+                        service.getInstance(), method, call.getParams());
+                    result = new Result(200, resObj);
+                } else {
+                    result = new Result(405, "unkown interface");
+                }
             } else {
                 result = new Result(404, "unkown service");
             }

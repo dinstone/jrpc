@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.cluster;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.jrpc.invoker.ReferenceBinding;
+import com.dinstone.jrpc.binding.ReferenceBinding;
+import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.srd.DistributedServiceDiscovery;
 import com.dinstone.jrpc.srd.RegistryDiscoveryConfig;
 import com.dinstone.jrpc.srd.ServiceDescription;
@@ -36,9 +38,9 @@ public class DiscoveryReferenceBinding implements ReferenceBinding {
     }
 
     @Override
-    public <T> void bind(Class<T> serviceInterface, String group, int timeout, T serviceReference) {
+    public <T> void bind(ServiceProxy<T> wrapper) {
         try {
-            serviceDiscovery.listen(serviceInterface.getName(), group);
+            serviceDiscovery.listen(wrapper.getService().getName(), wrapper.getGroup());
         } catch (Exception e) {
             throw new RuntimeException("service reference bind error", e);
         }

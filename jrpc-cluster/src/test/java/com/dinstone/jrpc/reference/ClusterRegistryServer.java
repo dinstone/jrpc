@@ -18,11 +18,11 @@ package com.dinstone.jrpc.reference;
 import java.io.IOException;
 
 import com.dinstone.jrpc.api.DefaultServiceExporter;
+import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.cluster.RegistryImplementBinding;
 import com.dinstone.jrpc.demo.HelloService;
 import com.dinstone.jrpc.demo.HelloServiceImpl;
 import com.dinstone.jrpc.mina.server.MinaAcceptance;
-import com.dinstone.jrpc.processor.ImplementBinding;
 import com.dinstone.jrpc.srd.RegistryDiscoveryConfig;
 import com.dinstone.jrpc.transport.TransportConfig;
 

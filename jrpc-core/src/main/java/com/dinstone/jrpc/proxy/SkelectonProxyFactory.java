@@ -13,31 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.proxy;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.dinstone.jrpc.processor.ImplementBinding;
-import com.dinstone.jrpc.processor.Service;
+public class SkelectonProxyFactory implements ServiceProxyFactory {
 
-public class ServiceSkelectonFactory implements ServiceProxyFactory {
-
-    private ImplementBinding implementBinding;
-
-    public ServiceSkelectonFactory(ImplementBinding implementBinding) {
-        this.implementBinding = implementBinding;
+    public SkelectonProxyFactory() {
     }
 
-    public <T> void createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject) {
-        if (!serviceInterface.isInstance(serviceObject)) {
-            String message = "the specified service object[" + serviceObject.getClass()
-                    + "] is not assignment-compatible with the object represented by this Class[" + serviceInterface
-                    + "].";
-            throw new RuntimeException(message);
-        }
-
+    public <T> ServiceProxy<T> createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject) {
         Map<String, Method> methodMap = new HashMap<String, Method>();
         Method[] methods = serviceInterface.getDeclaredMethods();
         for (Method method : methods) {
@@ -46,20 +34,17 @@ public class ServiceSkelectonFactory implements ServiceProxyFactory {
             }
             methodMap.put(method.getName(), method);
         }
-        Service<T> wrapper = new Service<T>(serviceInterface, group, timeout, serviceObject, methodMap);
 
-        implementBinding.bind(serviceInterface, group, wrapper);
+        return new ServiceProxy<T>(serviceInterface, group, timeout, serviceObject, methodMap);
     }
 
     @Override
-    public <T> T createStub(Class<T> si, String group, int timeout) throws Exception {
+    public <T> ServiceProxy<T> createStub(Class<T> si, String group, int timeout) throws Exception {
         // ignore
         return null;
     }
 
     @Override
     public void destroy() {
-        // TODO Auto-generated method stub
-
     }
 }

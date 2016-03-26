@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.proxy;
 
 public interface ServiceProxyFactory {
 
-    public <T> void createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject);
+    public <T> ServiceProxy<T> createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject);
 
-    public <T> T createStub(Class<T> si, String group, int timeout) throws Exception;
+    public <T> ServiceProxy<T> createStub(Class<T> si, String group, int timeout) throws Exception;
 
     public void destroy();
 }

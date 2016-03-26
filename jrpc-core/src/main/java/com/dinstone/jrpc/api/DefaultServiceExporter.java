@@ -13,20 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.api;
 
-import com.dinstone.jrpc.processor.ImplementBinding;
+import com.dinstone.jrpc.binding.ImplementBinding;
+import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
-import com.dinstone.jrpc.proxy.ServiceSkelectonFactory;
+import com.dinstone.jrpc.proxy.SkelectonProxyFactory;
 
 public class DefaultServiceExporter implements ServiceExporter {
 
     private int defaultTimeout = DEFAULT_TIMEOUT;
 
+    private ImplementBinding implementBinding;
+
     private ServiceProxyFactory serviceProxyFactory;
 
     public DefaultServiceExporter(ImplementBinding implementBinding) {
-        this.serviceProxyFactory = new ServiceSkelectonFactory(implementBinding);
+        if (implementBinding == null) {
+            throw new IllegalArgumentException("implementBinding is null");
+        }
+        this.implementBinding = implementBinding;
+        this.serviceProxyFactory = new SkelectonProxyFactory();
     }
 
     @Override
@@ -41,7 +49,9 @@ public class DefaultServiceExporter implements ServiceExporter {
 
     @Override
     public <T> void exportService(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
-        serviceProxyFactory.createSkelecton(serviceInterface, group, timeout, serviceImplement);
+        ServiceProxy<T> wrapper = serviceProxyFactory.createSkelecton(serviceInterface, group, timeout,
+            serviceImplement);
+        implementBinding.bind(wrapper);
     }
 
     @Override
