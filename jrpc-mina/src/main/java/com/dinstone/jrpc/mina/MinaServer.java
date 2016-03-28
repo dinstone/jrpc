@@ -42,17 +42,18 @@ public class MinaServer implements Server {
     private MinaAcceptance acceptance;
 
     public MinaServer(String host, int port) {
-        implementBinding = new DefaultImplementBinding(host, port);
-        serviceExporter = new DefaultServiceExporter(implementBinding);
-
-        acceptance = new MinaAcceptance(new TransportConfig(), implementBinding);
+        this(host, port, new TransportConfig());
     }
 
     public MinaServer(String host, int port, TransportConfig transportConfig) {
-        implementBinding = new DefaultImplementBinding(host, port);
-        serviceExporter = new DefaultServiceExporter(implementBinding);
+        this(new DefaultImplementBinding(host, port), transportConfig);
+    }
 
-        acceptance = new MinaAcceptance(transportConfig, implementBinding);
+    public MinaServer(ImplementBinding implementBinding, TransportConfig transportConfig) {
+        this.implementBinding = implementBinding;
+        this.serviceExporter = new DefaultServiceExporter(implementBinding);
+
+        this.acceptance = new MinaAcceptance(transportConfig, implementBinding);
     }
 
     /**

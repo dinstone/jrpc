@@ -5,27 +5,28 @@
 		<artifactId>jrpc-parent</artifactId>
 		<version>2.1.0</version>
 	</parent>
-	<artifactId>jrpc-mina</artifactId>
-	<description>Transport implement by mina.</description>
+	<artifactId>jrpc-spring</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>com.dinstone.jrpc</groupId>
-			<artifactId>jrpc-core</artifactId>
+			<artifactId>jrpc-zookeeper</artifactId>
 			<version>${project.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.mina</groupId>
-			<artifactId>mina-core</artifactId>
-			<version>2.0.7</version>
-			<scope>compile</scope>
+			<groupId>com.dinstone.jrpc</groupId>
+			<artifactId>jrpc-mina</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>4.1.1.RELEASE</version>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.12</version>
-			<scope>runtime</scope>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>4.1.1.RELEASE</version>
 		</dependency>
 	</dependencies>
 </project>

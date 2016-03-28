@@ -13,20 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.binding;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.jrpc.proxy.ServiceProxy;
+import com.dinstone.jrpc.srd.ServiceDiscovery;
 
-public class DefaultReferenceBinding implements ReferenceBinding {
-
-    private final AtomicInteger index = new AtomicInteger(0);
-
-    private List<InetSocketAddress> serverAddresses = new ArrayList<InetSocketAddress>();
+public class DefaultReferenceBinding extends AbstractReferenceBinding {
 
     public DefaultReferenceBinding(String host, int port) {
         if (host == null || host.length() == 0) {
@@ -36,10 +30,18 @@ public class DefaultReferenceBinding implements ReferenceBinding {
             throw new IllegalArgumentException("port must be greater than zero");
         }
 
-        serverAddresses.add(new InetSocketAddress(host, port));
+        backupServiceAddresses.add(new InetSocketAddress(host, port));
+    }
+
+    public DefaultReferenceBinding(ServiceDiscovery serviceDiscovery) {
+        this.serviceDiscovery = serviceDiscovery;
     }
 
     public DefaultReferenceBinding(String serviceAddresses) {
+        this(serviceAddresses, null);
+    }
+
+    public DefaultReferenceBinding(String serviceAddresses, ServiceDiscovery serviceDiscovery) {
         if (serviceAddresses == null || serviceAddresses.length() == 0) {
             throw new IllegalArgumentException("serviceAddresses is empty");
         }
@@ -52,24 +54,11 @@ public class DefaultReferenceBinding implements ReferenceBinding {
                 port = Integer.parseInt(host.substring(pidx + 1));
                 host = host.substring(0, pidx);
 
-                serverAddresses.add(new InetSocketAddress(host, port));
+                backupServiceAddresses.add(new InetSocketAddress(host, port));
             }
         }
-    }
 
-    @Override
-    public <T> void bind(ServiceProxy<T> wrapper) {
-    }
-
-    @Override
-    public <T> InetSocketAddress getServiceAddress(Class<T> serviceInterface, String group) {
-        int thisIndex = Math.abs(index.getAndIncrement());
-        return serverAddresses.get(thisIndex % serverAddresses.size());
-    }
-
-    @Override
-    public void destroy() {
-        serverAddresses.clear();
+        this.serviceDiscovery = serviceDiscovery;
     }
 
 }

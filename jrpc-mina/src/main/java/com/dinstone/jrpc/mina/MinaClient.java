@@ -20,6 +20,7 @@ import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.DefaultServiceImporter;
 import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.binding.DefaultReferenceBinding;
+import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.mina.transport.MinaConnectionFactory;
 import com.dinstone.jrpc.transport.ConnectionFactory;
 import com.dinstone.jrpc.transport.TransportConfig;
@@ -32,7 +33,7 @@ public class MinaClient implements Client {
 
     private ConnectionFactory connectionFactory;
 
-    private DefaultReferenceBinding referenceBinding;
+    private ReferenceBinding referenceBinding;
 
     private ServiceImporter serviceImporter;
 
@@ -46,14 +47,14 @@ public class MinaClient implements Client {
         serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
     }
 
-    public MinaClient(String serviceAddresses) {
-        this(serviceAddresses, new TransportConfig());
+    public MinaClient(String serviceAddresses, TransportConfig config) {
+        this(new DefaultReferenceBinding(serviceAddresses), config);
     }
 
-    public MinaClient(String serviceAddresses, TransportConfig config) {
-        connectionFactory = new MinaConnectionFactory(config);
-        referenceBinding = new DefaultReferenceBinding(serviceAddresses);
-        serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
+    public MinaClient(ReferenceBinding referenceBinding, TransportConfig config) {
+        this.referenceBinding = referenceBinding;
+        this.connectionFactory = new MinaConnectionFactory(config);
+        this.serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
     }
 
     public <T> T getService(Class<T> sic) {

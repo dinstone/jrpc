@@ -14,41 +14,34 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.binding;
+package com.dinstone.jrpc.cluster;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
+import com.dinstone.jrpc.binding.AbstractImplementBinding;
 import com.dinstone.jrpc.proxy.ServiceProxy;
+import com.dinstone.jrpc.srd.ServiceRegistry;
 import com.dinstone.jrpc.srd.ServiceAttribute;
 import com.dinstone.jrpc.srd.ServiceDescription;
-import com.dinstone.jrpc.srd.ServiceRegistry;
+import com.dinstone.jrpc.srd.zookeeper.RegistryDiscoveryConfig;
+import com.dinstone.jrpc.srd.zookeeper.ZookeeperServiceRegistry;
 
-public abstract class AbstractImplementBinding implements ImplementBinding {
+public class RegistryImplementBinding extends AbstractImplementBinding {
 
-    protected Map<String, ServiceProxy<?>> serviceProxyMap = new ConcurrentHashMap<String, ServiceProxy<?>>();
+    private ServiceRegistry serviceRegistry;
 
-    protected InetSocketAddress serviceAddress;
-
-    protected ServiceRegistry serviceRegistry;
-
-    public <T> void bind(ServiceProxy<T> serviceWrapper) {
-        String serviceId = serviceWrapper.getService().getName() + "-" + serviceWrapper.getGroup();
-        if (serviceProxyMap.get(serviceId) != null) {
-            throw new RuntimeException("multiple object registed with the service interface " + serviceId);
-        }
-        serviceProxyMap.put(serviceId, serviceWrapper);
-
-        if (serviceRegistry != null) {
-            publish(serviceWrapper);
-        }
+    public RegistryImplementBinding(String host, int port, RegistryDiscoveryConfig registryConfig) {
+        this.serviceAddress = new InetSocketAddress(host, port);
+        this.serviceRegistry = new ZookeeperServiceRegistry(registryConfig);
     }
 
-    protected void publish(ServiceProxy<?> wrapper) {
+    @Override
+    public <T> void bind(ServiceProxy<T> wrapper) {
+        super.bind(wrapper);
+
         ServiceDescription description = new ServiceDescription();
         String host = serviceAddress.getAddress().getHostAddress();
         int port = serviceAddress.getPort();
@@ -70,7 +63,7 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
         try {
             serviceRegistry.publish(description);
         } catch (Exception e) {
-            throw new RuntimeException("can't publish service", e);
+            throw new RuntimeException("can't regist service", e);
         }
     }
 
@@ -113,20 +106,6 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
 
     @Override
     public void destroy() {
-        if (serviceRegistry != null) {
-            serviceRegistry.destroy();
-        }
+        serviceRegistry.destroy();
     }
-
-    @Override
-    public ServiceProxy<?> find(String service, String group) {
-        String serviceId = service + "-" + group;
-        return serviceProxyMap.get(serviceId);
-    }
-
-    @Override
-    public InetSocketAddress getServiceAddress() {
-        return serviceAddress;
-    }
-
 }

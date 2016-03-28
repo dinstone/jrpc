@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.dinstone.jrpc.srd;
 
-package com.dinstone.jrpc.binding;
 
-import java.net.InetSocketAddress;
+/**
+ * Service Registry
+ * 
+ * @author dinstone
+ * @version 1.0.0
+ */
+public interface ServiceRegistry {
 
-import com.dinstone.jrpc.srd.ServiceRegistry;
+    public abstract void publish(ServiceDescription description) throws Exception;
 
-public class DefaultImplementBinding extends AbstractImplementBinding {
-
-    public DefaultImplementBinding(String host, int port) {
-        this.serviceAddress = new InetSocketAddress(host, port);
-    }
-
-    public DefaultImplementBinding(String host, int port, ServiceRegistry serviceRegistry) {
-        this.serviceAddress = new InetSocketAddress(host, port);
-        this.serviceRegistry = serviceRegistry;
-    }
+    public abstract void destroy();
 
 }

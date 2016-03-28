@@ -5,19 +5,18 @@
 		<artifactId>jrpc-parent</artifactId>
 		<version>2.1.0</version>
 	</parent>
-	<artifactId>jrpc-core</artifactId>
-	<description>RPC protocol infrastructure.</description>
+	<artifactId>jrpc-zookeeper</artifactId>
 	<dependencies>
 		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.9.13</version>
-			<scope>compile</scope>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-x-discovery</artifactId>
+			<version>2.7.1</version>
+			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>com.caucho</groupId>
-			<artifactId>hessian</artifactId>
-			<version>4.0.7</version>
+			<groupId>com.dinstone.jrpc</groupId>
+			<artifactId>jrpc-core</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>
