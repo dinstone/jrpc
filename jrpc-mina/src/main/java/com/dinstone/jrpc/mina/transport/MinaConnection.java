@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.mina.client;
+package com.dinstone.jrpc.mina.transport;
 
 import java.net.InetSocketAddress;
 import java.util.Map;

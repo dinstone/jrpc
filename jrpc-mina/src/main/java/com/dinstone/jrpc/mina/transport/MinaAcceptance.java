@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.mina.server;
+package com.dinstone.jrpc.mina.transport;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
@@ -41,8 +41,6 @@ import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.invoker.SkelectonServiceInvoker;
-import com.dinstone.jrpc.mina.TransportProtocolDecoder;
-import com.dinstone.jrpc.mina.TransportProtocolEncoder;
 import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;

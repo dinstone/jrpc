@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.mina.client;
+package com.dinstone.jrpc.mina;
 
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.DefaultServiceImporter;
 import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.binding.DefaultReferenceBinding;
+import com.dinstone.jrpc.mina.transport.MinaConnectionFactory;
 import com.dinstone.jrpc.transport.ConnectionFactory;
 import com.dinstone.jrpc.transport.TransportConfig;
 

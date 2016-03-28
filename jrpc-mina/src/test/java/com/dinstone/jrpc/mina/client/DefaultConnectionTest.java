@@ -26,7 +26,8 @@ import org.junit.Test;
 
 import com.dinstone.jrpc.cases.HelloService;
 import com.dinstone.jrpc.cases.HelloServiceImpl;
-import com.dinstone.jrpc.mina.server.MinaServer;
+import com.dinstone.jrpc.mina.MinaServer;
+import com.dinstone.jrpc.mina.transport.MinaConnectionFactory;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.transport.Connection;
 import com.dinstone.jrpc.transport.ResultFuture;
@@ -79,7 +80,7 @@ public class DefaultConnectionTest {
 
     /**
      * Test method for
-     * {@link com.dinstone.rpc.mina.client.MinaConnection#call(java.lang.String, java.lang.Object[], java.lang.Class)} .
+     * {@link com.dinstone.jrpc.mina.transport.rpc.mina.client.MinaConnection#call(java.lang.String, java.lang.Object[], java.lang.Class)} .
      */
     @Test
     public void testCall() {

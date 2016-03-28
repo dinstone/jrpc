@@ -18,6 +18,7 @@ package com.dinstone.jrpc.mina.server;
 
 import com.dinstone.jrpc.cases.HelloService;
 import com.dinstone.jrpc.cases.HelloServiceImpl;
+import com.dinstone.jrpc.mina.MinaServer;
 
 /**
  * @author guojf

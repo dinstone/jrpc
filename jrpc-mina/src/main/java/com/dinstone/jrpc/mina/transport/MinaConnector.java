@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.mina.client;
+
+package com.dinstone.jrpc.mina.transport;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.future.ConnectFuture;
+import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
@@ -32,11 +35,12 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.mina.TransportProtocolDecoder;
-import com.dinstone.jrpc.mina.TransportProtocolEncoder;
 import com.dinstone.jrpc.protocol.Heartbeat;
+import com.dinstone.jrpc.protocol.Response;
+import com.dinstone.jrpc.protocol.Result;
 import com.dinstone.jrpc.protocol.Tick;
 import com.dinstone.jrpc.serialize.SerializeType;
+import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 /**
@@ -125,7 +129,7 @@ public class MinaConnector {
         chainBuilder.addLast("keepAlive", kaFilter);
 
         // set handler
-        ioConnector.setHandler(new MinaClientHandler());
+        ioConnector.setHandler(new MinaIoHandler());
 
         ioConnector.setDefaultRemoteAddress(isa);
     }
@@ -148,4 +152,51 @@ public class MinaConnector {
         ioConnector.dispose(false);
     }
 
+    private class MinaIoHandler extends IoHandlerAdapter {
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see org.apache.mina.core.service.IoHandlerAdapter#sessionCreated(org.apache.mina.core.session.IoSession)
+         */
+        @Override
+        public void sessionCreated(IoSession session) throws Exception {
+            SessionUtil.setResultFutureMap(session);
+        }
+
+        @Override
+        public void sessionClosed(IoSession session) throws Exception {
+            LOG.debug("Session[{}] is closed", session.getId());
+            Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(session);
+            for (ResultFuture future : futureMap.values()) {
+                future.setResult(new Result(400, "connection is closed"));
+            }
+        }
+
+        @Override
+        public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
+            LOG.error("Unhandled Exception", cause);
+            session.close(true);
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see org.apache.mina.core.service.IoHandlerAdapter#messageReceived(org.apache.mina.core.session.IoSession,
+         *      java.lang.Object)
+         */
+        @Override
+        public void messageReceived(IoSession session, Object message) throws Exception {
+            handle(session, (Response) message);
+        }
+
+        private void handle(IoSession session, Response response) {
+            Map<Integer, ResultFuture> cfMap = SessionUtil.getResultFutureMap(session);
+            ResultFuture future = cfMap.remove(response.getMessageId());
+            if (future != null) {
+                future.setResult(response.getResult());
+            }
+        }
+
+    }
 }

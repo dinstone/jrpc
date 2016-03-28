@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.mina.server;
+package com.dinstone.jrpc.mina;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +24,7 @@ import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServiceExporter;
 import com.dinstone.jrpc.binding.DefaultImplementBinding;
 import com.dinstone.jrpc.binding.ImplementBinding;
+import com.dinstone.jrpc.mina.transport.MinaAcceptance;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 /**

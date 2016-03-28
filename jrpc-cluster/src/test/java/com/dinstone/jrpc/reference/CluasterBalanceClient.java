@@ -19,7 +19,7 @@ import java.io.IOException;
 
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.demo.HelloService;
-import com.dinstone.jrpc.mina.client.MinaClient;
+import com.dinstone.jrpc.mina.MinaClient;
 
 public class CluasterBalanceClient {
 

@@ -30,7 +30,8 @@ import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.cases.HelloService;
 import com.dinstone.jrpc.cases.HelloServiceImpl;
 import com.dinstone.jrpc.cases.SuperInterface;
-import com.dinstone.jrpc.mina.server.MinaServer;
+import com.dinstone.jrpc.mina.MinaClient;
+import com.dinstone.jrpc.mina.MinaServer;
 
 /**
  * @author guojf

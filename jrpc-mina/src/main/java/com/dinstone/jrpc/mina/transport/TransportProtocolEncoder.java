@@ -13,30 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.mina;
-
-import java.io.Serializable;
+package com.dinstone.jrpc.mina.transport;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
-import org.apache.mina.filter.codec.ProtocolDecoderOutput;
+import org.apache.mina.filter.codec.ProtocolEncoderAdapter;
+import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 
 import com.dinstone.jrpc.protocol.Message;
 import com.dinstone.jrpc.protocol.MessageCodec;
 
 /**
- * Transport Protocol Decoder.
+ * Transport Protocol Encoder.
  * 
  * @author guojinfei
- * @version 1.0.0.2014-6-19
+ * @version 1.0.0.2014-6-20
  */
-public class TransportProtocolDecoder extends CumulativeProtocolDecoder {
+public class TransportProtocolEncoder extends ProtocolEncoderAdapter {
 
-    /** 2GB */
     private int maxObjectSize = Integer.MAX_VALUE;
 
-    public TransportProtocolDecoder() {
+    public TransportProtocolEncoder() {
     }
 
     /**
@@ -63,39 +60,26 @@ public class TransportProtocolDecoder extends CumulativeProtocolDecoder {
         this.maxObjectSize = maxObjectSize;
     }
 
-    @Override
-    protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-        byte[] rpcBytes = readFrame(in);
-        if (rpcBytes == null) {
-            return false;
+    public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
+        if (message instanceof Message<?>) {
+            byte[] rpcBytes = MessageCodec.encodeMessage((Message<?>) message);
+            writeFrame(out, rpcBytes);
         }
-
-        Message<? extends Serializable> message = MessageCodec.decodeMessage(rpcBytes);
-        out.write(message);
-
-        return true;
     }
 
-    private byte[] readFrame(IoBuffer in) {
-        int remaining = in.remaining();
-        if (remaining < 4) {
-            return null;
-        }
-
-        int objectSize = in.getInt(0);
+    private void writeFrame(ProtocolEncoderOutput out, byte[] rpcBytes) {
+        int objectSize = rpcBytes.length;
         if (objectSize > maxObjectSize) {
             throw new IllegalArgumentException("The encoded object is too big: " + objectSize + " (> " + maxObjectSize
                     + ')');
         }
 
-        if (remaining - 4 >= objectSize) {
-            // RPC object size
-            in.getInt();
-            byte[] rpcBytes = new byte[objectSize];
-            in.get(rpcBytes);
-            return rpcBytes;
-        }
+        // FrameLen = PrefixLen + RpcObjectSize
+        IoBuffer frame = IoBuffer.allocate(4 + objectSize);
+        frame.putInt(objectSize);
+        frame.put(rpcBytes);
+        frame.flip();
 
-        return null;
+        out.write(frame);
     }
 }
