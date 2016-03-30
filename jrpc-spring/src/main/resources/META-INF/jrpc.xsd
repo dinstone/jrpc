@@ -91,7 +91,6 @@
 				<xsd:extension base="beans:identifiedType">
 					<xsd:all>
 						<xsd:element name="registry" type="RegistryType" minOccurs="0" maxOccurs="1" />
-						<xsd:element ref="reference" minOccurs="0" maxOccurs="1" />
 					</xsd:all>
 					<xsd:attribute name="addresses" type="xsd:normalizedString" />
 					<xsd:attribute name="transport" type="xsd:normalizedString" />
