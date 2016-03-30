@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.api;
 
+package com.dinstone.jrpc.api;
 
 /**
  * RPC Client API.
@@ -27,6 +27,8 @@ public interface Client {
     public abstract <T> T getService(Class<T> sic);
 
     public abstract <T> T getService(Class<T> sic, String group);
+
+    public abstract <T> T getService(Class<T> sic, String group, int timeout);
 
     public abstract void destroy();
 

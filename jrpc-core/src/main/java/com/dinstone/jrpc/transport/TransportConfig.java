@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import com.dinstone.jrpc.Configuration;
@@ -31,6 +32,17 @@ public class TransportConfig extends Configuration {
 
     /** parallel count */
     private static final String PARALLEL_COUNT = "rpc.parallel.count";
+
+    public TransportConfig() {
+    }
+
+    public TransportConfig(Configuration config) {
+        super(config);
+    }
+
+    public TransportConfig(String configLocation) {
+        super(configLocation);
+    }
 
     public int getMaxSize() {
         return getInt(MAX_SIZE, Integer.MAX_VALUE);

@@ -1,0 +1,58 @@
+/*
+ * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.dinstone.jrpc.spring;
+
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
+import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.StringUtils;
+import org.w3c.dom.Element;
+
+import com.dinstone.jrpc.api.Server;
+import com.dinstone.jrpc.spring.factory.ServiceFactoryBean;
+
+public class ServiceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
+    private static int count = 0;
+
+    @Override
+    protected Class<?> getBeanClass(Element element) {
+        return ServiceFactoryBean.class;
+    }
+
+    @Override
+    protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
+        String id = element.getAttribute("id");
+        if (!StringUtils.hasText(id)) {
+            int index = ++count;
+            element.setAttribute("id", "ServiceBean[" + index + "]");
+        }
+
+        builder.addPropertyValue("service", element.getAttribute("interface"));
+        builder.addPropertyValue("group", element.getAttribute("group"));
+        builder.addPropertyValue("timeout", element.getAttribute("timeout"));
+        builder.addPropertyReference("instance", element.getAttribute("implement"));
+        builder.addPropertyReference("server", getServerBeanId(element.getAttribute("server")));
+    }
+
+    private String getServerBeanId(String serverId) {
+        if (serverId == null || serverId.length() == 0) {
+            serverId = Server.class.getName();
+        }
+        return serverId;
+    }
+}

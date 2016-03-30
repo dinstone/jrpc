@@ -14,54 +14,42 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.reference;
+package com.dinstone.jrpc;
 
 import java.io.IOException;
 
-import com.dinstone.jrpc.demo.HelloService;
-import com.dinstone.jrpc.mina.MinaClient;
-import com.dinstone.jrpc.srd.zookeeper.RegistryDiscoveryConfig;
-import com.dinstone.jrpc.srd.zookeeper.ZookeeperServiceDiscovery;
-import com.dinstone.jrpc.transport.TransportConfig;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class ClusterDiscoveryClient {
+import com.dinstone.jrpc.demo.HelloService;
+
+public class NamespaceHandlerTest {
 
     public static void main(String[] args) {
-        RegistryDiscoveryConfig discoveryConfig = new RegistryDiscoveryConfig();
-        discoveryConfig.set("zookeeper.node.list", "localhost:2181");
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
+            "application-context-sample.xml");
 
-        ZookeeperServiceDiscovery serviceDiscovery = new ZookeeperServiceDiscovery(discoveryConfig);
-
-        // ReferenceBinding referenceBinding = new DefaultReferenceBinding(serviceDiscovery);
-
-        MinaClient client = new MinaClient(serviceDiscovery, new TransportConfig());
-        //
-        // ConnectionFactory connectionFactory = new MinaConnectionFactory(new TransportConfig());
-        // DefaultServiceImporter serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
-
+        HelloService service = (HelloService) applicationContext.getBean("rhs");
         try {
-            testHot(client);
+            testHot(service);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         try {
-            testSend1k(client);
+            testSend1k(service);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        serviceDiscovery.destroy();
+        try {
+            System.in.read();
+        } catch (IOException e) {
+        }
 
-        client.destroy();
-
-        // referenceBinding.destroy();
-        // serviceImporter.destroy();
-        // connectionFactory.destroy();
+        applicationContext.close();
     }
 
-    protected static void testHot(MinaClient client) {
-        HelloService service = client.getService(HelloService.class);
+    protected static void testHot(HelloService service) {
         long st = System.currentTimeMillis();
 
         for (int i = 0; i < 100000; i++) {
@@ -72,15 +60,13 @@ public class ClusterDiscoveryClient {
         System.out.println("hot takes " + et + "ms, " + (100000 * 1000 / et) + " tps");
     }
 
-    public static void testSend1k(MinaClient client) throws IOException {
+    public static void testSend1k(HelloService service) throws IOException {
         byte[] mb = new byte[1 * 1024];
         for (int i = 0; i < mb.length; i++) {
             mb[i] = 65;
         }
 
         String name = new String(mb);
-
-        HelloService service = client.getService(HelloService.class);
 
         long st = System.currentTimeMillis();
 
@@ -92,4 +78,5 @@ public class ClusterDiscoveryClient {
         long et = System.currentTimeMillis() - st;
         System.out.println("it takes " + et + "ms, 1k : " + (count * 1000 / et) + " tps");
     }
+
 }

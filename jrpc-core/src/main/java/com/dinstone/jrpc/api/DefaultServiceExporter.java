@@ -49,6 +49,13 @@ public class DefaultServiceExporter implements ServiceExporter {
 
     @Override
     public <T> void exportService(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
+        if (group == null) {
+            group = "";
+        }
+        if (timeout <= 0) {
+            timeout = defaultTimeout;
+        }
+
         ServiceProxy<T> wrapper = serviceProxyFactory.createSkelecton(serviceInterface, group, timeout,
             serviceImplement);
         implementBinding.bind(wrapper);

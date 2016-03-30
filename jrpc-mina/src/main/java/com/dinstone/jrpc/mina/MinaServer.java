@@ -25,6 +25,7 @@ import com.dinstone.jrpc.api.ServiceExporter;
 import com.dinstone.jrpc.binding.DefaultImplementBinding;
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.mina.transport.MinaAcceptance;
+import com.dinstone.jrpc.srd.ServiceRegistry;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 /**
@@ -46,11 +47,11 @@ public class MinaServer implements Server {
     }
 
     public MinaServer(String host, int port, TransportConfig transportConfig) {
-        this(new DefaultImplementBinding(host, port), transportConfig);
+        this(host, port, transportConfig, null);
     }
 
-    public MinaServer(ImplementBinding implementBinding, TransportConfig transportConfig) {
-        this.implementBinding = implementBinding;
+    public MinaServer(String host, int port, TransportConfig transportConfig, ServiceRegistry serviceRegistry) {
+        this.implementBinding = new DefaultImplementBinding(host, port, serviceRegistry);
         this.serviceExporter = new DefaultServiceExporter(implementBinding);
 
         this.acceptance = new MinaAcceptance(transportConfig, implementBinding);

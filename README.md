@@ -17,17 +17,44 @@
 	jrpc-cluster-2.0.0.jar
 	
 # Example
-
-## export service:
+## java API
+### export service:
 ```java
+
 	MinaServer server = new MinaServer("localhost", 1234);
     server.regist(HelloService.class, new HelloServiceImpl());
     server.start();
+    
 ```
 
-## import service:
+### import service:
 ```java
+
 	Client client = new MinaClient("localhost", 1234).setDefaultTimeout(5000);
 	HelloService service = client.getService(HelloService.class);
     service.sayHello("dinstone");
+    
+```
+
+## Spring schema
+### export service:
+```xml
+
+	<jrpc:server host="-" port="1234" transport="mina">
+		<jrpc:registry schema="zookeeper" addresses="localhost:2181" />
+	</jrpc:server>
+	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v2.0" timeout="2000" />
+	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v1.0" timeout="2000" />
+
+	<bean id="helloService" class="com.dinstone.jrpc.demo.HelloServiceImpl" />
+
+```
+### import service:
+```xml
+
+	<jrpc:client>
+		<jrpc:registry schema="zookeeper" addresses="localhost:2181" />
+	</jrpc:client>
+	<jrpc:reference id="rhs" interface="com.dinstone.jrpc.demo.HelloService" group="product-v1.0" timeout="1000" />
+	
 ```

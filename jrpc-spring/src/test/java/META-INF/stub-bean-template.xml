@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:stub="http://www.dinstone.com/schema/stub"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd  
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.5.xsd 
+    http://www.dinstone.com/schema/stub http://www.dinstone.com/schema/stub/stub-1.0.xsd">
+
+	<bean id="returnString" class="java.lang.String">
+		<constructor-arg>
+			<value>姓名</value>
+		</constructor-arg>
+	</bean>
+
+	<util:list id="returnArray">
+		<value>姓名</value>
+		<value>dinstone</value>
+	</util:list>
+
+	<util:list id="returnList" value-type="java.lang.String">
+		<value>姓名</value>
+		<value>dinstone</value>
+	</util:list>
+
+	<util:set id="returnSet" value-type="java.lang.String">
+		<value>A</value>
+		<value>B</value>
+		<value>C</value>
+	</util:set>
+
+	<util:map id="returnMap" key-type="java.lang.String"
+		value-type="java.lang.String">
+		<entry key="dinstone" value="dinstone@163.com" />
+		<entry key="键" value="值" />
+	</util:map>
+
+	<bean id="returnInteger" class="java.lang.Integer">
+		<constructor-arg>
+			<value>5</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="returnChar" class="java.lang.Character">
+		<constructor-arg>
+			<value>A</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="returnException" class="java.io.FileNotFoundException">
+		<constructor-arg>
+			<value>找不到指定的文件:config.properties</value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="returnNull" class="com.dinstone.ut.faststub.NullBeanFactoryBean" />
+
+	<stub:null id="returnNull" />
+
+	<stub:date id="returnDate" value="2011-10-20" pattern="yyyy-MM-dd" />
+
+	<bean id="returnDate" class="com.dinstone.ut.faststub.DateFactoryBean">
+		<property name="dateText" value="2011年10月20日 16:21:18" />
+		<property name="pattern" value="yyyy年MM月dd日" />
+	</bean>
+
+</beans>

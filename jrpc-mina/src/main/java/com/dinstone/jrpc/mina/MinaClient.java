@@ -22,6 +22,7 @@ import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.binding.DefaultReferenceBinding;
 import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.mina.transport.MinaConnectionFactory;
+import com.dinstone.jrpc.srd.ServiceDiscovery;
 import com.dinstone.jrpc.transport.ConnectionFactory;
 import com.dinstone.jrpc.transport.TransportConfig;
 
@@ -42,17 +43,19 @@ public class MinaClient implements Client {
     }
 
     public MinaClient(final String host, final int port, TransportConfig config) {
-        connectionFactory = new MinaConnectionFactory(config);
         referenceBinding = new DefaultReferenceBinding(host, port);
+        connectionFactory = new MinaConnectionFactory(config);
         serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
     }
 
     public MinaClient(String serviceAddresses, TransportConfig config) {
-        this(new DefaultReferenceBinding(serviceAddresses), config);
+        this.referenceBinding = new DefaultReferenceBinding(serviceAddresses);
+        this.connectionFactory = new MinaConnectionFactory(config);
+        this.serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
     }
 
-    public MinaClient(ReferenceBinding referenceBinding, TransportConfig config) {
-        this.referenceBinding = referenceBinding;
+    public MinaClient(ServiceDiscovery serviceDiscovery, TransportConfig config) {
+        this.referenceBinding = new DefaultReferenceBinding(serviceDiscovery);
         this.connectionFactory = new MinaConnectionFactory(config);
         this.serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
     }
@@ -63,6 +66,11 @@ public class MinaClient implements Client {
 
     public <T> T getService(Class<T> sic, String group) {
         return serviceImporter.importService(sic, group);
+    }
+
+    @Override
+    public <T> T getService(Class<T> sic, String group, int timeout) {
+        return serviceImporter.importService(sic, group, timeout);
     }
 
     @Override
