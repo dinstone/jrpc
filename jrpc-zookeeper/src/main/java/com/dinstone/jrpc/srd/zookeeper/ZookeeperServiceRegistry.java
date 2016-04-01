@@ -17,6 +17,8 @@
 package com.dinstone.jrpc.srd.zookeeper;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -35,6 +37,8 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
     private CuratorFramework zkClient;
 
     private ServiceDiscovery<ServiceAttribute> serviceDiscovery;
+
+    private List<ServiceInstance<ServiceAttribute>> serviceInstances = new CopyOnWriteArrayList<ServiceInstance<ServiceAttribute>>();
 
     public ZookeeperServiceRegistry(RegistryDiscoveryConfig registryConfig) {
         String zkNodes = registryConfig.getZookeeperNodes();
@@ -64,21 +68,28 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
     @Override
     public void publish(ServiceDescription description) throws Exception {
         String serviceName = description.getName() + "-" + description.getGroup();
-
         ServiceInstance<ServiceAttribute> serviceInstance = ServiceInstance.<ServiceAttribute> builder()
             .id(description.getId()).name(serviceName).address(description.getHost()).port(description.getPort())
             .payload(description.getServiceAttribute()).build();
 
         serviceDiscovery.registerService(serviceInstance);
+        serviceInstances.add(serviceInstance);
     }
 
     @Override
     public void destroy() {
-        zkClient.close();
         try {
-            serviceDiscovery.close();
-        } catch (IOException e) {
+            for (ServiceInstance<ServiceAttribute> serviceInstance : serviceInstances) {
+                serviceDiscovery.unregisterService(serviceInstance);
+            }
+        } catch (Exception e) {
+        } finally {
+            serviceInstances.clear();
+            try {
+                serviceDiscovery.close();
+            } catch (IOException e) {
+            }
         }
+        zkClient.close();
     }
-
 }

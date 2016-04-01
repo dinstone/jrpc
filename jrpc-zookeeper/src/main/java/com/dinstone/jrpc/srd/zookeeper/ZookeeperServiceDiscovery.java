@@ -37,11 +37,11 @@ import com.dinstone.jrpc.srd.ServiceDescription;
 
 public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.srd.ServiceDiscovery {
 
+    private CuratorFramework zkClient;
+
     private ServiceDiscovery<ServiceAttribute> serviceDiscovery;
 
     private Map<String, ServiceProvider<ServiceAttribute>> providers = new HashMap<String, ServiceProvider<ServiceAttribute>>();
-
-    private CuratorFramework zkClient;
 
     public ZookeeperServiceDiscovery(RegistryDiscoveryConfig discoveryConfig) {
         String zkNodes = discoveryConfig.getZookeeperNodes();
