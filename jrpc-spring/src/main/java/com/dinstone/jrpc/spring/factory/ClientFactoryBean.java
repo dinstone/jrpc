@@ -71,9 +71,9 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
         LOG.info("create jrpc client [{}]", id);
 
         ServiceDiscovery serviceDiscovery = null;
-        if ("zookeeper".equalsIgnoreCase(registryBean.getSchema()) && registryBean.getAddresses() != null) {
+        if ("zookeeper".equalsIgnoreCase(registryBean.getSchema()) && registryBean.getAddress() != null) {
             RegistryDiscoveryConfig registryConfig = new RegistryDiscoveryConfig();
-            registryConfig.setZookeeperNodes(registryBean.getAddresses());
+            registryConfig.setZookeeperNodes(registryBean.getAddress());
             if (registryBean.getBasePath() != null) {
                 registryConfig.setBasePath(registryBean.getBasePath());
             }
@@ -85,13 +85,13 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
             if (serviceDiscovery != null) {
                 client = new MinaClient(serviceDiscovery, transportBean.getConfig());
             } else {
-                client = new MinaClient(transportBean.getAddresses(), transportBean.getConfig());
+                client = new MinaClient(transportBean.getAddress(), transportBean.getConfig());
             }
         } else {
             if (serviceDiscovery != null) {
                 client = new MinaClient(serviceDiscovery, transportBean.getConfig());
             } else {
-                client = new MinaClient(transportBean.getAddresses(), transportBean.getConfig());
+                client = new MinaClient(transportBean.getAddress(), transportBean.getConfig());
             }
         }
 

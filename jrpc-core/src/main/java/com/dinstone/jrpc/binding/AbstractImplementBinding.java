@@ -60,7 +60,7 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
 
         ServiceAttribute serviceAttribute = new ServiceAttribute();
         List<String> methodDescList = new ArrayList<String>();
-        for (Method method : wrapper.getMethodMap().values()) {
+        for (Method method : wrapper.getService().getDeclaredMethods()) {
             methodDescList.add(description(method));
         }
         serviceAttribute.addAttribute("timeout", wrapper.getTimeout());

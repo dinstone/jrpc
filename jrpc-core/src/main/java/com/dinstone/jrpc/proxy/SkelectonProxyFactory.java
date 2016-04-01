@@ -16,26 +16,22 @@
 
 package com.dinstone.jrpc.proxy;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
-
 public class SkelectonProxyFactory implements ServiceProxyFactory {
 
     public SkelectonProxyFactory() {
     }
 
     public <T> ServiceProxy<T> createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject) {
-        Map<String, Method> methodMap = new HashMap<String, Method>();
-        Method[] methods = serviceInterface.getDeclaredMethods();
-        for (Method method : methods) {
-            if (methodMap.containsKey(method.getName())) {
-                throw new RuntimeException("method overloading is not supported");
-            }
-            methodMap.put(method.getName(), method);
-        }
+        // Map<String, Method> methodMap = new HashMap<String, Method>();
+        // Method[] methods = serviceInterface.getDeclaredMethods();
+        // for (Method method : methods) {
+        // if (methodMap.containsKey(method.getName())) {
+        // throw new RuntimeException("method overloading is not supported");
+        // }
+        // methodMap.put(method.getName(), method);
+        // }
 
-        return new ServiceProxy<T>(serviceInterface, group, timeout, serviceObject, methodMap);
+        return new ServiceProxy<T>(serviceInterface, group, timeout, serviceObject);
     }
 
     @Override

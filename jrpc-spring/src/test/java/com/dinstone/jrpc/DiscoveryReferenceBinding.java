@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.cluster;
+package com.dinstone.jrpc;
 
 import java.net.InetSocketAddress;
 import java.util.List;

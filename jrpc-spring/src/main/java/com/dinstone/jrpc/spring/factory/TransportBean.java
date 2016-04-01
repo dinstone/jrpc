@@ -28,7 +28,7 @@ public class TransportBean {
 
     private int port;
 
-    private String addresses;
+    private String address;
 
     private TransportConfig config = new TransportConfig();
 
@@ -66,12 +66,12 @@ public class TransportBean {
         }
     }
 
-    public String getAddresses() {
-        return addresses;
+    public String getAddress() {
+        return address;
     }
 
-    public void setAddresses(String addresses) {
-        this.addresses = addresses;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
 }

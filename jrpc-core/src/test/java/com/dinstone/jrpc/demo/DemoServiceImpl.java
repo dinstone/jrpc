@@ -14,38 +14,18 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.spring.factory;
+package com.dinstone.jrpc.demo;
 
-public class RegistryBean {
+public class DemoServiceImpl implements DemoService {
 
-    private String schema;
-
-    private String address;
-
-    private String basePath;
-
-    public String getSchema() {
-        return schema;
+    @Override
+    public String hello(String name) {
+        return "hi " + name;
     }
 
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getBasePath() {
-        return basePath;
-    }
-
-    public void setBasePath(String basePath) {
-        this.basePath = basePath;
+    @Override
+    public String hello(String name, int age) {
+        return "Hello " + name + ",age is " + age;
     }
 
 }

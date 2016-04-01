@@ -42,9 +42,18 @@ public class ServiceBeanDefinitionParser extends AbstractSingleBeanDefinitionPar
             element.setAttribute("id", "ServiceBean[" + index + "]");
         }
 
-        builder.addPropertyValue("service", element.getAttribute("interface"));
-        builder.addPropertyValue("group", element.getAttribute("group"));
-        builder.addPropertyValue("timeout", element.getAttribute("timeout"));
+        if (StringUtils.hasText(element.getAttribute("interface"))) {
+            builder.addPropertyValue("service", element.getAttribute("interface"));
+        }
+
+        if (StringUtils.hasText(element.getAttribute("group"))) {
+            builder.addPropertyValue("group", element.getAttribute("group"));
+        }
+
+        if (StringUtils.hasText(element.getAttribute("timeout"))) {
+            builder.addPropertyValue("timeout", element.getAttribute("timeout"));
+        }
+
         builder.addPropertyReference("instance", element.getAttribute("implement"));
         builder.addPropertyReference("server", getServerBeanId(element.getAttribute("server")));
     }

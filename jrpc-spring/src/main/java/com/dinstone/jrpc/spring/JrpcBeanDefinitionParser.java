@@ -65,8 +65,8 @@ public class JrpcBeanDefinitionParser extends AbstractSingleBeanDefinitionParser
             String schema = registry.getAttribute("schema");
             sbd.addPropertyValue("schema", schema);
 
-            String addresses = registry.getAttribute("addresses");
-            sbd.addPropertyValue("addresses", addresses);
+            String address = registry.getAttribute("address");
+            sbd.addPropertyValue("address", address);
 
             String basePath = registry.getAttribute("basePath");
             if (StringUtils.hasText(basePath)) {
@@ -79,9 +79,9 @@ public class JrpcBeanDefinitionParser extends AbstractSingleBeanDefinitionParser
 
     protected BeanDefinition getTransportBeanDefinition(Element element, ParserContext parserContext) {
         BeanDefinitionBuilder sbd = BeanDefinitionBuilder.genericBeanDefinition(TransportBean.class);
-        String addresses = element.getAttribute("addresses");
-        if (StringUtils.hasText(addresses)) {
-            sbd.addPropertyValue("addresses", addresses);
+        String address = element.getAttribute("address");
+        if (StringUtils.hasText(address)) {
+            sbd.addPropertyValue("address", address);
         }
 
         String host = element.getAttribute("host");

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.cluster;
+package com.dinstone.jrpc;
 
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
@@ -23,9 +23,9 @@ import java.util.List;
 
 import com.dinstone.jrpc.binding.AbstractImplementBinding;
 import com.dinstone.jrpc.proxy.ServiceProxy;
-import com.dinstone.jrpc.srd.ServiceRegistry;
 import com.dinstone.jrpc.srd.ServiceAttribute;
 import com.dinstone.jrpc.srd.ServiceDescription;
+import com.dinstone.jrpc.srd.ServiceRegistry;
 import com.dinstone.jrpc.srd.zookeeper.RegistryDiscoveryConfig;
 import com.dinstone.jrpc.srd.zookeeper.ZookeeperServiceRegistry;
 
@@ -53,7 +53,7 @@ public class RegistryImplementBinding extends AbstractImplementBinding {
 
         ServiceAttribute serviceAttribute = new ServiceAttribute();
         List<String> methodDescList = new ArrayList<String>();
-        for (Method method : wrapper.getMethodMap().values()) {
+        for (Method method : wrapper.getService().getDeclaredMethods()) {
             methodDescList.add(description(method));
         }
         serviceAttribute.addAttribute("timeout", wrapper.getTimeout());

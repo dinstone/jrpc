@@ -16,7 +16,7 @@
 						</xsd:documentation>
 					</xsd:annotation>
 				</xsd:attribute>
-				<xsd:attribute name="addresses" type="xsd:string" use="required">
+				<xsd:attribute name="address" type="xsd:string" use="required">
 					<xsd:annotation>
 						<xsd:documentation>
 						<![CDATA[ 
@@ -50,12 +50,13 @@
 						<xsd:annotation>
 							<xsd:documentation>
 							<![CDATA[ 
-								JRPC server host with parrtern ['-'|'+'|.+], '-' is private inetaddress, '+' is public inetaddress, other is host name.
+								JRPC server host with parrtern ['-'|'+'|*], '-' is private inetaddress, '+' is public inetaddress, other is host name.
 							]]>
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:attribute>
 					<xsd:attribute name="port" type="xsd:int" use="required" />
+					<xsd:attribute name="address" type="xsd:normalizedString" />
 					<xsd:attribute name="transport" type="xsd:string">
 						<xsd:annotation>
 							<xsd:documentation>
@@ -92,7 +93,7 @@
 					<xsd:all>
 						<xsd:element name="registry" type="RegistryType" minOccurs="0" maxOccurs="1" />
 					</xsd:all>
-					<xsd:attribute name="addresses" type="xsd:normalizedString" />
+					<xsd:attribute name="address" type="xsd:normalizedString" />
 					<xsd:attribute name="transport" type="xsd:normalizedString" />
 					<xsd:anyAttribute />
 				</xsd:extension>

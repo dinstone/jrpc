@@ -43,19 +43,18 @@ public abstract class AbstractAcceptance implements Acceptance {
         Result result = null;
         try {
             Call call = request.getCall();
-            ServiceProxy<?> service = implementBinding.find(call.getService(), call.getGroup());
-            if (service != null) {
-                Method method = service.getMethodMap().get(call.getMethod());
-                if (method != null) {
-                    Object resObj = serviceInvoker.invoke(service.getService(), call.getGroup(), call.getTimeout(),
-                        service.getInstance(), method, call.getParams());
-                    result = new Result(200, resObj);
-                } else {
-                    result = new Result(405, "unkown interface");
-                }
+            ServiceProxy<?> wrapper = implementBinding.find(call.getService(), call.getGroup());
+            if (wrapper != null) {
+                Class<?>[] paramTypes = getParamTypes(call);
+                Method method = wrapper.getService().getDeclaredMethod(call.getMethod(), paramTypes);
+                Object resObj = serviceInvoker.invoke(wrapper.getService(), call.getGroup(), call.getTimeout(),
+                    wrapper.getInstance(), method, call.getParams());
+                result = new Result(200, resObj);
             } else {
                 result = new Result(404, "unkown service");
             }
+        } catch (NoSuchMethodException e) {
+            result = new Result(405, "unkown method", e);
         } catch (IllegalArgumentException e) {
             result = new Result(600, e.getMessage(), e);
         } catch (IllegalAccessException e) {
@@ -68,6 +67,25 @@ public abstract class AbstractAcceptance implements Acceptance {
         }
 
         return new Response(request.getMessageId(), request.getSerializeType(), result);
+    }
+
+    protected Class<?>[] getParamTypes(Call call) {
+        Class<?>[] paramTypes = call.getParamTypes();
+        Object[] params = call.getParams();
+        if (paramTypes == null && params != null) {
+            paramTypes = parseParamTypes(params);
+        }
+        return paramTypes;
+    }
+
+    private Class<?>[] parseParamTypes(Object[] args) {
+        Class<?>[] cs = new Class[args.length];
+        for (int i = 0; i < args.length; i++) {
+            Object arg = args[i];
+            cs[i] = arg.getClass();
+        }
+
+        return cs;
     }
 
 }

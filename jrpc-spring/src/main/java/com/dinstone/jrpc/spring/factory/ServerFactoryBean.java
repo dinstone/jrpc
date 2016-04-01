@@ -93,9 +93,9 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
         LOG.info("create jrpc server [{}]", id);
 
         ServiceRegistry serviceRegistry = null;
-        if ("zookeeper".equalsIgnoreCase(registryBean.getSchema()) && registryBean.getAddresses() != null) {
+        if ("zookeeper".equalsIgnoreCase(registryBean.getSchema()) && registryBean.getAddress() != null) {
             RegistryDiscoveryConfig registryConfig = new RegistryDiscoveryConfig();
-            registryConfig.setZookeeperNodes(registryBean.getAddresses());
+            registryConfig.setZookeeperNodes(registryBean.getAddress());
             if (registryBean.getBasePath() != null) {
                 registryConfig.setBasePath(registryBean.getBasePath());
             }

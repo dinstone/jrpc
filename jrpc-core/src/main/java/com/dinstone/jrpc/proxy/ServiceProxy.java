@@ -16,9 +16,6 @@
 
 package com.dinstone.jrpc.proxy;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ServiceProxy<T> {
 
@@ -30,23 +27,12 @@ public class ServiceProxy<T> {
 
     private T instance;
 
-    private Map<String, Method> methodMap = new HashMap<String, Method>();
-
     public ServiceProxy(Class<T> service, String group, int timeout, T instance) {
         super();
         this.service = service;
         this.group = group;
         this.timeout = timeout;
         this.instance = instance;
-    }
-
-    public ServiceProxy(Class<T> service, String group, int timeout, T instance, Map<String, Method> methodMap) {
-        super();
-        this.service = service;
-        this.group = group;
-        this.timeout = timeout;
-        this.instance = instance;
-        this.methodMap.putAll(methodMap);
     }
 
     public Class<T> getService() {
@@ -63,10 +49,6 @@ public class ServiceProxy<T> {
 
     public T getInstance() {
         return instance;
-    }
-
-    public Map<String, Method> getMethodMap() {
-        return methodMap;
     }
 
 }
