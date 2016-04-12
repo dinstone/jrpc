@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.srd;
 
 import java.util.List;
@@ -27,10 +28,10 @@ public interface ServiceDiscovery {
 
     public abstract void destroy();
 
-    public abstract void cancel(String serviceName, String group);
+    public abstract void cancel(ServiceDescription description);
 
-    public abstract void listen(String serviceName, String group) throws Exception;
+    public abstract void listen(ServiceDescription description) throws Exception;
 
-    public abstract List<ServiceDescription> discovery(String serviceName, String group) throws Exception;
+    public abstract List<ServiceDescription> discovery(String serviceName) throws Exception;
 
 }

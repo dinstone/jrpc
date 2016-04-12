@@ -17,31 +17,38 @@
 package com.dinstone.jrpc.srd.zookeeper;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadFactory;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.ChildData;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.curator.x.discovery.ServiceDiscovery;
-import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
-import org.apache.curator.x.discovery.ServiceInstance;
-import org.apache.curator.x.discovery.ServiceProvider;
-import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
+import org.apache.curator.utils.ThreadUtils;
+import org.apache.curator.utils.ZKPaths;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 
-import com.dinstone.jrpc.srd.ServiceAttribute;
 import com.dinstone.jrpc.srd.ServiceDescription;
 
 public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.srd.ServiceDiscovery {
 
-    private CuratorFramework zkClient;
+    private final ServiceDescriptionSerializer serializer = new DefaultServiceDescriptionSerializer();
 
-    private ServiceDiscovery<ServiceAttribute> serviceDiscovery;
+    private final Map<String, ServiceCache> serviceCacheMap = new ConcurrentHashMap<String, ServiceCache>();
 
-    private Map<String, ServiceProvider<ServiceAttribute>> providers = new HashMap<String, ServiceProvider<ServiceAttribute>>();
+    private final String basePath;
+
+    private final CuratorFramework client;
+
+    private final ThreadFactory threadFactory;
 
     public ZookeeperServiceDiscovery(RegistryDiscoveryConfig discoveryConfig) {
         String zkNodes = discoveryConfig.getZookeeperNodes();
@@ -53,105 +60,156 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.srd.ServiceD
         if (basePath == null || basePath.length() == 0) {
             throw new IllegalArgumentException("basePath is empty");
         }
+        this.basePath = basePath;
 
-        zkClient = CuratorFrameworkFactory.newClient(zkNodes,
+        client = CuratorFrameworkFactory.newClient(zkNodes,
             new ExponentialBackoffRetry(discoveryConfig.getBaseSleepTime(), discoveryConfig.getMaxRetries()));
-        zkClient.start();
+        client.start();
 
-        try {
-            serviceDiscovery = ServiceDiscoveryBuilder.builder(ServiceAttribute.class).client(zkClient)
-                .basePath(basePath).serializer(new JsonInstanceSerializer<ServiceAttribute>(ServiceAttribute.class))
-                .build();
-            serviceDiscovery.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public List<ServiceDescription> discovery(String serviceName, String group) throws Exception {
-        List<ServiceDescription> serviceDescriptions = new LinkedList<ServiceDescription>();
-        synchronized (providers) {
-            String key = serviceName + "-" + group;
-            ServiceProvider<ServiceAttribute> serviceProvider = providers.get(key);
-            if (serviceProvider != null) {
-                Collection<ServiceInstance<ServiceAttribute>> sic = serviceProvider.getAllInstances();
-                for (ServiceInstance<ServiceAttribute> serviceInstance : sic) {
-                    ServiceDescription description = new ServiceDescription();
-                    description.setId(serviceInstance.getId());
-                    String[] nameGroup = serviceInstance.getName().split("-", 2);
-                    if (nameGroup.length > 1) {
-                        description.setName(nameGroup[0]);
-                        description.setGroup(nameGroup[1]);
-                    } else {
-                        description.setName(serviceInstance.getName());
-                        description.setGroup("");
-                    }
-                    description.setHost(serviceInstance.getAddress());
-                    description.setPort(serviceInstance.getPort());
-                    description.setRegistryTime(serviceInstance.getRegistrationTimeUTC());
-                    description.setServiceAttribute(serviceInstance.getPayload());
-
-                    serviceDescriptions.add(description);
-                }
-            }
-        }
-        return serviceDescriptions;
-
-    }
-
-    @Override
-    public void listen(String serviceName, String group) throws Exception {
-        if (serviceName == null || serviceName.length() == 0) {
-            throw new IllegalArgumentException("serviceName is empty");
-        }
-        if (group == null) {
-            throw new IllegalArgumentException("group is null");
-        }
-
-        String key = serviceName + "-" + group;
-        synchronized (providers) {
-            if (!providers.containsKey(key)) {
-                ServiceProvider<ServiceAttribute> serviceProvider = serviceDiscovery.serviceProviderBuilder()
-                    .serviceName(key).build();
-                serviceProvider.start();
-                providers.put(key, serviceProvider);
-            }
-        }
-    }
-
-    @Override
-    public void cancel(String serviceName, String group) {
-        String key = serviceName + "-" + group;
-        synchronized (providers) {
-            if (providers.containsKey(key)) {
-                ServiceProvider<ServiceAttribute> provider = providers.remove(key);
-                try {
-                    provider.close();
-                } catch (IOException e) {
-                }
-            }
-        }
+        threadFactory = ThreadUtils.newThreadFactory("ServiceDiscovery");
     }
 
     @Override
     public void destroy() {
-        synchronized (providers) {
-            for (ServiceProvider<ServiceAttribute> provider : providers.values()) {
+        for (ServiceCache service : serviceCacheMap.values()) {
+            service.destroy();
+        }
+
+        client.close();
+    }
+
+    @Override
+    public void cancel(ServiceDescription description) {
+        ServiceCache serviceCache = serviceCacheMap.get(description.getName());
+        if (serviceCache != null) {
+            serviceCache.destroy();
+            serviceCacheMap.remove(description.getName());
+        }
+    }
+
+    @Override
+    public void listen(ServiceDescription description) throws Exception {
+        ServiceCache serviceCache = serviceCacheMap.get(description.getName());
+        if (serviceCache == null) {
+            String path = pathForProviders(description.getName());
+            serviceCache = new ServiceCache(client, path, threadFactory).build();
+            serviceCacheMap.put(description.getName(), serviceCache);
+        }
+        serviceCache.addConsumer(description);
+    }
+
+    @Override
+    public List<ServiceDescription> discovery(String serviceName) throws Exception {
+        ServiceCache serviceCache = serviceCacheMap.get(serviceName);
+        if (serviceCache != null) {
+            return serviceCache.getProviders();
+        }
+        return null;
+    }
+
+    private String pathForConsumer(String name, String id) {
+        return ZKPaths.makePath(pathForService(name) + "/consumers", id);
+    }
+
+    private String pathForProviders(String name) {
+        return ZKPaths.makePath(pathForService(name) + "/providers", "");
+    }
+
+    private String pathForService(String name) {
+        return ZKPaths.makePath(basePath, name);
+    }
+
+    public class ServiceCache implements PathChildrenCacheListener {
+
+        private final ConcurrentHashMap<String, ServiceDescription> providers = new ConcurrentHashMap<String, ServiceDescription>();
+
+        private final ConcurrentHashMap<String, ServiceDescription> consumers = new ConcurrentHashMap<String, ServiceDescription>();
+
+        private PathChildrenCache cache;
+
+        public ServiceCache(CuratorFramework client, String name, ThreadFactory threadFactory) {
+            cache = new PathChildrenCache(client, name, true, threadFactory);
+            cache.getListenable().addListener(this);
+        }
+
+        public List<ServiceDescription> getProviders() {
+            ArrayList<ServiceDescription> pl = new ArrayList<ServiceDescription>(providers.size());
+            pl.addAll(providers.values());
+            return pl;
+        }
+
+        public ServiceCache build() throws Exception {
+            cache.start(StartMode.BUILD_INITIAL_CACHE);
+            for (ChildData childData : cache.getCurrentData()) {
+                addProvider(childData, true);
+            }
+
+            return this;
+        }
+
+        public void addConsumer(ServiceDescription service) throws Exception {
+            byte[] bytes = serializer.serialize(service);
+            String path = pathForConsumer(service.getName(), service.getId());
+
+            final int MAX_TRIES = 2;
+            boolean isDone = false;
+            for (int i = 0; !isDone && (i < MAX_TRIES); ++i) {
                 try {
-                    provider.close();
-                } catch (IOException e) {
+                    client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, bytes);
+                    isDone = true;
+                } catch (KeeperException.NodeExistsException e) {
+                    client.delete().forPath(path); // must delete then re-create so that watchers fire
                 }
             }
-            providers.clear();
+
+            consumers.put(service.getId(), service);
         }
 
-        try {
-            serviceDiscovery.close();
-        } catch (IOException e) {
+        private void addProvider(ChildData childData, boolean onlyIfAbsent) throws Exception {
+            String instanceId = ZKPaths.getNodeFromPath(childData.getPath());
+            ServiceDescription serviceInstance = serializer.deserialize(childData.getData());
+            if (onlyIfAbsent) {
+                providers.putIfAbsent(instanceId, serviceInstance);
+            } else {
+                providers.put(instanceId, serviceInstance);
+            }
+            cache.clearDataBytes(childData.getPath(), childData.getStat().getVersion());
         }
 
-        zkClient.close();
+        @Override
+        public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
+            switch (event.getType()) {
+                case CHILD_ADDED:
+                case CHILD_UPDATED: {
+                    addProvider(event.getData(), false);
+                    break;
+                }
+
+                case CHILD_REMOVED: {
+                    providers.remove(ZKPaths.getNodeFromPath(event.getData().getPath()));
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        public void destroy() {
+            for (ServiceDescription consumer : consumers.values()) {
+                String path = pathForConsumer(consumer.getName(), consumer.getId());
+                try {
+                    client.delete().forPath(path);
+                } catch (Exception e) {
+                }
+            }
+
+            cache.getListenable().removeListener(this);
+            try {
+                cache.close();
+            } catch (IOException e) {
+            }
+        }
+
     }
 
 }

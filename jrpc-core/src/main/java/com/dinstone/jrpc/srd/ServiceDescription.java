@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.srd;
 
 import java.io.Serializable;
@@ -37,7 +38,7 @@ public class ServiceDescription implements Serializable {
 
     private String host;
 
-    private Integer port;
+    private int port;
 
     private String uri;
 
@@ -79,11 +80,11 @@ public class ServiceDescription implements Serializable {
         this.host = host;
     }
 
-    public Integer getPort() {
+    public int getPort() {
         return port;
     }
 
-    public void setPort(Integer port) {
+    public void setPort(int port) {
         this.port = port;
     }
 

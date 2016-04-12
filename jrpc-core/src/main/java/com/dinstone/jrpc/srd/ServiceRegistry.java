@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.srd;
 
+package com.dinstone.jrpc.srd;
 
 /**
  * Service Registry
@@ -24,8 +24,29 @@ package com.dinstone.jrpc.srd;
  */
 public interface ServiceRegistry {
 
-    public abstract void publish(ServiceDescription description) throws Exception;
+    /**
+     * Register / Re-register a service instance
+     * 
+     * @param service
+     *        the service instance description
+     * @throws Exception
+     *         errors
+     */
+    public void register(ServiceDescription service) throws Exception;
 
-    public abstract void destroy();
+    /**
+     * Unregister / Remove a service instance
+     * 
+     * @param service
+     *        the service instance description
+     * @throws Exception
+     *         errors
+     */
+    public void unregister(ServiceDescription service) throws Exception;
+
+    /**
+     * resource release
+     */
+    public void destroy();
 
 }

@@ -16,29 +16,49 @@
 
 package com.dinstone.jrpc.srd.zookeeper;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
-import org.apache.curator.x.discovery.ServiceDiscovery;
-import org.apache.curator.x.discovery.ServiceDiscoveryBuilder;
-import org.apache.curator.x.discovery.ServiceInstance;
-import org.apache.curator.x.discovery.details.JsonInstanceSerializer;
+import org.apache.curator.utils.ZKPaths;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.srd.ServiceAttribute;
 import com.dinstone.jrpc.srd.ServiceDescription;
 import com.dinstone.jrpc.srd.ServiceRegistry;
 
 public class ZookeeperServiceRegistry implements ServiceRegistry {
 
-    private CuratorFramework zkClient;
+    private static final Logger LOG = LoggerFactory.getLogger(ZookeeperServiceRegistry.class);
 
-    private ServiceDiscovery<ServiceAttribute> serviceDiscovery;
+    private final Map<String, ServiceDescription> services = new ConcurrentHashMap<String, ServiceDescription>();
 
-    private List<ServiceInstance<ServiceAttribute>> serviceInstances = new CopyOnWriteArrayList<ServiceInstance<ServiceAttribute>>();
+    private final ServiceDescriptionSerializer serializer = new DefaultServiceDescriptionSerializer();
+
+    private final ConnectionStateListener connectionStateListener = new ConnectionStateListener() {
+
+        @Override
+        public void stateChanged(CuratorFramework client, ConnectionState newState) {
+            if ((newState == ConnectionState.RECONNECTED) || (newState == ConnectionState.CONNECTED)) {
+                try {
+                    LOG.debug("Re-registering due to reconnection");
+                    reRegister();
+                } catch (Exception e) {
+                    LOG.error("Could not re-register instances after reconnection", e);
+                }
+            }
+        }
+    };
+
+    private final String basePath;
+
+    private final CuratorFramework client;
 
     public ZookeeperServiceRegistry(RegistryDiscoveryConfig registryConfig) {
         String zkNodes = registryConfig.getZookeeperNodes();
@@ -50,46 +70,73 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
         if (basePath == null || basePath.length() == 0) {
             throw new IllegalArgumentException("basePath is empty");
         }
+        this.basePath = basePath;
 
-        zkClient = CuratorFrameworkFactory.newClient(zkNodes,
+        client = CuratorFrameworkFactory.newClient(zkNodes,
             new ExponentialBackoffRetry(registryConfig.getBaseSleepTime(), registryConfig.getMaxRetries()));
-        zkClient.start();
+        client.start();
 
+        client.getConnectionStateListenable().addListener(connectionStateListener);
+    }
+
+    @Override
+    public void register(ServiceDescription service) throws Exception {
+        services.put(service.getId(), service);
+        internalRegister(service);
+    }
+
+    @Override
+    public void unregister(ServiceDescription service) throws Exception {
+        String path = pathForProvider(service.getName(), service.getId());
         try {
-            serviceDiscovery = ServiceDiscoveryBuilder.builder(ServiceAttribute.class).client(zkClient)
-                .basePath(basePath).serializer(new JsonInstanceSerializer<ServiceAttribute>(ServiceAttribute.class))
-                .build();
-            serviceDiscovery.start();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            client.delete().forPath(path);
+        } catch (KeeperException.NoNodeException ignore) {
+            // ignore
         }
+        services.remove(service.getId());
     }
 
-    @Override
-    public void publish(ServiceDescription description) throws Exception {
-        String serviceName = description.getName() + "-" + description.getGroup();
-        ServiceInstance<ServiceAttribute> serviceInstance = ServiceInstance.<ServiceAttribute> builder()
-            .id(description.getId()).name(serviceName).address(description.getHost()).port(description.getPort())
-            .payload(description.getServiceAttribute()).build();
-
-        serviceDiscovery.registerService(serviceInstance);
-        serviceInstances.add(serviceInstance);
-    }
-
-    @Override
     public void destroy() {
-        try {
-            for (ServiceInstance<ServiceAttribute> serviceInstance : serviceInstances) {
-                serviceDiscovery.unregisterService(serviceInstance);
-            }
-        } catch (Exception e) {
-        } finally {
-            serviceInstances.clear();
+        for (ServiceDescription service : services.values()) {
+            String path = pathForProvider(service.getName(), service.getId());
             try {
-                serviceDiscovery.close();
-            } catch (IOException e) {
+                client.delete().forPath(path);
+            } catch (Exception ignore) {
+                // ignore
             }
         }
-        zkClient.close();
+        services.clear();
+
+        client.close();
+    }
+
+    protected void reRegister() throws Exception {
+        for (ServiceDescription service : services.values()) {
+            internalRegister(service);
+        }
+    }
+
+    protected void internalRegister(ServiceDescription service) throws Exception {
+        byte[] bytes = serializer.serialize(service);
+        String path = pathForProvider(service.getName(), service.getId());
+
+        final int MAX_TRIES = 2;
+        boolean isDone = false;
+        for (int i = 0; !isDone && (i < MAX_TRIES); ++i) {
+            try {
+                client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, bytes);
+                isDone = true;
+            } catch (KeeperException.NodeExistsException e) {
+                client.delete().forPath(path); // must delete then re-create so that watchers fire
+            }
+        }
+    }
+
+    private String pathForProvider(String name, String id) {
+        return ZKPaths.makePath(pathForService(name) + "/providers", id);
+    }
+
+    private String pathForService(String name) {
+        return ZKPaths.makePath(basePath, name);
     }
 }

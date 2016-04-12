@@ -46,13 +46,12 @@ public class DefaultReferenceBinding extends AbstractReferenceBinding {
             throw new IllegalArgumentException("serviceAddresses is empty");
         }
 
-        String hostsList[] = serviceAddresses.split(",");
-        for (String host : hostsList) {
-            int port = 0;
-            int pidx = host.lastIndexOf(':');
-            if (pidx > 0 && (pidx < host.length() - 1)) {
-                port = Integer.parseInt(host.substring(pidx + 1));
-                host = host.substring(0, pidx);
+        String[] addresses = serviceAddresses.split(",");
+        for (String address : addresses) {
+            int pidx = address.lastIndexOf(':');
+            if (pidx > 0 && (pidx < address.length() - 1)) {
+                String host = address.substring(0, pidx);
+                int port = Integer.parseInt(address.substring(pidx + 1));
 
                 backupServiceAddresses.add(new InetSocketAddress(host, port));
             }

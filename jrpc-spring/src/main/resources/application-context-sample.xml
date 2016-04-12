@@ -6,8 +6,14 @@
 	<jrpc:server host="-" port="1234" transport="mina">
 		<jrpc:registry schema="zookeeper" address="localhost:2181" />
 	</jrpc:server>
-	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v2.0" timeout="2000" />
 	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v1.0" timeout="2000" />
+	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v2.0" timeout="2000" />
+
+	<jrpc:server host="-" port="4321" transport="mina" id="s01">
+		<jrpc:registry schema="zookeeper" address="localhost:2181" />
+	</jrpc:server>
+	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v1.0" timeout="2000" server="s01" />
+	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v2.0" timeout="2000" server="s01" />
 
 	<bean id="helloService" class="com.dinstone.jrpc.demo.HelloServiceImpl" />
 
@@ -16,5 +22,11 @@
 		<jrpc:registry schema="zookeeper" address="localhost:2181" />
 	</jrpc:client>
 	<jrpc:reference id="rhs" interface="com.dinstone.jrpc.demo.HelloService" group="product-v1.0" timeout="1000" />
+	<jrpc:reference id="rhsv1" interface="com.dinstone.jrpc.demo.HelloService" group="product-v1.0" timeout="1000" />
+
+	<jrpc:client id="c01">
+		<jrpc:registry schema="zookeeper" address="localhost:2181" />
+	</jrpc:client>
+	<jrpc:reference id="rhsv2" interface="com.dinstone.jrpc.demo.HelloService" group="product-v2.0" timeout="1000" client="c01" />
 
 </beans>

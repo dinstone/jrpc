@@ -16,7 +16,9 @@
 
 package com.dinstone.jrpc.binding;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,24 +26,55 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.srd.ServiceDescription;
 import com.dinstone.jrpc.srd.ServiceDiscovery;
+import com.dinstone.jrpc.transport.NetworkAddressUtil;
 
 public abstract class AbstractReferenceBinding implements ReferenceBinding {
 
     private final AtomicInteger index = new AtomicInteger(0);
 
+    protected InetSocketAddress consumerAddress;
+
     protected ServiceDiscovery serviceDiscovery;
 
     protected List<InetSocketAddress> backupServiceAddresses = new ArrayList<InetSocketAddress>();
+
+    public AbstractReferenceBinding() {
+        try {
+            InetAddress addr = NetworkAddressUtil.getPrivateInetInetAddress().get(0);
+            consumerAddress = new InetSocketAddress(addr, 0);
+        } catch (SocketException e) {
+            throw new RuntimeException("can't init ReferenceBinding", e);
+        }
+    }
 
     @Override
     public <T> void bind(ServiceProxy<T> wrapper) {
         if (serviceDiscovery != null) {
             try {
-                serviceDiscovery.listen(wrapper.getService().getName(), wrapper.getGroup());
+                ServiceDescription description = createServiceDescription(wrapper);
+                serviceDiscovery.listen(description);
             } catch (Exception e) {
                 throw new RuntimeException("service reference bind error", e);
             }
         }
+    }
+
+    protected <T> ServiceDescription createServiceDescription(ServiceProxy<T> wrapper) {
+        String group = wrapper.getGroup();
+        String host = consumerAddress.getAddress().getHostAddress();
+        int port = consumerAddress.getPort();
+
+        StringBuilder id = new StringBuilder();
+        id.append(host).append(":").append(port).append("@");
+        id.append("group=").append((group == null ? "" : group));
+
+        ServiceDescription description = new ServiceDescription();
+        description.setId(id.toString());
+        description.setName(wrapper.getService().getName());
+        description.setGroup(group);
+        description.setHost(host);
+        description.setPort(port);
+        return description;
     }
 
     @Override
@@ -66,7 +99,7 @@ public abstract class AbstractReferenceBinding implements ReferenceBinding {
 
     private InetSocketAddress locateServiceAddress(String serviceName, String group, int index) {
         try {
-            List<ServiceDescription> serviceDescriptions = serviceDiscovery.discovery(serviceName, group);
+            List<ServiceDescription> serviceDescriptions = findServices(serviceName, group);
             if (serviceDescriptions.size() == 0) {
                 return null;
             }
@@ -75,6 +108,26 @@ public abstract class AbstractReferenceBinding implements ReferenceBinding {
         } catch (Exception e) {
             throw new RuntimeException("service " + serviceName + "[" + group + "] discovery error", e);
         }
+    }
+
+    protected List<ServiceDescription> findServices(String serviceName, String group) throws Exception {
+        List<ServiceDescription> services = new ArrayList<ServiceDescription>();
+        List<ServiceDescription> serviceDescriptions = serviceDiscovery.discovery(serviceName);
+        if (serviceDescriptions != null && serviceDescriptions.size() > 0) {
+            for (ServiceDescription serviceDescription : serviceDescriptions) {
+                String target = serviceDescription.getGroup();
+                if (target == null && group == null) {
+                    services.add(serviceDescription);
+                    continue;
+                }
+                if (target != null && target.equals(group)) {
+                    services.add(serviceDescription);
+                    continue;
+                }
+            }
+        }
+
+        return services;
     }
 
     @Override

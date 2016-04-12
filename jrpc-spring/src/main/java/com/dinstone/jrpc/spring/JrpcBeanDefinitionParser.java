@@ -50,6 +50,8 @@ public class JrpcBeanDefinitionParser extends AbstractSingleBeanDefinitionParser
         if (!StringUtils.hasText(id)) {
             builder.addPropertyValue("id", beanClass.getName());
             element.setAttribute("id", beanClass.getName());
+        } else {
+            builder.addPropertyValue("id", id);
         }
 
         builder.addPropertyValue("transportBean", getTransportBeanDefinition(element, parserContext));

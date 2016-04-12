@@ -32,7 +32,7 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
 
     protected Map<String, ServiceProxy<?>> serviceProxyMap = new ConcurrentHashMap<String, ServiceProxy<?>>();
 
-    protected InetSocketAddress serviceAddress;
+    protected InetSocketAddress providerAddress;
 
     protected ServiceRegistry serviceRegistry;
 
@@ -49,14 +49,20 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
     }
 
     protected void publish(ServiceProxy<?> wrapper) {
+        String host = providerAddress.getAddress().getHostAddress();
+        int port = providerAddress.getPort();
+        String group = wrapper.getGroup();
+
+        StringBuilder id = new StringBuilder();
+        id.append(host).append(":").append(port).append("@");
+        id.append("group=").append((group == null ? "" : group));
+
         ServiceDescription description = new ServiceDescription();
-        String host = serviceAddress.getAddress().getHostAddress();
-        int port = serviceAddress.getPort();
-        description.setId(host + ":" + port);
+        description.setId(id.toString());
         description.setHost(host);
         description.setPort(port);
         description.setName(wrapper.getService().getName());
-        description.setGroup(wrapper.getGroup());
+        description.setGroup(group);
 
         ServiceAttribute serviceAttribute = new ServiceAttribute();
         List<String> methodDescList = new ArrayList<String>();
@@ -68,7 +74,7 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
 
         description.setServiceAttribute(serviceAttribute);
         try {
-            serviceRegistry.publish(description);
+            serviceRegistry.register(description);
         } catch (Exception e) {
             throw new RuntimeException("can't publish service", e);
         }
@@ -126,7 +132,7 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
 
     @Override
     public InetSocketAddress getServiceAddress() {
-        return serviceAddress;
+        return providerAddress;
     }
 
 }

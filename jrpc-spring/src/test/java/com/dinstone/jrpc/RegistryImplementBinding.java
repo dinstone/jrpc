@@ -34,7 +34,7 @@ public class RegistryImplementBinding extends AbstractImplementBinding {
     private ServiceRegistry serviceRegistry;
 
     public RegistryImplementBinding(String host, int port, RegistryDiscoveryConfig registryConfig) {
-        this.serviceAddress = new InetSocketAddress(host, port);
+        this.providerAddress = new InetSocketAddress(host, port);
         this.serviceRegistry = new ZookeeperServiceRegistry(registryConfig);
     }
 
@@ -43,8 +43,8 @@ public class RegistryImplementBinding extends AbstractImplementBinding {
         super.bind(wrapper);
 
         ServiceDescription description = new ServiceDescription();
-        String host = serviceAddress.getAddress().getHostAddress();
-        int port = serviceAddress.getPort();
+        String host = providerAddress.getAddress().getHostAddress();
+        int port = providerAddress.getPort();
         description.setId(host + ":" + port);
         description.setHost(host);
         description.setPort(port);
@@ -61,7 +61,7 @@ public class RegistryImplementBinding extends AbstractImplementBinding {
 
         description.setServiceAttribute(serviceAttribute);
         try {
-            serviceRegistry.publish(description);
+//            serviceRegistry.publish(description);
         } catch (Exception e) {
             throw new RuntimeException("can't regist service", e);
         }

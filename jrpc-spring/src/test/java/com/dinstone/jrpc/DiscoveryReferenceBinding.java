@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.proxy.ServiceProxy;
-import com.dinstone.jrpc.srd.ServiceDiscovery;
 import com.dinstone.jrpc.srd.ServiceDescription;
+import com.dinstone.jrpc.srd.ServiceDiscovery;
 import com.dinstone.jrpc.srd.zookeeper.RegistryDiscoveryConfig;
 import com.dinstone.jrpc.srd.zookeeper.ZookeeperServiceDiscovery;
 
@@ -40,7 +40,7 @@ public class DiscoveryReferenceBinding implements ReferenceBinding {
     @Override
     public <T> void bind(ServiceProxy<T> wrapper) {
         try {
-            serviceDiscovery.listen(wrapper.getService().getName(), wrapper.getGroup());
+            // serviceDiscovery.listen(wrapper.getService().getName(), wrapper.getGroup());
         } catch (Exception e) {
             throw new RuntimeException("service reference bind error", e);
         }
@@ -58,7 +58,7 @@ public class DiscoveryReferenceBinding implements ReferenceBinding {
 
     private ServiceDescription locateService(String serviceName, String group) {
         try {
-            List<ServiceDescription> serviceDescriptions = serviceDiscovery.discovery(serviceName, group);
+            List<ServiceDescription> serviceDescriptions = null;// serviceDiscovery.discovery(serviceName, group);
             if (serviceDescriptions.size() == 0) {
                 return null;
             }
