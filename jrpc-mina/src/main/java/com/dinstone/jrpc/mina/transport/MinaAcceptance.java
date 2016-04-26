@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.transport;
 
 import java.net.InetSocketAddress;
@@ -113,7 +114,7 @@ public class MinaAcceptance extends AbstractAcceptance {
         } catch (Exception e) {
             throw new RuntimeException("can't bind service on " + serviceAddress, e);
         }
-        LOG.info("jrpc service start on {}", serviceAddress);
+        LOG.info("jrpc service bind on {}", serviceAddress);
 
         return this;
     }
@@ -132,7 +133,7 @@ public class MinaAcceptance extends AbstractAcceptance {
             }
         }
 
-        LOG.info("jrpc service stop on {}", implementBinding.getServiceAddress());
+        LOG.info("jrpc service unbind on {}", implementBinding.getServiceAddress());
     }
 
     private class MinaIoHandler extends IoHandlerAdapter {

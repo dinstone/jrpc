@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
+
+import java.net.InetSocketAddress;
 
 import com.dinstone.jrpc.protocol.Call;
 
@@ -32,6 +35,12 @@ public interface Connection {
      * @return
      */
     public ResultFuture call(Call call);
+
+    public InetSocketAddress getRemoteAddress();
+
+    public InetSocketAddress getLocalAddress();
+
+    public boolean isAlive();
 
     public void destroy();
 

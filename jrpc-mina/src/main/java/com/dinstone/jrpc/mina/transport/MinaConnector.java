@@ -166,7 +166,7 @@ public class MinaConnector {
 
         @Override
         public void sessionClosed(IoSession session) throws Exception {
-            LOG.debug("Session[{}] is closed", session.getId());
+            // LOG.debug("Session[{}] is closed", session.getId());
             Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(session);
             for (ResultFuture future : futureMap.values()) {
                 future.setResult(new Result(400, "connection is closed"));
@@ -198,5 +198,9 @@ public class MinaConnector {
             }
         }
 
+    }
+
+    public InetSocketAddress getRemoteAddress() {
+        return ioConnector.getDefaultRemoteAddress();
     }
 }

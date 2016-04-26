@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.transport;
 
 import java.net.InetSocketAddress;
@@ -29,8 +30,8 @@ import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Result;
 import com.dinstone.jrpc.serialize.SerializeType;
-import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.Connection;
+import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaConnection implements Connection {
@@ -75,13 +76,7 @@ public class MinaConnection implements Connection {
         return callFuture;
     }
 
-    public void close() {
-        if (ioSession != null) {
-            ioSession.close(true);
-            LOG.info("session {} closed", ioSession.getId());
-        }
-    }
-
+    @Override
     public boolean isAlive() {
         return ioSession.isConnected() && !ioSession.isClosing();
     }
@@ -90,15 +85,24 @@ public class MinaConnection implements Connection {
     public void destroy() {
         if (ioSession != null) {
             ioSession.close(true);
-            LOG.info("session {} closed", ioSession.getId());
-            ioSession = null;
+            LOG.info("close session ID[{}]$L[{}]$R[{}]", ioSession.getId(), ioSession.getLocalAddress(),
+                ioSession.getRemoteAddress());
         }
 
         if (connector != null) {
             connector.dispose();
-            connector = null;
         }
 
+    }
+
+    @Override
+    public InetSocketAddress getRemoteAddress() {
+        return (InetSocketAddress) connector.getRemoteAddress();
+    }
+
+    @Override
+    public InetSocketAddress getLocalAddress() {
+        return (InetSocketAddress) ioSession.getLocalAddress();
     }
 
 }

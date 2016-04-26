@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.dinstone.jrpc</groupId>
 		<artifactId>jrpc-parent</artifactId>
-		<version>2.2.0</version>
+		<version>2.2.1</version>
 	</parent>
 	<artifactId>jrpc-core</artifactId>
 	<description>RPC protocol infrastructure.</description>
