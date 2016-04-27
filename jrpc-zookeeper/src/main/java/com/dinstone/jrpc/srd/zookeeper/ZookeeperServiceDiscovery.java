@@ -40,7 +40,7 @@ import com.dinstone.jrpc.srd.ServiceDescription;
 
 public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.srd.ServiceDiscovery {
 
-    private final ServiceDescriptionSerializer serializer = new DefaultServiceDescriptionSerializer();
+    private final ServiceDescriptionSerializer serializer = new ServiceDescriptionSerializer();
 
     private final Map<String, ServiceCache> serviceCacheMap = new ConcurrentHashMap<String, ServiceCache>();
 
@@ -71,9 +71,10 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.srd.ServiceD
 
     @Override
     public void destroy() {
-        for (ServiceCache service : serviceCacheMap.values()) {
-            service.destroy();
+        for (ServiceCache serviceCache : serviceCacheMap.values()) {
+            serviceCache.destroy();
         }
+        serviceCacheMap.clear();
 
         client.close();
     }

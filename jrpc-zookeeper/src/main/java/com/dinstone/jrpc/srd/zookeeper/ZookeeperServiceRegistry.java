@@ -39,7 +39,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
 
     private final Map<String, ServiceDescription> services = new ConcurrentHashMap<String, ServiceDescription>();
 
-    private final ServiceDescriptionSerializer serializer = new DefaultServiceDescriptionSerializer();
+    private final ServiceDescriptionSerializer serializer = new ServiceDescriptionSerializer();
 
     private final ConnectionStateListener connectionStateListener = new ConnectionStateListener() {
 
@@ -107,6 +107,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
         }
         services.clear();
 
+        client.getConnectionStateListenable().removeListener(connectionStateListener);
         client.close();
     }
 

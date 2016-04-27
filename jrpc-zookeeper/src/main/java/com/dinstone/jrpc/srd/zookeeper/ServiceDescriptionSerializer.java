@@ -16,12 +16,31 @@
 
 package com.dinstone.jrpc.srd.zookeeper;
 
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.JavaType;
+
 import com.dinstone.jrpc.srd.ServiceDescription;
 
-public interface ServiceDescriptionSerializer {
+public class ServiceDescriptionSerializer {
 
-    byte[] serialize(ServiceDescription service) throws Exception;
+    private final ObjectMapper mapper;
 
-    ServiceDescription deserialize(byte[] bytes) throws Exception;
+    private final JavaType type;
+
+    public ServiceDescriptionSerializer() {
+        mapper = new ObjectMapper();
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        type = mapper.getTypeFactory().constructType(ServiceDescription.class);
+    }
+
+    public byte[] serialize(ServiceDescription service) throws Exception {
+        return mapper.writeValueAsBytes(service);
+    }
+
+    public ServiceDescription deserialize(byte[] bytes) throws Exception {
+        return mapper.readValue(bytes, type);
+    }
 
 }
