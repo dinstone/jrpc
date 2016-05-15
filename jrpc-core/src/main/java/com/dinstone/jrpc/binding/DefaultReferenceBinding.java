@@ -34,11 +34,10 @@ public class DefaultReferenceBinding extends AbstractReferenceBinding {
     }
 
     public DefaultReferenceBinding(ServiceDiscovery serviceDiscovery) {
+        if (serviceDiscovery == null) {
+            throw new IllegalArgumentException("serviceDiscovery is null");
+        }
         this.serviceDiscovery = serviceDiscovery;
-    }
-
-    public DefaultReferenceBinding(String serviceAddresses) {
-        this(serviceAddresses, null);
     }
 
     public DefaultReferenceBinding(String serviceAddresses, ServiceDiscovery serviceDiscovery) {

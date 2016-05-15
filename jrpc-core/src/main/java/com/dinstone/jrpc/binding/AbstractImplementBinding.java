@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.srd.ServiceAttribute;
 import com.dinstone.jrpc.srd.ServiceDescription;
@@ -36,7 +37,7 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
 
     protected ServiceRegistry serviceRegistry;
 
-    public <T> void bind(ServiceProxy<T> serviceWrapper) {
+    public <T> void bind(ServiceProxy<T> serviceWrapper, EndpointConfig endpointConfig) {
         String serviceId = serviceWrapper.getService().getName() + "-" + serviceWrapper.getGroup();
         if (serviceProxyMap.get(serviceId) != null) {
             throw new RuntimeException("multiple object registed with the service interface " + serviceId);
@@ -44,17 +45,18 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
         serviceProxyMap.put(serviceId, serviceWrapper);
 
         if (serviceRegistry != null) {
-            publish(serviceWrapper);
+            publish(serviceWrapper, endpointConfig);
         }
     }
 
-    protected void publish(ServiceProxy<?> wrapper) {
+    protected void publish(ServiceProxy<?> wrapper, EndpointConfig endpointConfig) {
         String host = providerAddress.getAddress().getHostAddress();
         int port = providerAddress.getPort();
         String group = wrapper.getGroup();
 
         StringBuilder id = new StringBuilder();
         id.append(host).append(":").append(port).append("@");
+        id.append(endpointConfig.getEndpointName()).append("#").append(endpointConfig.getEndpointId()).append("@");
         id.append("group=").append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
@@ -71,6 +73,9 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
         }
         serviceAttribute.addAttribute("timeout", wrapper.getTimeout());
         serviceAttribute.addAttribute("methods", methodDescList);
+
+        serviceAttribute.addAttribute("endpointId", endpointConfig.getEndpointId());
+        serviceAttribute.addAttribute("endpointName", endpointConfig.getEndpointName());
 
         description.setServiceAttribute(serviceAttribute);
         try {

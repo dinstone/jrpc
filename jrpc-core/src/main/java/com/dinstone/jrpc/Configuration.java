@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc;
 
 import java.io.IOException;
@@ -73,6 +74,10 @@ public class Configuration {
     }
 
     public Configuration(Configuration config) {
+        this.properties.putAll(config.properties);
+    }
+
+    public void merge(Configuration config) {
         this.properties.putAll(config.properties);
     }
 

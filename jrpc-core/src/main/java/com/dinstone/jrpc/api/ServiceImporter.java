@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.api;
 
 public interface ServiceImporter {
-
-    public static final int DEFAULT_TIMEOUT = 3000;
 
     public abstract <T> T importService(Class<T> sic);
 
@@ -25,7 +24,7 @@ public interface ServiceImporter {
 
     public abstract <T> T importService(Class<T> sic, String group, int timeout);
 
-    public void setDefaultTimeout(int defaultTimeout);
+    public abstract EndpointConfig getEndpointConfig();
 
     public abstract void destroy();
 

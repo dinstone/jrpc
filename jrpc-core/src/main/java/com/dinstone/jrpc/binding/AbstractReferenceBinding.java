@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
+import com.dinstone.jrpc.srd.ServiceAttribute;
 import com.dinstone.jrpc.srd.ServiceDescription;
 import com.dinstone.jrpc.srd.ServiceDiscovery;
 import com.dinstone.jrpc.transport.NetworkAddressUtil;
@@ -48,10 +50,10 @@ public abstract class AbstractReferenceBinding implements ReferenceBinding {
     }
 
     @Override
-    public <T> void bind(ServiceProxy<T> wrapper) {
+    public <T> void bind(ServiceProxy<T> wrapper, EndpointConfig endpointConfig) {
         if (serviceDiscovery != null) {
             try {
-                ServiceDescription description = createServiceDescription(wrapper);
+                ServiceDescription description = createServiceDescription(wrapper, endpointConfig);
                 serviceDiscovery.listen(description);
             } catch (Exception e) {
                 throw new RuntimeException("service reference bind error", e);
@@ -59,13 +61,14 @@ public abstract class AbstractReferenceBinding implements ReferenceBinding {
         }
     }
 
-    protected <T> ServiceDescription createServiceDescription(ServiceProxy<T> wrapper) {
+    protected <T> ServiceDescription createServiceDescription(ServiceProxy<T> wrapper, EndpointConfig endpointConfig) {
         String group = wrapper.getGroup();
         String host = consumerAddress.getAddress().getHostAddress();
         int port = consumerAddress.getPort();
 
         StringBuilder id = new StringBuilder();
         id.append(host).append(":").append(port).append("@");
+        id.append(endpointConfig.getEndpointName()).append("#").append(endpointConfig.getEndpointId()).append("@");
         id.append("group=").append((group == null ? "" : group));
 
         ServiceDescription description = new ServiceDescription();
@@ -74,6 +77,13 @@ public abstract class AbstractReferenceBinding implements ReferenceBinding {
         description.setGroup(group);
         description.setHost(host);
         description.setPort(port);
+
+        ServiceAttribute serviceAttribute = new ServiceAttribute();
+        serviceAttribute.addAttribute("endpointId", endpointConfig.getEndpointId());
+        serviceAttribute.addAttribute("endpointName", endpointConfig.getEndpointName());
+
+        description.setServiceAttribute(serviceAttribute);
+
         return description;
     }
 

@@ -23,28 +23,32 @@ import com.dinstone.jrpc.proxy.SkelectonProxyFactory;
 
 public class DefaultServiceExporter implements ServiceExporter {
 
-    private int defaultTimeout = DEFAULT_TIMEOUT;
+    private EndpointConfig endpointConfig = new EndpointConfig();
 
     private ImplementBinding implementBinding;
 
     private ServiceProxyFactory serviceProxyFactory;
 
-    public DefaultServiceExporter(ImplementBinding implementBinding) {
+    public DefaultServiceExporter(EndpointConfig endpointConfig, ImplementBinding implementBinding) {
         if (implementBinding == null) {
             throw new IllegalArgumentException("implementBinding is null");
         }
         this.implementBinding = implementBinding;
         this.serviceProxyFactory = new SkelectonProxyFactory();
+
+        if (endpointConfig != null) {
+            this.endpointConfig.merge(endpointConfig);
+        }
     }
 
     @Override
     public <T> void exportService(Class<T> serviceInterface, T serviceImplement) {
-        exportService(serviceInterface, "", defaultTimeout, serviceImplement);
+        exportService(serviceInterface, "", endpointConfig.getDefaultTimeout(), serviceImplement);
     }
 
     @Override
     public <T> void exportService(Class<T> serviceInterface, String group, T serviceImplement) {
-        exportService(serviceInterface, group, defaultTimeout, serviceImplement);
+        exportService(serviceInterface, group, endpointConfig.getDefaultTimeout(), serviceImplement);
     }
 
     @Override
@@ -53,17 +57,12 @@ public class DefaultServiceExporter implements ServiceExporter {
             group = "";
         }
         if (timeout <= 0) {
-            timeout = defaultTimeout;
+            timeout = endpointConfig.getDefaultTimeout();
         }
 
         ServiceProxy<T> wrapper = serviceProxyFactory.createSkelecton(serviceInterface, group, timeout,
             serviceImplement);
-        implementBinding.bind(wrapper);
-    }
-
-    @Override
-    public void setDefaultTimeout(int defaultTimeout) {
-        this.defaultTimeout = defaultTimeout;
+        implementBinding.bind(wrapper, endpointConfig);
     }
 
     @Override
@@ -71,6 +70,11 @@ public class DefaultServiceExporter implements ServiceExporter {
         if (serviceProxyFactory != null) {
             serviceProxyFactory.destroy();
         }
+    }
+
+    @Override
+    public EndpointConfig getEndpointConfig() {
+        return endpointConfig;
     }
 
 }

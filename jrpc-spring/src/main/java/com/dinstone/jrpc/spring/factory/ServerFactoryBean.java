@@ -16,6 +16,7 @@
 
 package com.dinstone.jrpc.spring.factory;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
+import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.mina.MinaServer;
 import com.dinstone.jrpc.spring.spi.ServiceBean;
@@ -36,6 +38,8 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
     private static final Logger LOG = LoggerFactory.getLogger(ServerFactoryBean.class);
 
     private String id;
+
+    private String name;
 
     // ================================================
     // Transport config
@@ -58,6 +62,14 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public TransportBean getTransportBean() {
@@ -90,7 +102,7 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
 
     @Override
     protected Server createInstance() throws Exception {
-        LOG.info("create jrpc server [{}]", id);
+        LOG.info("create jrpc client {}@{}", id, name);
 
         ServiceRegistry serviceRegistry = null;
         if ("zookeeper".equalsIgnoreCase(registryBean.getSchema()) && registryBean.getAddress() != null) {
@@ -110,13 +122,17 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
         } else if ("*".equals(host)) {
             host = "0.0.0.0";
         }
-        int port = transportBean.getPort();
+        InetSocketAddress providerAddress = new InetSocketAddress(host, transportBean.getPort());
+
+        EndpointConfig endpointConfig = new EndpointConfig();
+        endpointConfig.setEndpointId(id);
+        endpointConfig.setEndpointName(name);
 
         Server server = null;
         if ("mina".equalsIgnoreCase(transportBean.getType())) {
-            server = new MinaServer(host, port, transportBean.getConfig(), serviceRegistry);
+            server = new MinaServer(providerAddress, transportBean.getConfig(), serviceRegistry, endpointConfig);
         } else {
-            server = new MinaServer(host, port, transportBean.getConfig(), serviceRegistry);
+            server = new MinaServer(providerAddress, transportBean.getConfig(), serviceRegistry, endpointConfig);
         }
 
         server.start();

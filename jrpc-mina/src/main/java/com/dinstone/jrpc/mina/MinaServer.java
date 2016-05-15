@@ -16,10 +16,13 @@
 
 package com.dinstone.jrpc.mina;
 
+import java.net.InetSocketAddress;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.api.DefaultServiceExporter;
+import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServiceExporter;
 import com.dinstone.jrpc.binding.DefaultImplementBinding;
@@ -47,12 +50,13 @@ public class MinaServer implements Server {
     }
 
     public MinaServer(String host, int port, TransportConfig transportConfig) {
-        this(host, port, transportConfig, null);
+        this(new InetSocketAddress(host, port), transportConfig, null, null);
     }
 
-    public MinaServer(String host, int port, TransportConfig transportConfig, ServiceRegistry serviceRegistry) {
-        this.implementBinding = new DefaultImplementBinding(host, port, serviceRegistry);
-        this.serviceExporter = new DefaultServiceExporter(implementBinding);
+    public MinaServer(InetSocketAddress providerAddress, TransportConfig transportConfig,
+            ServiceRegistry serviceRegistry, EndpointConfig endpointConfig) {
+        this.implementBinding = new DefaultImplementBinding(providerAddress, serviceRegistry);
+        this.serviceExporter = new DefaultServiceExporter(endpointConfig, implementBinding);
 
         this.acceptance = new MinaAcceptance(transportConfig, implementBinding);
     }
@@ -95,10 +99,6 @@ public class MinaServer implements Server {
     @Override
     public <T> void regist(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
         serviceExporter.exportService(serviceInterface, group, timeout, serviceImplement);
-    }
-
-    public void setDefaultTimeout(int defaultTimeout) {
-        serviceExporter.setDefaultTimeout(defaultTimeout);
     }
 
 }

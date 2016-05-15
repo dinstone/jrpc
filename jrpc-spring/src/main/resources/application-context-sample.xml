@@ -18,15 +18,16 @@
 	<bean id="helloService" class="com.dinstone.jrpc.demo.HelloServiceImpl" />
 
 
-	<jrpc:client>
+	<jrpc:client name="demo">
 		<jrpc:registry schema="zookeeper" address="localhost:2181" />
 	</jrpc:client>
-	<jrpc:reference id="rhs" interface="com.dinstone.jrpc.demo.HelloService" group="product-v1.0" timeout="1000" />
 	<jrpc:reference id="rhsv1" interface="com.dinstone.jrpc.demo.HelloService" group="product-v1.0" timeout="1000" />
+	<jrpc:reference id="rhsv2" interface="com.dinstone.jrpc.demo.HelloService" group="product-v2.0" timeout="1000" />
 
 	<jrpc:client id="c01">
 		<jrpc:registry schema="zookeeper" address="localhost:2181" />
 	</jrpc:client>
-	<jrpc:reference id="rhsv2" interface="com.dinstone.jrpc.demo.HelloService" group="product-v2.0" timeout="1000" client="c01" />
+	<jrpc:reference id="rhsv1-1" interface="com.dinstone.jrpc.demo.HelloService" group="product-v1.0" timeout="1000" client="c01" />
+	<jrpc:reference id="rhsv2-1" interface="com.dinstone.jrpc.demo.HelloService" group="product-v2.0" timeout="1000" client="c01" />
 
 </beans>

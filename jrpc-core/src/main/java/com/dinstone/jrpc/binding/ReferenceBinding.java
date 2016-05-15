@@ -18,6 +18,7 @@ package com.dinstone.jrpc.binding;
 
 import java.net.InetSocketAddress;
 
+import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 
 /**
@@ -33,7 +34,7 @@ public interface ReferenceBinding {
      * 
      * @param wrapper
      */
-    public <T> void bind(ServiceProxy<T> wrapper);
+    public <T> void bind(ServiceProxy<T> wrapper, EndpointConfig endpointConfig);
 
     public <T> InetSocketAddress getServiceAddress(Class<T> serviceInterface, String group);
 

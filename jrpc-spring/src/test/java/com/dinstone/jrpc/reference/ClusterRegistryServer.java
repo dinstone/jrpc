@@ -17,6 +17,7 @@
 package com.dinstone.jrpc.reference;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 import com.dinstone.jrpc.demo.HelloService;
 import com.dinstone.jrpc.demo.HelloServiceImpl;
@@ -34,7 +35,8 @@ public class ClusterRegistryServer {
 
         ZookeeperServiceRegistry serviceRegistry = new ZookeeperServiceRegistry(registryConfig);
 
-        MinaServer server = new MinaServer("localhost", 9090, new TransportConfig(), serviceRegistry);
+        MinaServer server = new MinaServer(new InetSocketAddress("localhost", 9090), new TransportConfig(),
+            serviceRegistry, null);
 
         // ImplementBinding implementBinding = new DefaultImplementBinding("localhost", 9090, serviceRegistry);
         //

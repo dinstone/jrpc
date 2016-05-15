@@ -18,6 +18,7 @@ package com.dinstone.jrpc.mina;
 
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.DefaultServiceImporter;
+import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.binding.DefaultReferenceBinding;
 import com.dinstone.jrpc.binding.ReferenceBinding;
@@ -45,19 +46,19 @@ public class MinaClient implements Client {
     public MinaClient(final String host, final int port, TransportConfig config) {
         referenceBinding = new DefaultReferenceBinding(host, port);
         connectionFactory = new MinaConnectionFactory(config);
-        serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
+        serviceImporter = new DefaultServiceImporter(null, referenceBinding, connectionFactory);
     }
 
     public MinaClient(String serviceAddresses, TransportConfig config) {
-        this.referenceBinding = new DefaultReferenceBinding(serviceAddresses);
+        this.referenceBinding = new DefaultReferenceBinding(serviceAddresses, null);
         this.connectionFactory = new MinaConnectionFactory(config);
-        this.serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
+        this.serviceImporter = new DefaultServiceImporter(null, referenceBinding, connectionFactory);
     }
 
-    public MinaClient(ServiceDiscovery serviceDiscovery, TransportConfig config) {
+    public MinaClient(EndpointConfig endpointConfig, ServiceDiscovery serviceDiscovery, TransportConfig config) {
         this.referenceBinding = new DefaultReferenceBinding(serviceDiscovery);
         this.connectionFactory = new MinaConnectionFactory(config);
-        this.serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);
+        this.serviceImporter = new DefaultServiceImporter(endpointConfig, referenceBinding, connectionFactory);
     }
 
     public <T> T getService(Class<T> sic) {
@@ -81,7 +82,7 @@ public class MinaClient implements Client {
     }
 
     public MinaClient setDefaultTimeout(int timeout) {
-        serviceImporter.setDefaultTimeout(timeout);
+        serviceImporter.getEndpointConfig().setDefaultTimeout(timeout);
         return this;
     }
 

@@ -16,6 +16,9 @@
 
 package com.dinstone.jrpc.spring;
 
+import java.lang.management.ManagementFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
@@ -29,6 +32,8 @@ import com.dinstone.jrpc.spring.factory.RegistryBean;
 import com.dinstone.jrpc.spring.factory.TransportBean;
 
 public class JrpcBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
+    private AtomicInteger count = new AtomicInteger();
 
     protected Class<?> factoryBeanClass;
 
@@ -48,10 +53,19 @@ public class JrpcBeanDefinitionParser extends AbstractSingleBeanDefinitionParser
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         String id = element.getAttribute("id");
         if (!StringUtils.hasText(id)) {
-            builder.addPropertyValue("id", beanClass.getName());
-            element.setAttribute("id", beanClass.getName());
+            id = beanClass.getSimpleName() + "-" + count.incrementAndGet();
+            builder.addPropertyValue("id", id);
+            element.setAttribute("id", id);
         } else {
             builder.addPropertyValue("id", id);
+        }
+
+        String name = element.getAttribute("name");
+        if (!StringUtils.hasText(name)) {
+            String[] pidName = ManagementFactory.getRuntimeMXBean().getName().split("@");
+            builder.addPropertyValue("name", pidName[1] + ":" + pidName[0]);
+        } else {
+            builder.addPropertyValue("name", name);
         }
 
         builder.addPropertyValue("transportBean", getTransportBeanDefinition(element, parserContext));

@@ -34,7 +34,7 @@ public class ClusterDiscoveryClient {
 
         // ReferenceBinding referenceBinding = new DefaultReferenceBinding(serviceDiscovery);
 
-        MinaClient client = new MinaClient(serviceDiscovery, new TransportConfig());
+        MinaClient client = new MinaClient(null, serviceDiscovery, new TransportConfig());
         //
         // ConnectionFactory connectionFactory = new MinaConnectionFactory(new TransportConfig());
         // DefaultServiceImporter serviceImporter = new DefaultServiceImporter(referenceBinding, connectionFactory);

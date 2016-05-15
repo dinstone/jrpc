@@ -25,13 +25,14 @@ import com.dinstone.jrpc.transport.ConnectionFactory;
 
 public class DefaultServiceImporter implements ServiceImporter {
 
-    private int defaultTimeout = DEFAULT_TIMEOUT;
+    private EndpointConfig endpointConfig = new EndpointConfig();
 
     private ServiceProxyFactory serviceStubFactory;
 
     private ReferenceBinding referenceBinding;
 
-    public DefaultServiceImporter(ReferenceBinding referenceBinding, ConnectionFactory connectionFactory) {
+    public DefaultServiceImporter(EndpointConfig endpointConfig, ReferenceBinding referenceBinding,
+            ConnectionFactory connectionFactory) {
         if (referenceBinding == null) {
             throw new IllegalArgumentException("referenceBinding is null");
         }
@@ -40,8 +41,11 @@ public class DefaultServiceImporter implements ServiceImporter {
         if (connectionFactory == null) {
             throw new IllegalArgumentException("connectionFactory is null");
         }
+        this.serviceStubFactory = new StubProxyFactory(new StubServiceInvoker(referenceBinding, connectionFactory));
 
-        serviceStubFactory = new StubProxyFactory(new StubServiceInvoker(referenceBinding, connectionFactory));
+        if (endpointConfig != null) {
+            this.endpointConfig.merge(endpointConfig);
+        }
     }
 
     /**
@@ -61,7 +65,7 @@ public class DefaultServiceImporter implements ServiceImporter {
      */
     @Override
     public <T> T importService(Class<T> sic, String group) {
-        return importService(sic, group, defaultTimeout);
+        return importService(sic, group, endpointConfig.getDefaultTimeout());
     }
 
     /**
@@ -73,7 +77,7 @@ public class DefaultServiceImporter implements ServiceImporter {
     public <T> T importService(Class<T> sic, String group, int timeout) {
         try {
             ServiceProxy<T> wrapper = serviceStubFactory.createStub(sic, group, timeout);
-            referenceBinding.bind(wrapper);
+            referenceBinding.bind(wrapper, endpointConfig);
             return wrapper.getInstance();
         } catch (Exception e) {
             throw new RuntimeException("can't create service proxy", e);
@@ -92,8 +96,9 @@ public class DefaultServiceImporter implements ServiceImporter {
         }
     }
 
-    public void setDefaultTimeout(int defaultTimeout) {
-        this.defaultTimeout = defaultTimeout;
+    @Override
+    public EndpointConfig getEndpointConfig() {
+        return endpointConfig;
     }
 
 }

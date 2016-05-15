@@ -60,7 +60,7 @@ public class ServiceBeanDefinitionParser extends AbstractSingleBeanDefinitionPar
 
     private String getServerBeanId(String serverId) {
         if (serverId == null || serverId.length() == 0) {
-            serverId = Server.class.getName();
+            serverId = Server.class.getSimpleName() + "-" + 1;
         }
         return serverId;
     }

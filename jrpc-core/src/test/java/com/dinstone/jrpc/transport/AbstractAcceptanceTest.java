@@ -16,6 +16,8 @@
 
 package com.dinstone.jrpc.transport;
 
+import java.net.InetSocketAddress;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +44,8 @@ public class AbstractAcceptanceTest {
         SkelectonProxyFactory factory = new SkelectonProxyFactory();
         ServiceProxy<DemoService> wrapper = factory.createSkelecton(DemoService.class, "", 3000, new DemoServiceImpl());
 
-        ImplementBinding iBinding = new DefaultImplementBinding("localhost", 0);
-        iBinding.bind(wrapper);
+        ImplementBinding iBinding = new DefaultImplementBinding(new InetSocketAddress("localhost", 0));
+        iBinding.bind(wrapper, null);
 
         ServiceInvoker sInvoker = new SkelectonServiceInvoker();
         acceptance = new AbstractAcceptance(iBinding, sInvoker) {
@@ -85,7 +87,7 @@ public class AbstractAcceptanceTest {
     @Test
     public void testHandle2() {
         Request request = new Request(12345, SerializeType.JACKSON, new Call(DemoService.class.getName(), "", 3000,
-            "hello", new Object[] { "guojinfei", (int)34 }, null));
+            "hello", new Object[] { "guojinfei", (int) 34 }, null));
         Response response = acceptance.handle(request);
 
         System.out.println(response);

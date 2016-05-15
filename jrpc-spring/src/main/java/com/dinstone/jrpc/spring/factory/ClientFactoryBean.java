@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.dinstone.jrpc.api.Client;
+import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.mina.MinaClient;
 import com.dinstone.jrpc.srd.ServiceDiscovery;
 import com.dinstone.jrpc.srd.zookeeper.RegistryDiscoveryConfig;
@@ -31,6 +32,8 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
     private static final Logger LOG = LoggerFactory.getLogger(ClientFactoryBean.class);
 
     private String id;
+
+    private String name;
 
     // ================================================
     // Transport config
@@ -48,6 +51,14 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public TransportBean getTransportBean() {
@@ -68,7 +79,7 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
 
     @Override
     protected Client createInstance() throws Exception {
-        LOG.info("create jrpc client [{}]", id);
+        LOG.info("create jrpc client {}@{}", id, name);
 
         ServiceDiscovery serviceDiscovery = null;
         if ("zookeeper".equalsIgnoreCase(registryBean.getSchema()) && registryBean.getAddress() != null) {
@@ -80,16 +91,20 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
             serviceDiscovery = new ZookeeperServiceDiscovery(registryConfig);
         }
 
+        EndpointConfig endpointConfig = new EndpointConfig();
+        endpointConfig.setEndpointId(id);
+        endpointConfig.setEndpointName(name);
+
         Client client = null;
         if ("mina".equalsIgnoreCase(transportBean.getType())) {
             if (serviceDiscovery != null) {
-                client = new MinaClient(serviceDiscovery, transportBean.getConfig());
+                client = new MinaClient(endpointConfig, serviceDiscovery, transportBean.getConfig());
             } else {
                 client = new MinaClient(transportBean.getAddress(), transportBean.getConfig());
             }
         } else {
             if (serviceDiscovery != null) {
-                client = new MinaClient(serviceDiscovery, transportBean.getConfig());
+                client = new MinaClient(endpointConfig, serviceDiscovery, transportBean.getConfig());
             } else {
                 client = new MinaClient(transportBean.getAddress(), transportBean.getConfig());
             }

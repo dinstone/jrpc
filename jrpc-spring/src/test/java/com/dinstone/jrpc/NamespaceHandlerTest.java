@@ -28,7 +28,7 @@ public class NamespaceHandlerTest {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
             "application-context-sample.xml");
 
-        HelloService service = (HelloService) applicationContext.getBean("rhs");
+        HelloService service = (HelloService) applicationContext.getBean("rhsv1");
         try {
             testHot(service);
         } catch (Exception e) {

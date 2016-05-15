@@ -22,12 +22,12 @@ import com.dinstone.jrpc.srd.ServiceRegistry;
 
 public class DefaultImplementBinding extends AbstractImplementBinding {
 
-    public DefaultImplementBinding(String host, int port) {
-        this.providerAddress = new InetSocketAddress(host, port);
+    public DefaultImplementBinding(InetSocketAddress providerAddress) {
+        this.providerAddress = providerAddress;
     }
 
-    public DefaultImplementBinding(String host, int port, ServiceRegistry serviceRegistry) {
-        this.providerAddress = new InetSocketAddress(host, port);
+    public DefaultImplementBinding(InetSocketAddress providerAddress, ServiceRegistry serviceRegistry) {
+        this.providerAddress = providerAddress;
         this.serviceRegistry = serviceRegistry;
     }
 

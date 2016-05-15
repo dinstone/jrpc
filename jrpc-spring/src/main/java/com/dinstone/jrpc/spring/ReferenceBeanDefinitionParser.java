@@ -41,7 +41,7 @@ public class ReferenceBeanDefinitionParser extends AbstractSingleBeanDefinitionP
 
     private String getClientBeanId(String clientId) {
         if (clientId == null || clientId.length() == 0) {
-            clientId = Client.class.getName();
+            clientId = Client.class.getSimpleName() + "-" + 1;
         }
         return clientId;
     }
