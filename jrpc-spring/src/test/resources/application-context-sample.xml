@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jrpc="http://www.dinstone.com/schema/jrpc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.dinstone.com/schema/jrpc http://www.dinstone.com/schema/jrpc.xsd">
+
+	<jrpc:server host="-" port="1234" transport="mina">
+		<jrpc:registry schema="zookeeper" address="localhost:2181" />
+	</jrpc:server>
+	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v1.0" timeout="2000" />
+	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v2.0" timeout="2000" />
+
+	<bean id="helloService" class="com.dinstone.jrpc.demo.HelloServiceImpl" />
+
+
+	<jrpc:client>
+		<jrpc:registry schema="zookeeper" address="localhost:2181" />
+	</jrpc:client>
+	<jrpc:reference id="rhsv1" interface="com.dinstone.jrpc.demo.HelloService" group="product-v1.0" timeout="1000" />
+	<jrpc:reference id="rhsv2" interface="com.dinstone.jrpc.demo.HelloService" group="product-v2.0" timeout="1000" />
+
+</beans>
