@@ -18,6 +18,8 @@ package com.dinstone.jrpc.invoker;
 
 import java.lang.reflect.Method;
 
+import com.dinstone.jrpc.proxy.ServiceProxy;
+
 /**
  * server-side service invoker.
  * 
@@ -27,9 +29,8 @@ import java.lang.reflect.Method;
 public class SkelectonServiceInvoker implements ServiceInvoker {
 
     @Override
-    public Object invoke(Class<?> si, String group, int timeout, Object instance, Method method, Object[] args)
-            throws Exception {
-        return method.invoke(instance, args);
+    public Object invoke(ServiceProxy<?> serviceProxy, Method method, Object[] args) throws Exception {
+        return method.invoke(serviceProxy.getInstance(), args);
     }
 
     @Override

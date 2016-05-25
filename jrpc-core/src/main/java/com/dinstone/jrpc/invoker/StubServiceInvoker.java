@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.protocol.Call;
+import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.transport.Connection;
 import com.dinstone.jrpc.transport.ConnectionFactory;
 
@@ -45,9 +46,9 @@ public class StubServiceInvoker implements ServiceInvoker {
     }
 
     @Override
-    public Object invoke(Class<?> service, String group, int timeout, Object instance, Method method, Object[] args)
-            throws Exception {
+    public Object invoke(ServiceProxy<?> serviceProxy, Method method, Object[] args) throws Exception {
         String methodName = method.getName();
+        Object instance = serviceProxy.getInstance();
         if (methodName.equals("hashCode")) {
             return new Integer(System.identityHashCode(instance));
         } else if (methodName.equals("equals")) {
@@ -55,9 +56,12 @@ public class StubServiceInvoker implements ServiceInvoker {
         } else if (methodName.equals("toString")) {
             return instance.getClass().getName() + '@' + Integer.toHexString(instance.hashCode());
         } else if (methodName.equals("getClass")) {
-            return service;
+            return serviceProxy.getService();
         }
 
+        String group = serviceProxy.getGroup();
+        int timeout = serviceProxy.getTimeout();
+        Class<?> service = serviceProxy.getService();
         Connection connection = connectionFactory.create(referenceBinding.getServiceAddress(service, group));
         Call call = new Call(service.getName(), group, timeout, methodName, args, method.getParameterTypes());
         return connection.call(call).get(timeout, TimeUnit.MILLISECONDS);

@@ -18,22 +18,20 @@ package com.dinstone.jrpc.invoker;
 
 import java.lang.reflect.Method;
 
+import com.dinstone.jrpc.proxy.ServiceProxy;
+
 public interface ServiceInvoker {
 
     /**
      * client/server side {@link Invocation} invoke.
      * 
-     * @param serviceInterface
-     * @param group
-     * @param timeout
-     * @param instance
+     * @param serviceProxy
      * @param method
      * @param args
      * @return
      * @throws Exception
      */
-    Object invoke(Class<?> serviceInterface, String group, int timeout, Object instance, Method method, Object[] args)
-            throws Exception;
+    Object invoke(ServiceProxy<?> serviceProxy, Method method, Object[] args) throws Exception;
 
     void destroy();
 }

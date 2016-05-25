@@ -47,8 +47,7 @@ public abstract class AbstractAcceptance implements Acceptance {
             if (wrapper != null) {
                 Class<?>[] paramTypes = getParamTypes(call);
                 Method method = wrapper.getService().getDeclaredMethod(call.getMethod(), paramTypes);
-                Object resObj = serviceInvoker.invoke(wrapper.getService(), call.getGroup(), call.getTimeout(),
-                    wrapper.getInstance(), method, call.getParams());
+                Object resObj = serviceInvoker.invoke(wrapper, method, call.getParams());
                 result = new Result(200, resObj);
             } else {
                 result = new Result(404, "unkown service");
