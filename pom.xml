@@ -15,8 +15,18 @@
 		<name>dinstone</name>
 		<url>www.dinstone.com</url>
 	</organization>
+	<name>jrpc</name>
 	<url>https://github.com/dinstone/jrpc.git</url>
 	<inceptionYear>2014~2016</inceptionYear>
+	<scm>
+		<url>https://github.com/dinstone/jrpc.git</url>
+		<connection>scm:git:https://github.com/dinstone/jrpc.git</connection>
+		<developerConnection>scm:git:https://github.com/dinstone/jrpc.git</developerConnection>
+	</scm>
+	<issueManagement>
+		<system>github</system>
+		<url>https://github.com/dinstone/com.dinstone.beanstalkc/issues</url>
+	</issueManagement>
 	<developers>
 		<developer>
 			<name>dinstone</name>
@@ -213,5 +223,4 @@
 		<module>jrpc-zookeeper</module>
 		<module>jrpc-spring</module>
 	</modules>
-	<name>jrpc</name>
 </project>
