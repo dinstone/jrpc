@@ -13,28 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.transport;
 
 import java.net.InetSocketAddress;
 
 import com.dinstone.jrpc.transport.AbstractConnectionFactory;
 import com.dinstone.jrpc.transport.Connection;
-import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaConnectionFactory extends AbstractConnectionFactory {
 
-    private TransportConfig config;
-
-    public MinaConnectionFactory(TransportConfig config) {
-        if (config == null) {
-            throw new IllegalArgumentException("config is null");
-        }
-        this.config = config;
+    @Override
+    protected Connection createConnection(InetSocketAddress sa) {
+        return new MinaConnection(sa, transportConfig);
     }
 
     @Override
-    protected Connection createConnection(InetSocketAddress sa) {
-        return new MinaConnection(sa, config);
+    public String getSchema() {
+        return "mina";
     }
 
 }

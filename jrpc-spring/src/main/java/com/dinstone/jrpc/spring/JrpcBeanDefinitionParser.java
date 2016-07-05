@@ -17,6 +17,7 @@
 package com.dinstone.jrpc.spring;
 
 import java.lang.management.ManagementFactory;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -28,6 +29,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.dinstone.jrpc.spring.factory.ConfigBean;
 import com.dinstone.jrpc.spring.factory.RegistryBean;
 import com.dinstone.jrpc.spring.factory.TransportBean;
 
@@ -68,9 +70,32 @@ public class JrpcBeanDefinitionParser extends AbstractSingleBeanDefinitionParser
             builder.addPropertyValue("name", name);
         }
 
-        builder.addPropertyValue("transportBean", getTransportBeanDefinition(element, parserContext));
+        builder.addPropertyValue("transportBean", getConfigBeanDefinition(element, parserContext, "transport"));
 
-        builder.addPropertyValue("registryBean", getRegistryBeanDefinition(element, parserContext));
+        builder.addPropertyValue("registryBean", getConfigBeanDefinition(element, parserContext, "registry"));
+    }
+
+    private BeanDefinition getConfigBeanDefinition(Element element, ParserContext parserContext, String configName) {
+        BeanDefinitionBuilder sbd = BeanDefinitionBuilder.genericBeanDefinition(ConfigBean.class);
+
+        Element configElement = getChildElement(element, configName);
+        if (configElement != null) {
+            String schema = configElement.getAttribute("schema");
+            sbd.addPropertyValue("schema", schema);
+            String address = configElement.getAttribute("address");
+            sbd.addPropertyValue("address", address);
+
+            NodeList propertyList = configElement.getElementsByTagName("property");
+            Properties properties = new Properties();
+            for (int i = 0; i < propertyList.getLength(); i++) {
+                Node propertyNode = propertyList.item(i);
+                Element pe = (Element) propertyNode;
+                properties.put(pe.getAttribute("key"), pe.getAttribute("value"));
+            }
+            sbd.addPropertyValue("properties", properties);
+        }
+
+        return sbd.getBeanDefinition();
     }
 
     private BeanDefinition getRegistryBeanDefinition(Element element, ParserContext parserContext) {

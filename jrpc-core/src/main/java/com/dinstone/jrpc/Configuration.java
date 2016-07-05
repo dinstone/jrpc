@@ -81,6 +81,10 @@ public class Configuration {
         this.properties.putAll(config.properties);
     }
 
+    public void setProperties(Properties other) {
+        this.properties.putAll(other);
+    }
+
     public void writeConfiguration(OutputStream out) {
         try {
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();

@@ -14,24 +14,32 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.binding;
+package com.dinstone.jrpc.registry;
 
-import java.net.InetSocketAddress;
-import java.util.List;
+import com.dinstone.jrpc.Configuration;
 
-import com.dinstone.jrpc.registry.ServiceDiscovery;
+public class RegistryConfig extends Configuration {
 
-public class DefaultReferenceBinding extends AbstractReferenceBinding {
+    private String schema;
 
-    public DefaultReferenceBinding(InetSocketAddress serviceAddress) {
-        backupServiceAddresses.add(serviceAddress);
+    public RegistryConfig() {
+        super();
     }
 
-    public DefaultReferenceBinding(List<InetSocketAddress> serviceAddresses, ServiceDiscovery serviceDiscovery) {
-        if (serviceAddresses != null) {
-            backupServiceAddresses.addAll(serviceAddresses);
-        }
-        this.serviceDiscovery = serviceDiscovery;
+    public RegistryConfig(Configuration config) {
+        super(config);
+    }
+
+    public RegistryConfig(String configLocation) {
+        super(configLocation);
+    }
+
+    public String getSchema() {
+        return this.schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
     }
 
 }

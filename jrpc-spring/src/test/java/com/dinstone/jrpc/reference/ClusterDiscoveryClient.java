@@ -20,14 +20,14 @@ import java.io.IOException;
 
 import com.dinstone.jrpc.demo.HelloService;
 import com.dinstone.jrpc.mina.MinaClient;
-import com.dinstone.jrpc.srd.zookeeper.RegistryDiscoveryConfig;
-import com.dinstone.jrpc.srd.zookeeper.ZookeeperServiceDiscovery;
+import com.dinstone.jrpc.registry.zookeeper.ZookeeperRegistryConfig;
+import com.dinstone.jrpc.registry.zookeeper.ZookeeperServiceDiscovery;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ClusterDiscoveryClient {
 
     public static void main(String[] args) {
-        RegistryDiscoveryConfig discoveryConfig = new RegistryDiscoveryConfig();
+        ZookeeperRegistryConfig discoveryConfig = new ZookeeperRegistryConfig();
         discoveryConfig.set("zookeeper.node.list", "localhost:2181");
 
         ZookeeperServiceDiscovery serviceDiscovery = new ZookeeperServiceDiscovery(discoveryConfig);

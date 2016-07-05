@@ -25,9 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
-import com.dinstone.jrpc.srd.ServiceAttribute;
-import com.dinstone.jrpc.srd.ServiceDescription;
-import com.dinstone.jrpc.srd.ServiceRegistry;
+import com.dinstone.jrpc.registry.ServiceAttribute;
+import com.dinstone.jrpc.registry.ServiceDescription;
+import com.dinstone.jrpc.registry.ServiceRegistry;
 
 public abstract class AbstractImplementBinding implements ImplementBinding {
 

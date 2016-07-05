@@ -22,12 +22,9 @@ import java.util.Map;
 
 public abstract class AbstractConnectionFactory implements ConnectionFactory {
 
-    private Map<String, Connection> connectionMap = new HashMap<String, Connection>();
+    protected TransportConfig transportConfig = new TransportConfig();
 
-    @Override
-    public Connection create(String host, int port) {
-        return create(new InetSocketAddress(host, port));
-    }
+    private Map<String, Connection> connectionMap = new HashMap<String, Connection>();
 
     @Override
     public Connection create(InetSocketAddress sa) {
@@ -55,5 +52,10 @@ public abstract class AbstractConnectionFactory implements ConnectionFactory {
             }
             connectionMap.clear();
         }
+    }
+
+    @Override
+    public TransportConfig getTransportConfig() {
+        return transportConfig;
     }
 }

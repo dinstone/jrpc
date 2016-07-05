@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.srd.zookeeper;
+package com.dinstone.jrpc.registry.zookeeper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,9 +36,9 @@ import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 
-import com.dinstone.jrpc.srd.ServiceDescription;
+import com.dinstone.jrpc.registry.ServiceDescription;
 
-public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.srd.ServiceDiscovery {
+public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.ServiceDiscovery {
 
     private final ServiceDescriptionSerializer serializer = new ServiceDescriptionSerializer();
 
@@ -50,7 +50,7 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.srd.ServiceD
 
     private final ThreadFactory threadFactory;
 
-    public ZookeeperServiceDiscovery(RegistryDiscoveryConfig discoveryConfig) {
+    public ZookeeperServiceDiscovery(ZookeeperRegistryConfig discoveryConfig) {
         String zkNodes = discoveryConfig.getZookeeperNodes();
         if (zkNodes == null || zkNodes.length() == 0) {
             throw new IllegalArgumentException("zookeeper.node.list is empty");

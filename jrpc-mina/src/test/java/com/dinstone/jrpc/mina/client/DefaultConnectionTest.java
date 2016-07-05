@@ -16,6 +16,7 @@
 
 package com.dinstone.jrpc.mina.client;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.Semaphore;
 
 import org.junit.After;
@@ -32,7 +33,6 @@ import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.transport.Connection;
 import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.ResultFutureListener;
-import com.dinstone.jrpc.transport.TransportConfig;
 
 /**
  * @author guojf
@@ -65,9 +65,8 @@ public class DefaultConnectionTest {
      */
     @Before
     public void setUp() throws Exception {
-        TransportConfig config = new TransportConfig();
-        minaConnectionFactory = new MinaConnectionFactory(config);
-        connect = minaConnectionFactory.create("localhost", 1234);
+        minaConnectionFactory = new MinaConnectionFactory();
+        connect = minaConnectionFactory.create(new InetSocketAddress("localhost", 1234));
     }
 
     /**
@@ -80,7 +79,8 @@ public class DefaultConnectionTest {
 
     /**
      * Test method for
-     * {@link com.dinstone.jrpc.mina.transport.rpc.mina.client.MinaConnection#call(java.lang.String, java.lang.Object[], java.lang.Class)} .
+     * {@link com.dinstone.jrpc.mina.transport.rpc.mina.client.MinaConnection#call(java.lang.String, java.lang.Object[], java.lang.Class)}
+     * .
      */
     @Test
     public void testCall() {

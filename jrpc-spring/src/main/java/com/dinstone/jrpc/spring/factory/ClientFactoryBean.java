@@ -21,11 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.dinstone.jrpc.api.Client;
-import com.dinstone.jrpc.api.EndpointConfig;
-import com.dinstone.jrpc.mina.MinaClient;
-import com.dinstone.jrpc.srd.ServiceDiscovery;
-import com.dinstone.jrpc.srd.zookeeper.RegistryDiscoveryConfig;
-import com.dinstone.jrpc.srd.zookeeper.ZookeeperServiceDiscovery;
 
 public class ClientFactoryBean extends AbstractFactoryBean<Client> {
 
@@ -38,12 +33,12 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
     // ================================================
     // Transport config
     // ================================================
-    private TransportBean transportBean;
+    private ConfigBean transportBean;
 
     // ================================================
     // Registry config
     // ================================================
-    private RegistryBean registryBean;
+    private ConfigBean registryBean;
 
     public String getId() {
         return id;
@@ -61,19 +56,19 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
         this.name = name;
     }
 
-    public TransportBean getTransportBean() {
+    public ConfigBean getTransportBean() {
         return transportBean;
     }
 
-    public void setTransportBean(TransportBean transportBean) {
+    public void setTransportBean(ConfigBean transportBean) {
         this.transportBean = transportBean;
     }
 
-    public RegistryBean getRegistryBean() {
+    public ConfigBean getRegistryBean() {
         return registryBean;
     }
 
-    public void setRegistryBean(RegistryBean registryBean) {
+    public void setRegistryBean(ConfigBean registryBean) {
         this.registryBean = registryBean;
     }
 
@@ -81,34 +76,23 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
     protected Client createInstance() throws Exception {
         LOG.info("create jrpc client {}@{}", id, name);
 
-        ServiceDiscovery serviceDiscovery = null;
-        if ("zookeeper".equalsIgnoreCase(registryBean.getSchema()) && registryBean.getAddress() != null) {
-            RegistryDiscoveryConfig registryConfig = new RegistryDiscoveryConfig();
-            registryConfig.setZookeeperNodes(registryBean.getAddress());
-            if (registryBean.getBasePath() != null) {
-                registryConfig.setBasePath(registryBean.getBasePath());
-            }
-            serviceDiscovery = new ZookeeperServiceDiscovery(registryConfig);
-        }
-
-        EndpointConfig endpointConfig = new EndpointConfig();
-        endpointConfig.setEndpointId(id);
-        endpointConfig.setEndpointName(name);
-
         Client client = null;
-        if ("mina".equalsIgnoreCase(transportBean.getType())) {
-            if (serviceDiscovery != null) {
-                client = new MinaClient(endpointConfig, serviceDiscovery, transportBean.getConfig());
-            } else {
-                client = new MinaClient(transportBean.getAddress(), transportBean.getConfig());
-            }
+        String address = transportBean.getAddress();
+        if (address != null && !address.isEmpty()) {
+            client = new Client(address);
         } else {
-            if (serviceDiscovery != null) {
-                client = new MinaClient(endpointConfig, serviceDiscovery, transportBean.getConfig());
-            } else {
-                client = new MinaClient(transportBean.getAddress(), transportBean.getConfig());
-            }
+            client = new Client();
         }
+        client.getTransportConfig().setSchema(transportBean.getSchema());
+        client.getTransportConfig().setProperties(transportBean.getProperties());
+
+        if (registryBean.getSchema() != null && !registryBean.getSchema().isEmpty()) {
+            client.getRegistryConfig().setSchema(registryBean.getSchema());
+            client.getRegistryConfig().setProperties(registryBean.getProperties());
+        }
+
+        client.getEndpointConfig().setEndpointId(id);
+        client.getEndpointConfig().setEndpointName(name);
 
         return client;
     }

@@ -16,14 +16,15 @@
 
 package com.dinstone.jrpc.mina;
 
-import com.dinstone.jrpc.api.Client;
+import java.net.InetSocketAddress;
+
 import com.dinstone.jrpc.api.DefaultServiceImporter;
 import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.binding.DefaultReferenceBinding;
 import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.mina.transport.MinaConnectionFactory;
-import com.dinstone.jrpc.srd.ServiceDiscovery;
+import com.dinstone.jrpc.registry.ServiceDiscovery;
 import com.dinstone.jrpc.transport.ConnectionFactory;
 import com.dinstone.jrpc.transport.TransportConfig;
 
@@ -31,7 +32,7 @@ import com.dinstone.jrpc.transport.TransportConfig;
  * @author guojf
  * @version 1.0.0.2013-5-2
  */
-public class MinaClient implements Client {
+public class MinaClient {
 
     private ConnectionFactory connectionFactory;
 
@@ -44,20 +45,16 @@ public class MinaClient implements Client {
     }
 
     public MinaClient(final String host, final int port, TransportConfig config) {
-        referenceBinding = new DefaultReferenceBinding(host, port);
-        connectionFactory = new MinaConnectionFactory(config);
+        referenceBinding = new DefaultReferenceBinding(new InetSocketAddress(host, port));
+        connectionFactory = new MinaConnectionFactory();
+        connectionFactory.getTransportConfig().merge(config);
         serviceImporter = new DefaultServiceImporter(null, referenceBinding, connectionFactory);
     }
 
-    public MinaClient(String serviceAddresses, TransportConfig config) {
-        this.referenceBinding = new DefaultReferenceBinding(serviceAddresses, null);
-        this.connectionFactory = new MinaConnectionFactory(config);
-        this.serviceImporter = new DefaultServiceImporter(null, referenceBinding, connectionFactory);
-    }
-
     public MinaClient(EndpointConfig endpointConfig, ServiceDiscovery serviceDiscovery, TransportConfig config) {
-        this.referenceBinding = new DefaultReferenceBinding(serviceDiscovery);
-        this.connectionFactory = new MinaConnectionFactory(config);
+        this.referenceBinding = new DefaultReferenceBinding(null, serviceDiscovery);
+        this.connectionFactory = new MinaConnectionFactory();
+        connectionFactory.getTransportConfig().merge(config);
         this.serviceImporter = new DefaultServiceImporter(endpointConfig, referenceBinding, connectionFactory);
     }
 
@@ -69,12 +66,10 @@ public class MinaClient implements Client {
         return serviceImporter.importService(sic, group);
     }
 
-    @Override
     public <T> T getService(Class<T> sic, String group, int timeout) {
         return serviceImporter.importService(sic, group, timeout);
     }
 
-    @Override
     public void destroy() {
         serviceImporter.destroy();
         referenceBinding.destroy();

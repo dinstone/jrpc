@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.srd;
+package com.dinstone.jrpc.registry;
 
 /**
  * Service Registry

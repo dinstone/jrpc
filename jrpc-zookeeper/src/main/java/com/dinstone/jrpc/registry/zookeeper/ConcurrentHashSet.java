@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.srd.zookeeper;
+package com.dinstone.jrpc.registry.zookeeper;
 
 import java.io.Serializable;
 import java.util.AbstractSet;

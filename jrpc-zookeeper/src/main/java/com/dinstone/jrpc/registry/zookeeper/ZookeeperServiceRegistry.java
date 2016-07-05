@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.srd.zookeeper;
+package com.dinstone.jrpc.registry.zookeeper;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,8 +30,8 @@ import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.srd.ServiceDescription;
-import com.dinstone.jrpc.srd.ServiceRegistry;
+import com.dinstone.jrpc.registry.ServiceDescription;
+import com.dinstone.jrpc.registry.ServiceRegistry;
 
 public class ZookeeperServiceRegistry implements ServiceRegistry {
 
@@ -60,7 +60,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
 
     private final CuratorFramework client;
 
-    public ZookeeperServiceRegistry(RegistryDiscoveryConfig registryConfig) {
+    public ZookeeperServiceRegistry(ZookeeperRegistryConfig registryConfig) {
         String zkNodes = registryConfig.getZookeeperNodes();
         if (zkNodes == null || zkNodes.length() == 0) {
             throw new IllegalArgumentException("zookeeper.node.list is empty");

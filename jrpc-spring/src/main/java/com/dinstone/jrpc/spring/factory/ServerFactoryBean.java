@@ -24,13 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
-import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.api.Server;
-import com.dinstone.jrpc.mina.MinaServer;
 import com.dinstone.jrpc.spring.spi.ServiceBean;
-import com.dinstone.jrpc.srd.ServiceRegistry;
-import com.dinstone.jrpc.srd.zookeeper.RegistryDiscoveryConfig;
-import com.dinstone.jrpc.srd.zookeeper.ZookeeperServiceRegistry;
 import com.dinstone.jrpc.transport.NetworkAddressUtil;
 
 public class ServerFactoryBean extends AbstractFactoryBean<Server> {
@@ -44,12 +39,12 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
     // ================================================
     // Transport config
     // ================================================
-    private TransportBean transportBean;
+    private ConfigBean transportBean;
 
     // ================================================
     // Registry config
     // ================================================
-    private RegistryBean registryBean;
+    private ConfigBean registryBean;
 
     // ================================================
     // Services config
@@ -72,19 +67,19 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
         this.name = name;
     }
 
-    public TransportBean getTransportBean() {
+    public ConfigBean getTransportBean() {
         return transportBean;
     }
 
-    public void setTransportBean(TransportBean transportBean) {
+    public void setTransportBean(ConfigBean transportBean) {
         this.transportBean = transportBean;
     }
 
-    public RegistryBean getRegistryBean() {
+    public ConfigBean getRegistryBean() {
         return registryBean;
     }
 
-    public void setRegistryBean(RegistryBean registryBean) {
+    public void setRegistryBean(ConfigBean registryBean) {
         this.registryBean = registryBean;
     }
 
@@ -104,44 +99,59 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
     protected Server createInstance() throws Exception {
         LOG.info("create jrpc client {}@{}", id, name);
 
-        ServiceRegistry serviceRegistry = null;
-        if ("zookeeper".equalsIgnoreCase(registryBean.getSchema()) && registryBean.getAddress() != null) {
-            RegistryDiscoveryConfig registryConfig = new RegistryDiscoveryConfig();
-            registryConfig.setZookeeperNodes(registryBean.getAddress());
-            if (registryBean.getBasePath() != null) {
-                registryConfig.setBasePath(registryBean.getBasePath());
-            }
-            serviceRegistry = new ZookeeperServiceRegistry(registryConfig);
+        String address = transportBean.getAddress();
+        if (address == null || address.isEmpty()) {
+            throw new RuntimeException("transport address attribute is empty.");
         }
 
-        String host = transportBean.getHost();
-        if (host == null || "-".equals(host)) {
-            host = NetworkAddressUtil.getPrivateInetInetAddress().get(0).getHostAddress();
-        } else if ("+".equals(host)) {
-            host = NetworkAddressUtil.getPublicInetInetAddress().get(0).getHostAddress();
-        } else if ("*".equals(host)) {
-            host = "0.0.0.0";
-        }
-        InetSocketAddress providerAddress = new InetSocketAddress(host, transportBean.getPort());
-
-        EndpointConfig endpointConfig = new EndpointConfig();
-        endpointConfig.setEndpointId(id);
-        endpointConfig.setEndpointName(name);
-
-        Server server = null;
-        if ("mina".equalsIgnoreCase(transportBean.getType())) {
-            server = new MinaServer(providerAddress, transportBean.getConfig(), serviceRegistry, endpointConfig);
-        } else {
-            server = new MinaServer(providerAddress, transportBean.getConfig(), serviceRegistry, endpointConfig);
+        InetSocketAddress serviceAddress = getProviderAddress(address);
+        if (serviceAddress == null) {
+            throw new RuntimeException("transport address attribute is invalid.");
         }
 
-        server.start();
+        Server server = new Server(serviceAddress);
+        server.getTransportConfig().setSchema(transportBean.getSchema());
+        server.getTransportConfig().setProperties(transportBean.getProperties());
+
+        if (registryBean.getSchema() != null && !registryBean.getSchema().isEmpty()) {
+            server.getRegistryConfig().setSchema(registryBean.getSchema());
+            server.getRegistryConfig().setProperties(registryBean.getProperties());
+        }
+
+        server.getEndpointConfig().setEndpointId(id);
+        server.getEndpointConfig().setEndpointName(name);
+        
+        server.getServiceExporter();
+
         return server;
+    }
+
+    protected InetSocketAddress getProviderAddress(String address) {
+        InetSocketAddress providerAddress = null;
+        try {
+            String[] hpParts = address.split(":", 2);
+            if (hpParts.length == 2) {
+                String host = hpParts[0];
+                int port = Integer.parseInt(hpParts[1]);
+                if (host == null || "-".equals(host)) {
+                    host = NetworkAddressUtil.getPrivateInetInetAddress().get(0).getHostAddress();
+                } else if ("+".equals(host)) {
+                    host = NetworkAddressUtil.getPublicInetInetAddress().get(0).getHostAddress();
+                } else if ("*".equals(host)) {
+                    host = "0.0.0.0";
+                }
+                providerAddress = new InetSocketAddress(host, port);
+            }
+        } catch (Exception e) {
+            LOG.warn("parse provider address error", e);
+        }
+
+        return providerAddress;
     }
 
     @Override
     protected void destroyInstance(Server instance) throws Exception {
-        instance.stop();
+        instance.destroy();
     }
 
     @Override

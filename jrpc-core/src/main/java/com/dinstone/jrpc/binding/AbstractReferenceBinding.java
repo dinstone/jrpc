@@ -25,9 +25,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
-import com.dinstone.jrpc.srd.ServiceAttribute;
-import com.dinstone.jrpc.srd.ServiceDescription;
-import com.dinstone.jrpc.srd.ServiceDiscovery;
+import com.dinstone.jrpc.registry.ServiceAttribute;
+import com.dinstone.jrpc.registry.ServiceDescription;
+import com.dinstone.jrpc.registry.ServiceDiscovery;
 import com.dinstone.jrpc.transport.NetworkAddressUtil;
 
 public abstract class AbstractReferenceBinding implements ReferenceBinding {

@@ -4,13 +4,17 @@
 	http://www.dinstone.com/schema/jrpc http://www.dinstone.com/schema/jrpc.xsd">
 
 	<jrpc:server host="-" port="1234" transport="mina">
-		<jrpc:registry schema="zookeeper" address="localhost:2181" />
+		<jrpc:registry schema="zookeeper">
+			<jrpc:property key="address" value="localhost:2181" />
+		</jrpc:registry>
 	</jrpc:server>
 	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v1.0" timeout="2000" />
 	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v2.0" timeout="2000" />
 
 	<jrpc:server host="-" port="4321" transport="mina" id="s01">
-		<jrpc:registry schema="zookeeper" address="localhost:2181" />
+		<jrpc:registry schema="zookeeper">
+			<jrpc:property key="address" value="localhost:2181" />
+		</jrpc:registry>
 	</jrpc:server>
 	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v1.0" timeout="2000" server="s01" />
 	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v2.0" timeout="2000" server="s01" />

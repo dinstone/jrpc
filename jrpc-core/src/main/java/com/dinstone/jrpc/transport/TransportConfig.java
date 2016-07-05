@@ -33,6 +33,9 @@ public class TransportConfig extends Configuration {
     /** parallel count */
     private static final String PARALLEL_COUNT = "rpc.parallel.count";
 
+    /** transport schema */
+    private String schema;
+
     public TransportConfig() {
     }
 
@@ -74,6 +77,14 @@ public class TransportConfig extends Configuration {
 
     public void setParallelCount(int count) {
         setInt(PARALLEL_COUNT, count);
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
+
+    public String getSchema() {
+        return schema;
     }
 
 }

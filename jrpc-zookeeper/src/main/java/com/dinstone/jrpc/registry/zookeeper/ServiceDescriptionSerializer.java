@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.srd.zookeeper;
+package com.dinstone.jrpc.registry.zookeeper;
 
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.JavaType;
 
-import com.dinstone.jrpc.srd.ServiceDescription;
+import com.dinstone.jrpc.registry.ServiceDescription;
 
 public class ServiceDescriptionSerializer {
 

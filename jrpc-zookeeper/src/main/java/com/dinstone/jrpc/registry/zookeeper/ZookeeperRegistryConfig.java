@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.srd.zookeeper;
+package com.dinstone.jrpc.registry.zookeeper;
 
 import com.dinstone.jrpc.Configuration;
+import com.dinstone.jrpc.registry.RegistryConfig;
 
-public class RegistryDiscoveryConfig extends Configuration {
+public class ZookeeperRegistryConfig extends RegistryConfig {
 
     private static final String DEFAULT_BASE_PATH = "/jrpc/dsrd";
 
@@ -30,11 +31,18 @@ public class RegistryDiscoveryConfig extends Configuration {
 
     private static final String ZOOKEEPER_NODE_LIST = "zookeeper.node.list";
 
+    public ZookeeperRegistryConfig() {
+    }
+
+    public ZookeeperRegistryConfig(Configuration config) {
+        super(config);
+    }
+
     public String getZookeeperNodes() {
         return get(ZOOKEEPER_NODE_LIST);
     }
 
-    public RegistryDiscoveryConfig setZookeeperNodes(String zkNodeList) {
+    public ZookeeperRegistryConfig setZookeeperNodes(String zkNodeList) {
         set(ZOOKEEPER_NODE_LIST, zkNodeList);
         return this;
     }
@@ -43,7 +51,7 @@ public class RegistryDiscoveryConfig extends Configuration {
         return getInt(BASE_SLEEP_TIME_MS, 3000);
     }
 
-    public RegistryDiscoveryConfig setBaseSleepTime(int baseTime) {
+    public ZookeeperRegistryConfig setBaseSleepTime(int baseTime) {
         setInt(BASE_SLEEP_TIME_MS, baseTime);
         return this;
     }
@@ -52,7 +60,7 @@ public class RegistryDiscoveryConfig extends Configuration {
         return getInt(RETRY_MAX_COUNT, 3);
     }
 
-    public RegistryDiscoveryConfig setMaxRetries(int maxRetry) {
+    public ZookeeperRegistryConfig setMaxRetries(int maxRetry) {
         setInt(RETRY_MAX_COUNT, maxRetry);
         return this;
     }
@@ -61,7 +69,7 @@ public class RegistryDiscoveryConfig extends Configuration {
         return get(DSRD_BASE_PATH, DEFAULT_BASE_PATH);
     }
 
-    public RegistryDiscoveryConfig setBasePath(String basePath) {
+    public ZookeeperRegistryConfig setBasePath(String basePath) {
         set(DSRD_BASE_PATH, basePath);
         return this;
     }

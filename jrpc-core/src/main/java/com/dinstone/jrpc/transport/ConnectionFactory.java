@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import java.net.InetSocketAddress;
@@ -25,9 +26,11 @@ import java.net.InetSocketAddress;
  */
 public interface ConnectionFactory {
 
-    public abstract Connection create(String host, int port);
+    public abstract String getSchema();
 
     public abstract Connection create(InetSocketAddress sa);
+
+    public abstract TransportConfig getTransportConfig();
 
     public abstract void destroy();
 }

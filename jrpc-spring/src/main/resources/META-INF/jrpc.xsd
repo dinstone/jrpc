@@ -4,6 +4,35 @@
 
 	<xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" />
 
+	<xsd:complexType name="ConfigType">
+		<xsd:sequence>
+			<xsd:element name="property" minOccurs="0" maxOccurs="unbounded">
+				<xsd:complexType>
+					<xsd:attribute name="key" type="xsd:string" use="required" />
+					<xsd:attribute name="value" type="xsd:string" use="required" />
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="schema" type="xsd:string" use="required">
+			<xsd:annotation>
+				<xsd:documentation>
+						<![CDATA[ 
+							config type, for exmaple registry or transport config.
+						]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="address" type="xsd:string" use="optional">
+			<xsd:annotation>
+				<xsd:documentation>
+						<![CDATA[ 
+							address string, for exmaple 'localhost:2181'
+						]]>
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+
 	<xsd:complexType name="RegistryType">
 		<xsd:complexContent>
 			<xsd:extension base="beans:identifiedType">
@@ -44,28 +73,10 @@
 			<xsd:complexContent>
 				<xsd:extension base="beans:identifiedType">
 					<xsd:all>
-						<xsd:element name="registry" type="RegistryType" minOccurs="0" maxOccurs="1" />
+						<xsd:element name="registry" type="ConfigType" minOccurs="0" maxOccurs="1" />
+						<xsd:element name="transport" type="ConfigType" minOccurs="0" maxOccurs="1" />
 					</xsd:all>
 					<xsd:attribute name="name" type="xsd:string" />
-					<xsd:attribute name="host" type="xsd:string">
-						<xsd:annotation>
-							<xsd:documentation>
-							<![CDATA[ 
-								JRPC server host with parrtern ['-'|'+'|*], '-' is private inetaddress, '+' is public inetaddress, other is host name.
-							]]>
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
-					<xsd:attribute name="port" type="xsd:int" use="required" />
-					<xsd:attribute name="transport" type="xsd:string">
-						<xsd:annotation>
-							<xsd:documentation>
-							<![CDATA[ 
-								server implement type.
-							]]>
-							</xsd:documentation>
-						</xsd:annotation>
-					</xsd:attribute>
 					<xsd:anyAttribute />
 				</xsd:extension>
 			</xsd:complexContent>
@@ -92,11 +103,10 @@
 			<xsd:complexContent>
 				<xsd:extension base="beans:identifiedType">
 					<xsd:all>
-						<xsd:element name="registry" type="RegistryType" minOccurs="0" maxOccurs="1" />
+						<xsd:element name="registry" type="ConfigType" minOccurs="0" maxOccurs="1" />
+						<xsd:element name="transport" type="ConfigType" minOccurs="0" maxOccurs="1" />
 					</xsd:all>
 					<xsd:attribute name="name" type="xsd:string" />
-					<xsd:attribute name="address" type="xsd:normalizedString" />
-					<xsd:attribute name="transport" type="xsd:normalizedString" />
 					<xsd:anyAttribute />
 				</xsd:extension>
 			</xsd:complexContent>

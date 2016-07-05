@@ -18,7 +18,7 @@ package com.dinstone.jrpc.binding;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.srd.ServiceRegistry;
+import com.dinstone.jrpc.registry.ServiceRegistry;
 
 public class DefaultImplementBinding extends AbstractImplementBinding {
 

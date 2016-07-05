@@ -22,15 +22,15 @@ import java.net.InetSocketAddress;
 import com.dinstone.jrpc.demo.HelloService;
 import com.dinstone.jrpc.demo.HelloServiceImpl;
 import com.dinstone.jrpc.mina.MinaServer;
-import com.dinstone.jrpc.srd.zookeeper.RegistryDiscoveryConfig;
-import com.dinstone.jrpc.srd.zookeeper.ZookeeperServiceRegistry;
+import com.dinstone.jrpc.registry.zookeeper.ZookeeperRegistryConfig;
+import com.dinstone.jrpc.registry.zookeeper.ZookeeperServiceRegistry;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ClusterRegistryServer {
 
     public static void main(String[] args) {
 
-        RegistryDiscoveryConfig registryConfig = new RegistryDiscoveryConfig();
+        ZookeeperRegistryConfig registryConfig = new ZookeeperRegistryConfig();
         registryConfig.set("zookeeper.node.list", "localhost:2181");
 
         ZookeeperServiceRegistry serviceRegistry = new ZookeeperServiceRegistry(registryConfig);

@@ -22,7 +22,6 @@ import java.net.InetSocketAddress;
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.demo.HelloService;
 import com.dinstone.jrpc.mina.MinaClient;
-import com.dinstone.jrpc.transport.TransportConfig;
 
 public class CluasterBalanceClient {
 
@@ -35,13 +34,13 @@ public class CluasterBalanceClient {
         InetSocketAddress add = new InetSocketAddress("0.0.0.0", 12345);
         System.out.println("any = " + add);
 
-        MinaClient client = new MinaClient("localhost:9090", new TransportConfig());
+        MinaClient client = new MinaClient("localhost", 9090);
 
         System.out.println("start");
 
         try {
-            testHot(client);
-            testSend1k(client);
+            // testHot(client);
+            // testSend1k(client);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,7 +55,7 @@ public class CluasterBalanceClient {
     }
 
     protected static void testHot(Client client) {
-        HelloService service = client.getService(HelloService.class);
+        HelloService service = client.getServiceImporter().importService(HelloService.class);
         long st = System.currentTimeMillis();
 
         for (int i = 0; i < 100000; i++) {
@@ -75,7 +74,7 @@ public class CluasterBalanceClient {
 
         String name = new String(mb);
 
-        HelloService service = client.getService(HelloService.class);
+        HelloService service = client.getServiceImporter().importService(HelloService.class);
 
         long st = System.currentTimeMillis();
 

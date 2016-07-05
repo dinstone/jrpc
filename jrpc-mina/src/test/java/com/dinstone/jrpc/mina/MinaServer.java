@@ -23,19 +23,18 @@ import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.api.DefaultServiceExporter;
 import com.dinstone.jrpc.api.EndpointConfig;
-import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServiceExporter;
 import com.dinstone.jrpc.binding.DefaultImplementBinding;
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.mina.transport.MinaAcceptance;
-import com.dinstone.jrpc.srd.ServiceRegistry;
+import com.dinstone.jrpc.registry.ServiceRegistry;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 /**
  * @author guojinfei
  * @version 1.0.0.2014-7-29
  */
-public class MinaServer implements Server {
+public class MinaServer {
 
     private static final Logger LOG = LoggerFactory.getLogger(MinaServer.class);
 
@@ -66,7 +65,6 @@ public class MinaServer implements Server {
      * 
      * @see com.dinstone.jrpc.api.Server#start()
      */
-    @Override
     public void start() {
         acceptance.bind();
         LOG.info("jrpc server start on {}", implementBinding.getServiceAddress());
@@ -77,7 +75,6 @@ public class MinaServer implements Server {
      * 
      * @see com.dinstone.jrpc.api.Server#stop()
      */
-    @Override
     public void stop() {
         acceptance.destroy();
         serviceExporter.destroy();
@@ -86,17 +83,14 @@ public class MinaServer implements Server {
         LOG.info("jrpc server stop on {}", implementBinding.getServiceAddress());
     }
 
-    @Override
     public <T> void regist(Class<T> serviceInterface, T serviceImplement) {
         serviceExporter.exportService(serviceInterface, serviceImplement);
     }
 
-    @Override
     public <T> void regist(Class<T> serviceInterface, String group, T serviceImplement) {
         serviceExporter.exportService(serviceInterface, group, serviceImplement);
     }
 
-    @Override
     public <T> void regist(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
         serviceExporter.exportService(serviceInterface, group, timeout, serviceImplement);
     }
