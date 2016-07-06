@@ -2,6 +2,7 @@
 package com.dinstone.jrpc.api;
 
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -41,7 +42,13 @@ public class Server {
     private Acceptance acceptance;
 
     public Server(String host, int port) {
-        this(new InetSocketAddress(host, port));
+        try {
+            serviceAddress = new InetSocketAddress(resolveHost(host), port);
+        } catch (SocketException e) {
+            throw new RuntimeException("host is invalid", e);
+        }
+
+        loadServiceProvider();
     }
 
     public Server(String address) {
@@ -54,25 +61,25 @@ public class Server {
             throw new RuntimeException("address is invalid");
         }
 
-        loadModule();
+        loadServiceProvider();
     }
 
     public Server(InetSocketAddress serviceAddress) {
         this.serviceAddress = serviceAddress;
 
-        loadModule();
+        loadServiceProvider();
     }
 
-    private void loadModule() {
+    private void loadServiceProvider() {
         ServiceLoader<AcceptanceFactory> afServiceLoader = ServiceLoader.load(AcceptanceFactory.class);
         for (AcceptanceFactory acceptanceFactory : afServiceLoader) {
-            LOG.info("load acceptance factory : {}", acceptanceFactory.getSchema());
+            LOG.info("load acceptance provider for schema : {}", acceptanceFactory.getSchema());
             acceptanceFactoryMap.put(acceptanceFactory.getSchema(), acceptanceFactory);
         }
 
         ServiceLoader<RegistryFactory> rfServiceLoader = ServiceLoader.load(RegistryFactory.class);
         for (RegistryFactory registryFactory : rfServiceLoader) {
-            LOG.info("load registry factory : {}", registryFactory.getSchema());
+            LOG.info("load registry provider for schema : {}", registryFactory.getSchema());
             registryFactoryMap.put(registryFactory.getSchema(), registryFactory);
         }
     }
@@ -84,13 +91,7 @@ public class Server {
             if (hpParts.length == 2) {
                 String host = hpParts[0];
                 int port = Integer.parseInt(hpParts[1]);
-                if (host == null || "-".equals(host)) {
-                    host = NetworkAddressUtil.getPrivateInetInetAddress().get(0).getHostAddress();
-                } else if ("+".equals(host)) {
-                    host = NetworkAddressUtil.getPublicInetInetAddress().get(0).getHostAddress();
-                } else if ("*".equals(host)) {
-                    host = "0.0.0.0";
-                }
+                host = resolveHost(host);
                 providerAddress = new InetSocketAddress(host, port);
             }
         } catch (Exception e) {
@@ -100,10 +101,27 @@ public class Server {
         return providerAddress;
     }
 
+    protected String resolveHost(String host) throws SocketException {
+        if (host == null || "-".equals(host)) {
+            host = NetworkAddressUtil.getPrivateInetInetAddress().get(0).getHostAddress();
+        } else if ("+".equals(host)) {
+            host = NetworkAddressUtil.getPublicInetInetAddress().get(0).getHostAddress();
+        } else if ("*".equals(host)) {
+            host = "0.0.0.0";
+        }
+        return host;
+    }
+
     public void destroy() {
-        acceptance.destroy();
-        serviceExporter.destroy();
-        implementBinding.destroy();
+        if (acceptance != null) {
+            acceptance.destroy();
+        }
+        if (serviceExporter != null) {
+            serviceExporter.destroy();
+        }
+        if (implementBinding != null) {
+            implementBinding.destroy();
+        }
 
         for (AcceptanceFactory acceptanceFactory : acceptanceFactoryMap.values()) {
             acceptanceFactory.destroy();
@@ -113,7 +131,7 @@ public class Server {
             registryFactory.destroy();
         }
 
-        LOG.info("jrpc server stop on {}", implementBinding.getServiceAddress());
+        LOG.info("JRPC server stop on {}", implementBinding.getServiceAddress());
     }
 
     public synchronized ServiceExporter getServiceExporter() {
@@ -125,10 +143,15 @@ public class Server {
 
     private void createServiceExporter() {
         ServiceRegistry serviceRegistry = null;
-        RegistryFactory registryFactory = registryFactoryMap.get(registryConfig.getSchema());
-        if (registryFactory != null) {
-            registryFactory.getRegistryConfig().merge(registryConfig);
-            serviceRegistry = registryFactory.createServiceRegistry();
+        String registrySchema = registryConfig.getSchema();
+        if (registrySchema != null && !registrySchema.isEmpty()) {
+            RegistryFactory registryFactory = registryFactoryMap.get(registrySchema);
+            if (registryFactory != null) {
+                registryFactory.getRegistryConfig().merge(registryConfig);
+                serviceRegistry = registryFactory.createServiceRegistry();
+            } else {
+                throw new RuntimeException("can't find regitry provider for schema : " + registrySchema);
+            }
         }
 
         this.implementBinding = new DefaultImplementBinding(serviceAddress, serviceRegistry);
@@ -136,13 +159,13 @@ public class Server {
 
         AcceptanceFactory acceptanceFactory = acceptanceFactoryMap.get(transportConfig.getSchema());
         if (acceptanceFactory == null) {
-            throw new RuntimeException("unsportted transport schema : " + transportConfig.getSchema());
+            throw new RuntimeException("can't find transport provider for schema : " + transportConfig.getSchema());
         }
         acceptanceFactory.getTransportConfig().merge(transportConfig);
         acceptance = acceptanceFactory.create(implementBinding);
 
         acceptance.bind();
-        LOG.info("jrpc server start on {}", serviceAddress);
+        LOG.info("JRPC server start on {}", serviceAddress);
     }
 
     public InetSocketAddress getServiceAddress() {

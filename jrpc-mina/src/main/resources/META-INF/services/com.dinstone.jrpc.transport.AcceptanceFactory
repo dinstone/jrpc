@@ -1,1 +1,1 @@
-com.dinstone.jrpc.mina.transport.MinaConnectionFactory
+com.dinstone.jrpc.mina.transport.MinaAcceptanceFactory

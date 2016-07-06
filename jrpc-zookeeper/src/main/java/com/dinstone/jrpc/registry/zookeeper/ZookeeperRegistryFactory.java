@@ -8,7 +8,7 @@ import com.dinstone.jrpc.registry.ServiceRegistry;
 
 public class ZookeeperRegistryFactory implements RegistryFactory {
 
-    private RegistryConfig registryConfig;
+    private RegistryConfig registryConfig = new RegistryConfig();
 
     private ServiceRegistry serviceRegistry;
 

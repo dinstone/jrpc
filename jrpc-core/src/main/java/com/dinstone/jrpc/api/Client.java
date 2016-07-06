@@ -70,13 +70,13 @@ public class Client {
     private void loadModule() {
         ServiceLoader<ConnectionFactory> cfServiceLoader = ServiceLoader.load(ConnectionFactory.class);
         for (ConnectionFactory connectionFactory : cfServiceLoader) {
-            LOG.info("load connection factory : {}", connectionFactory.getSchema());
+            LOG.info("load connection provider for schema : {}", connectionFactory.getSchema());
             connectionFactoryMap.put(connectionFactory.getSchema(), connectionFactory);
         }
 
         ServiceLoader<RegistryFactory> rfServiceLoader = ServiceLoader.load(RegistryFactory.class);
         for (RegistryFactory registryFactory : rfServiceLoader) {
-            LOG.info("load registry factory : {}", registryFactory.getSchema());
+            LOG.info("load registry provider for schema : {}", registryFactory.getSchema());
             registryFactoryMap.put(registryFactory.getSchema(), registryFactory);
         }
     }
@@ -109,16 +109,20 @@ public class Client {
         String transportSchema = transportConfig.getSchema();
         ConnectionFactory connectionFactory = connectionFactoryMap.get(transportSchema);
         if (connectionFactory == null) {
-            throw new RuntimeException("unsportted transport schema : " + transportSchema);
+            throw new RuntimeException("can't find transport provider for schema : " + transportSchema);
         }
         connectionFactory.getTransportConfig().merge(transportConfig);
 
         ServiceDiscovery serviceDiscovery = null;
         String registrySchema = registryConfig.getSchema();
         RegistryFactory registryFactory = registryFactoryMap.get(registrySchema);
-        if (registryFactory != null) {
-            registryFactory.getRegistryConfig().merge(registryConfig);
-            serviceDiscovery = registryFactory.createServiceDiscovery();
+        if (registrySchema != null && !registrySchema.isEmpty()) {
+            if (registryFactory != null) {
+                registryFactory.getRegistryConfig().merge(registryConfig);
+                serviceDiscovery = registryFactory.createServiceDiscovery();
+            } else {
+                throw new RuntimeException("can't find regitry provider for schema : " + registrySchema);
+            }
         }
 
         this.referenceBinding = new DefaultReferenceBinding(serviceAddresses, serviceDiscovery);

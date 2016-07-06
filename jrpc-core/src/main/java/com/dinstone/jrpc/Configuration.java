@@ -78,11 +78,15 @@ public class Configuration {
     }
 
     public void merge(Configuration config) {
-        this.properties.putAll(config.properties);
+        if (config != null) {
+            this.properties.putAll(config.properties);
+        }
     }
 
     public void setProperties(Properties other) {
-        this.properties.putAll(other);
+        if (other != null) {
+            this.properties.putAll(other);
+        }
     }
 
     public void writeConfiguration(OutputStream out) {

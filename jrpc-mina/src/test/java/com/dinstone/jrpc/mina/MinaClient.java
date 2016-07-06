@@ -77,7 +77,6 @@ public class MinaClient {
     }
 
     public MinaClient setDefaultTimeout(int timeout) {
-        serviceImporter.getEndpointConfig().setDefaultTimeout(timeout);
         return this;
     }
 

@@ -24,8 +24,6 @@ public interface ServiceImporter {
 
     public abstract <T> T importService(Class<T> sic, String group, int timeout);
 
-    public abstract EndpointConfig getEndpointConfig();
-
     public abstract void destroy();
 
 }

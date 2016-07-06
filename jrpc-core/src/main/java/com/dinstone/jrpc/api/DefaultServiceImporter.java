@@ -96,9 +96,4 @@ public class DefaultServiceImporter implements ServiceImporter {
         }
     }
 
-    @Override
-    public EndpointConfig getEndpointConfig() {
-        return endpointConfig;
-    }
-
 }

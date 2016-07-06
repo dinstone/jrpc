@@ -114,7 +114,7 @@ public class MinaAcceptance extends AbstractAcceptance {
         } catch (Exception e) {
             throw new RuntimeException("can't bind service on " + serviceAddress, e);
         }
-        LOG.info("jrpc service bind on {}", serviceAddress);
+        LOG.info("JRPC acceptance bind on {}", serviceAddress);
 
         return this;
     }
@@ -133,7 +133,7 @@ public class MinaAcceptance extends AbstractAcceptance {
             }
         }
 
-        LOG.info("jrpc service unbind on {}", implementBinding.getServiceAddress());
+        LOG.info("JRPC acceptance unbind on {}", implementBinding.getServiceAddress());
     }
 
     private class MinaIoHandler extends IoHandlerAdapter {

@@ -5,26 +5,21 @@
 		<artifactId>jrpc-parent</artifactId>
 		<version>3.0.0</version>
 	</parent>
-	<artifactId>jrpc-spring</artifactId>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.springframework.version>3.2.6.RELEASE</org.springframework.version>
-	</properties>
+	<artifactId>jrpc-example</artifactId>
 	<dependencies>
-
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${org.springframework.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-			<version>${org.springframework.version}</version>
+			<groupId>com.dinstone.jrpc</groupId>
+			<artifactId>jrpc-mina</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.jrpc</groupId>
-			<artifactId>jrpc-core</artifactId>
+			<artifactId>jrpc-zookeeper</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.jrpc</groupId>
+			<artifactId>jrpc-spring</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

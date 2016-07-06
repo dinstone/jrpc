@@ -222,5 +222,6 @@
 		<module>jrpc-core</module>
 		<module>jrpc-zookeeper</module>
 		<module>jrpc-spring</module>
+		<module>jrpc-example</module>
 	</modules>
 </project>

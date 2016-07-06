@@ -30,7 +30,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.dinstone.jrpc.spring.factory.ConfigBean;
-import com.dinstone.jrpc.spring.factory.RegistryBean;
 import com.dinstone.jrpc.spring.factory.TransportBean;
 
 public class JrpcBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
@@ -85,34 +84,16 @@ public class JrpcBeanDefinitionParser extends AbstractSingleBeanDefinitionParser
             String address = configElement.getAttribute("address");
             sbd.addPropertyValue("address", address);
 
-            NodeList propertyList = configElement.getElementsByTagName("property");
+            NodeList childNodeList = configElement.getChildNodes();
             Properties properties = new Properties();
-            for (int i = 0; i < propertyList.getLength(); i++) {
-                Node propertyNode = propertyList.item(i);
-                Element pe = (Element) propertyNode;
-                properties.put(pe.getAttribute("key"), pe.getAttribute("value"));
+            for (int i = 0; i < childNodeList.getLength(); i++) {
+                Node childNode = childNodeList.item(i);
+                if (childNode instanceof Element && nodeMatch(childNode, "property")) {
+                    Element pe = (Element) childNode;
+                    properties.put(pe.getAttribute("key"), pe.getAttribute("value"));
+                }
             }
             sbd.addPropertyValue("properties", properties);
-        }
-
-        return sbd.getBeanDefinition();
-    }
-
-    private BeanDefinition getRegistryBeanDefinition(Element element, ParserContext parserContext) {
-        BeanDefinitionBuilder sbd = BeanDefinitionBuilder.genericBeanDefinition(RegistryBean.class);
-
-        Element registry = getChildElement(element, "registry");
-        if (registry != null) {
-            String schema = registry.getAttribute("schema");
-            sbd.addPropertyValue("schema", schema);
-
-            String address = registry.getAttribute("address");
-            sbd.addPropertyValue("address", address);
-
-            String basePath = registry.getAttribute("basePath");
-            if (StringUtils.hasText(basePath)) {
-                sbd.addPropertyValue("basePath", basePath);
-            }
         }
 
         return sbd.getBeanDefinition();

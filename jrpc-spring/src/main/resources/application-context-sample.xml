@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jrpc="http://www.dinstone.com/schema/jrpc"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
-	http://www.dinstone.com/schema/jrpc http://www.dinstone.com/schema/jrpc.xsd">
+	http://www.dinstone.com/schema/jrpc http://www.dinstone.com/schema/jrpc-3.0.xsd">
 
-	<jrpc:server host="-" port="1234" transport="mina">
+	<jrpc:server>
 		<jrpc:registry schema="zookeeper">
-			<jrpc:property key="address" value="localhost:2181" />
+			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
 		</jrpc:registry>
 	</jrpc:server>
 	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v1.0" timeout="2000" />
 	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v2.0" timeout="2000" />
 
-	<jrpc:server host="-" port="4321" transport="mina" id="s01">
+	<jrpc:server id="s01">
 		<jrpc:registry schema="zookeeper">
-			<jrpc:property key="address" value="localhost:2181" />
+			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
 		</jrpc:registry>
 	</jrpc:server>
 	<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v1.0" timeout="2000" server="s01" />
@@ -23,13 +23,17 @@
 
 
 	<jrpc:client name="demo">
-		<jrpc:registry schema="zookeeper" address="localhost:2181" />
+		<jrpc:registry schema="zookeeper">
+			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
+		</jrpc:registry>
 	</jrpc:client>
 	<jrpc:reference id="rhsv1" interface="com.dinstone.jrpc.demo.HelloService" group="product-v1.0" timeout="1000" />
 	<jrpc:reference id="rhsv2" interface="com.dinstone.jrpc.demo.HelloService" group="product-v2.0" timeout="1000" />
 
 	<jrpc:client id="c01">
-		<jrpc:registry schema="zookeeper" address="localhost:2181" />
+		<jrpc:registry schema="zookeeper">
+			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
+		</jrpc:registry>
 	</jrpc:client>
 	<jrpc:reference id="rhsv1-1" interface="com.dinstone.jrpc.demo.HelloService" group="product-v1.0" timeout="1000" client="c01" />
 	<jrpc:reference id="rhsv2-1" interface="com.dinstone.jrpc.demo.HelloService" group="product-v2.0" timeout="1000" client="c01" />

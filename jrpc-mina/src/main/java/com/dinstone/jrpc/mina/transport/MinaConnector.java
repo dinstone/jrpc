@@ -139,12 +139,12 @@ public class MinaConnector {
      */
     public IoSession createSession() {
         // create session
-        LOG.debug("create session on {} ", ioConnector.getDefaultRemoteAddress());
+        LOG.debug("create session to {} ", ioConnector.getDefaultRemoteAddress());
         // long s = System.currentTimeMillis();
         ConnectFuture future = ioConnector.connect().awaitUninterruptibly();
         IoSession session = future.getSession();
         // long t = System.currentTimeMillis() - s;
-        // LOG.debug("create session on {} takes {}ms", ioConnector.getDefaultRemoteAddress(), t);
+        LOG.debug("session connect {} to {}", session.getLocalAddress(), session.getRemoteAddress());
         return session;
     }
 

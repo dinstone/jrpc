@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.dinstone.com/schema/jrpc" targetNamespace="http://www.dinstone.com/schema/jrpc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:beans="http://www.springframework.org/schema/beans" elementFormDefault="qualified"
+	attributeFormDefault="unqualified" version="1.0">
+
+	<xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" />
+
+	<xsd:complexType name="RegistryType">
+		<xsd:complexContent>
+			<xsd:extension base="beans:identifiedType">
+				<xsd:attribute name="schema" type="xsd:string" use="required">
+					<xsd:annotation>
+						<xsd:documentation>
+						<![CDATA[ 
+							service registry discovery type, for exmaple zookeeper.
+						]]>
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="address" type="xsd:string" use="required">
+					<xsd:annotation>
+						<xsd:documentation>
+						<![CDATA[ 
+							registry's address string, for exmaple 'localhost:2181'
+						]]>
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:attribute name="basePath" type="xsd:string" use="optional">
+					<xsd:annotation>
+						<xsd:documentation>
+						<![CDATA[ 
+							service registry discovery base path for zookeeper
+						]]>
+						</xsd:documentation>
+					</xsd:annotation>
+				</xsd:attribute>
+				<xsd:anyAttribute />
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<xsd:element name="server">
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="beans:identifiedType">
+					<xsd:all>
+						<xsd:element name="registry" type="RegistryType" minOccurs="0" maxOccurs="1" />
+					</xsd:all>
+					<xsd:attribute name="name" type="xsd:string" />
+					<xsd:attribute name="host" type="xsd:string">
+						<xsd:annotation>
+							<xsd:documentation>
+							<![CDATA[ 
+								JRPC server host with parrtern ['-'|'+'|*], '-' is private inetaddress, '+' is public inetaddress, other is host name.
+							]]>
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:attribute name="port" type="xsd:int" use="required" />
+					<xsd:attribute name="transport" type="xsd:string">
+						<xsd:annotation>
+							<xsd:documentation>
+							<![CDATA[ 
+								server implement type.
+							]]>
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+					<xsd:anyAttribute />
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="service">
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="beans:identifiedType">
+					<xsd:attribute name="implement" type="xsd:normalizedString" use="required" />
+					<xsd:attribute name="interface" type="xsd:normalizedString" use="required" />
+					<xsd:attribute name="group" type="xsd:normalizedString" use="optional" />
+					<xsd:attribute name="timeout" type="xsd:integer" use="optional" />
+					<xsd:attribute name="server" type="xsd:normalizedString" use="optional" />
+					<xsd:anyAttribute />
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="client">
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="beans:identifiedType">
+					<xsd:all>
+						<xsd:element name="registry" type="RegistryType" minOccurs="0" maxOccurs="1" />
+					</xsd:all>
+					<xsd:attribute name="name" type="xsd:string" />
+					<xsd:attribute name="address" type="xsd:normalizedString" />
+					<xsd:attribute name="transport" type="xsd:normalizedString" />
+					<xsd:anyAttribute />
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="reference">
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="beans:identifiedType">
+					<xsd:attribute name="interface" type="xsd:normalizedString" use="required" />
+					<xsd:attribute name="group" type="xsd:normalizedString" use="optional" />
+					<xsd:attribute name="timeout" type="xsd:integer" use="optional" />
+					<xsd:attribute name="client" type="xsd:normalizedString" use="optional" />
+					<xsd:anyAttribute />
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

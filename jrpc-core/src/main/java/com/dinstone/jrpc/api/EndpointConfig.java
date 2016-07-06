@@ -24,9 +24,9 @@ public class EndpointConfig extends Configuration {
 
     private static final String ENDPOINT_NAME = "endpoint.name";
 
-    private static final int DEFAULT_TIMEOUT = 3000;
-
     private static final String DEFAULT_TIMEOUT_KEY = "default.timeout";
+
+    private static final int DEFAULT_TIMEOUT = 3000;
 
     public EndpointConfig() {
         super();
