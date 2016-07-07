@@ -76,11 +76,11 @@ public class DefaultServiceImporter implements ServiceImporter {
     @Override
     public <T> T importService(Class<T> sic, String group, int timeout) {
         try {
-            ServiceProxy<T> wrapper = serviceStubFactory.createStub(sic, group, timeout);
+            ServiceProxy<T> wrapper = serviceStubFactory.create(sic, group, timeout, null);
             referenceBinding.bind(wrapper, endpointConfig);
             return wrapper.getInstance();
         } catch (Exception e) {
-            throw new RuntimeException("can't create service proxy", e);
+            throw new RuntimeException("can't import service", e);
         }
     }
 

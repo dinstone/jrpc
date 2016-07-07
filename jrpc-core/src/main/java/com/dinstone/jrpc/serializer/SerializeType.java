@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.serialize;
+package com.dinstone.jrpc.serializer;
 
 public enum SerializeType {
-    JACKSON((byte) 1), HESSIAN((byte) 2);
+    JACKSON((byte) 1), PROTOBUFF((byte) 2);
 
     private byte value;
 
@@ -41,7 +41,7 @@ public enum SerializeType {
             return JACKSON;
         case 2:
 
-            return HESSIAN;
+            return PROTOBUFF;
 
         default:
             break;

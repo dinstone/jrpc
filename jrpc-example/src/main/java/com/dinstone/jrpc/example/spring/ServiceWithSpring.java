@@ -13,7 +13,21 @@ public class ServiceWithSpring {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
             "application-jrpc-example.xml");
 
-        HelloService service = (HelloService) applicationContext.getBean("rhsv1");
+        jackson(applicationContext);
+        System.out.println("===========================================================");
+        protobuff(applicationContext);
+
+        try {
+            System.in.read();
+        } catch (IOException e) {
+        }
+
+        applicationContext.close();
+    }
+
+    protected static void jackson(ClassPathXmlApplicationContext applicationContext) {
+        HelloService service = (HelloService) applicationContext.getBean("rhsv1-1");
+        System.out.println("jackson");
         try {
             testHot(service);
         } catch (Exception e) {
@@ -25,13 +39,22 @@ public class ServiceWithSpring {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    protected static void protobuff(ClassPathXmlApplicationContext applicationContext) {
+        HelloService service = (HelloService) applicationContext.getBean("rhsv1");
+        System.out.println("protobuff");
         try {
-            System.in.read();
-        } catch (IOException e) {
+            testHot(service);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        applicationContext.close();
+        try {
+            testSend1k(service);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     protected static void testHot(HelloService service) {
@@ -55,7 +78,7 @@ public class ServiceWithSpring {
 
         long st = System.currentTimeMillis();
 
-        int count = 10000;
+        int count = 100000;
         for (int i = 0; i < count; i++) {
             service.sayHello(name);
         }

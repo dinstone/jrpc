@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.serialize;
+
+package com.dinstone.jrpc.serializer;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class SerializerRegister {
 
     protected SerializerRegister() {
         regist(SerializeType.JACKSON, new JacksonSerializer());
-        regist(SerializeType.HESSIAN, new HessianSerializer());
+        regist(SerializeType.PROTOBUFF, new ProtobuffSerializer());
     }
 
     public void regist(SerializeType type, Serializer serializer) {

@@ -17,7 +17,7 @@
 package com.dinstone.jrpc.transport;
 
 import com.dinstone.jrpc.Configuration;
-import com.dinstone.jrpc.serialize.SerializeType;
+import com.dinstone.jrpc.serializer.SerializeType;
 
 public class TransportConfig extends Configuration {
 

@@ -32,17 +32,17 @@ import org.w3c.dom.NodeList;
 import com.dinstone.jrpc.spring.factory.ConfigBean;
 import com.dinstone.jrpc.spring.factory.TransportBean;
 
-public class JrpcBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+public class EndpointBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     private AtomicInteger count = new AtomicInteger();
 
     protected Class<?> factoryBeanClass;
 
-    protected Class<?> beanClass;
+    protected Class<?> endpointClass;
 
-    public JrpcBeanDefinitionParser(Class<?> factoryBeanClass, Class<?> beanClass) {
+    public EndpointBeanDefinitionParser(Class<?> factoryBeanClass, Class<?> endpointClass) {
         this.factoryBeanClass = factoryBeanClass;
-        this.beanClass = beanClass;
+        this.endpointClass = endpointClass;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class JrpcBeanDefinitionParser extends AbstractSingleBeanDefinitionParser
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         String id = element.getAttribute("id");
         if (!StringUtils.hasText(id)) {
-            id = beanClass.getSimpleName() + "-" + count.incrementAndGet();
+            id = endpointClass.getSimpleName() + "-" + count.incrementAndGet();
             builder.addPropertyValue("id", id);
             element.setAttribute("id", id);
         } else {

@@ -24,8 +24,6 @@ public interface ServiceExporter {
 
     public abstract <T> void exportService(Class<T> serviceInterface, String group, int timeout, T serviceImplement);
 
-    public abstract EndpointConfig getEndpointConfig();
-
     public abstract void destroy();
 
 }

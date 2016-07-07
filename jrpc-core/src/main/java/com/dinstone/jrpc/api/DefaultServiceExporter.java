@@ -60,9 +60,12 @@ public class DefaultServiceExporter implements ServiceExporter {
             timeout = endpointConfig.getDefaultTimeout();
         }
 
-        ServiceProxy<T> wrapper = serviceProxyFactory.createSkelecton(serviceInterface, group, timeout,
-            serviceImplement);
-        implementBinding.bind(wrapper, endpointConfig);
+        try {
+            ServiceProxy<T> wrapper = serviceProxyFactory.create(serviceInterface, group, timeout, serviceImplement);
+            implementBinding.bind(wrapper, endpointConfig);
+        } catch (Exception e) {
+            throw new RuntimeException("can't export service", e);
+        }
     }
 
     @Override
@@ -70,11 +73,6 @@ public class DefaultServiceExporter implements ServiceExporter {
         if (serviceProxyFactory != null) {
             serviceProxyFactory.destroy();
         }
-    }
-
-    @Override
-    public EndpointConfig getEndpointConfig() {
-        return endpointConfig;
     }
 
 }

@@ -39,13 +39,13 @@ public class Client {
     private DefaultReferenceBinding referenceBinding;
 
     public Client() {
-        loadModule();
+        loadProviders();
     }
 
     public Client(String host, int port) {
         serviceAddresses.add(new InetSocketAddress(host, port));
 
-        loadModule();
+        loadProviders();
     }
 
     public Client(String addresses) {
@@ -64,10 +64,10 @@ public class Client {
             }
         }
 
-        loadModule();
+        loadProviders();
     }
 
-    private void loadModule() {
+    private void loadProviders() {
         ServiceLoader<ConnectionFactory> cfServiceLoader = ServiceLoader.load(ConnectionFactory.class);
         for (ConnectionFactory connectionFactory : cfServiceLoader) {
             LOG.info("load connection provider for schema : {}", connectionFactory.getSchema());

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Result;
-import com.dinstone.jrpc.serialize.SerializeType;
+import com.dinstone.jrpc.serializer.SerializeType;
 import com.dinstone.jrpc.transport.Connection;
 import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.TransportConfig;

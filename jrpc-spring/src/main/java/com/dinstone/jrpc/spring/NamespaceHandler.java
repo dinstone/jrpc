@@ -26,10 +26,10 @@ import com.dinstone.jrpc.spring.factory.ServerFactoryBean;
 public class NamespaceHandler extends NamespaceHandlerSupport {
 
     public void init() {
-        registerBeanDefinitionParser("server", new JrpcBeanDefinitionParser(ServerFactoryBean.class, Server.class));
+        registerBeanDefinitionParser("server", new EndpointBeanDefinitionParser(ServerFactoryBean.class, Server.class));
         registerBeanDefinitionParser("service", new ServiceBeanDefinitionParser());
 
-        registerBeanDefinitionParser("client", new JrpcBeanDefinitionParser(ClientFactoryBean.class, Client.class));
+        registerBeanDefinitionParser("client", new EndpointBeanDefinitionParser(ClientFactoryBean.class, Client.class));
         registerBeanDefinitionParser("reference", new ReferenceBeanDefinitionParser());
     }
 }

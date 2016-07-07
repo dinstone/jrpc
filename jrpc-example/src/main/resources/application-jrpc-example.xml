@@ -7,7 +7,7 @@
 		<jrpc:registry schema="zookeeper">
 			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
 		</jrpc:registry>
-		<jrpc:transport schema="mina" address="*:2001" />
+		<jrpc:transport schema="mina" address="-:2001" />
 	</jrpc:server>
 	<jrpc:service interface="com.dinstone.jrpc.example.HelloService" implement="helloService" group="product-v1.0" timeout="2000" />
 	<jrpc:service interface="com.dinstone.jrpc.example.HelloService" implement="helloService" group="product-v2.0" timeout="2000" />
@@ -28,7 +28,9 @@
 		<jrpc:registry schema="zookeeper">
 			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
 		</jrpc:registry>
-		<jrpc:transport schema="mina" />
+		<jrpc:transport schema="mina">
+			<jrpc:property key="rpc.serialize.type" value="2" />
+		</jrpc:transport>
 	</jrpc:client>
 	<jrpc:reference id="rhsv1" interface="com.dinstone.jrpc.example.HelloService" group="product-v1.0" timeout="1000" />
 	<jrpc:reference id="rhsv2" interface="com.dinstone.jrpc.example.HelloService" group="product-v2.0" timeout="1000" />

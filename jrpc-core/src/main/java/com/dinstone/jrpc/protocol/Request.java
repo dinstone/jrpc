@@ -17,7 +17,7 @@ package com.dinstone.jrpc.protocol;
 
 import java.io.Serializable;
 
-import com.dinstone.jrpc.serialize.SerializeType;
+import com.dinstone.jrpc.serializer.SerializeType;
 
 /**
  * RPC request message.

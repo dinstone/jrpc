@@ -33,7 +33,7 @@ import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.proxy.SkelectonProxyFactory;
-import com.dinstone.jrpc.serialize.SerializeType;
+import com.dinstone.jrpc.serializer.SerializeType;
 
 public class AbstractAcceptanceTest {
 
@@ -42,7 +42,7 @@ public class AbstractAcceptanceTest {
     @Before
     public void setUp() throws Exception {
         SkelectonProxyFactory factory = new SkelectonProxyFactory();
-        ServiceProxy<DemoService> wrapper = factory.createSkelecton(DemoService.class, "", 3000, new DemoServiceImpl());
+        ServiceProxy<DemoService> wrapper = factory.create(DemoService.class, "", 3000, new DemoServiceImpl());
 
         ImplementBinding iBinding = new DefaultImplementBinding(new InetSocketAddress("localhost", 0));
         iBinding.bind(wrapper, null);

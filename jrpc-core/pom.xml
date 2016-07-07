@@ -14,10 +14,16 @@
 			<version>1.9.13</version>
 			<scope>compile</scope>
 		</dependency>
+
 		<dependency>
-			<groupId>com.caucho</groupId>
-			<artifactId>hessian</artifactId>
-			<version>4.0.7</version>
+			<groupId>io.protostuff</groupId>
+			<artifactId>protostuff-core</artifactId>
+			<version>1.4.4</version>
+		</dependency>
+		<dependency>
+			<groupId>io.protostuff</groupId>
+			<artifactId>protostuff-runtime</artifactId>
+			<version>1.4.4</version>
 		</dependency>
 	</dependencies>
 </project>

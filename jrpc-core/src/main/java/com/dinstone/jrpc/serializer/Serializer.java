@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.serialize;
+package com.dinstone.jrpc.serializer;
 
 /**
  * Serialize java object to byte array and Deserialize byte array to java

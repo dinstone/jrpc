@@ -39,7 +39,7 @@ import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.protocol.Result;
 import com.dinstone.jrpc.protocol.Tick;
-import com.dinstone.jrpc.serialize.SerializeType;
+import com.dinstone.jrpc.serializer.SerializeType;
 import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.TransportConfig;
 

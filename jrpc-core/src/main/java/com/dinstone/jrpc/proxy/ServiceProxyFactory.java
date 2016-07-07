@@ -18,9 +18,7 @@ package com.dinstone.jrpc.proxy;
 
 public interface ServiceProxyFactory {
 
-    public <T> ServiceProxy<T> createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject);
-
-    public <T> ServiceProxy<T> createStub(Class<T> si, String group, int timeout) throws Exception;
+    public <T> ServiceProxy<T> create(Class<T> service, String group, int timeout, T instance) throws Exception;
 
     public void destroy();
 }

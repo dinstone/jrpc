@@ -19,8 +19,8 @@ import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import com.dinstone.jrpc.serialize.SerializeType;
-import com.dinstone.jrpc.serialize.SerializerRegister;
+import com.dinstone.jrpc.serializer.SerializeType;
+import com.dinstone.jrpc.serializer.SerializerRegister;
 
 /**
  * RPC message codec.

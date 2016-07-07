@@ -17,15 +17,12 @@
 package com.dinstone.jrpc.spring.factory;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.dinstone.jrpc.api.Server;
-import com.dinstone.jrpc.spring.spi.ServiceBean;
 import com.dinstone.jrpc.transport.NetworkAddressUtil;
 
 public class ServerFactoryBean extends AbstractFactoryBean<Server> {
@@ -45,11 +42,6 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
     // Registry config
     // ================================================
     private ConfigBean registryBean;
-
-    // ================================================
-    // Services config
-    // ================================================
-    List<ServiceBean> services = new ArrayList<ServiceBean>();
 
     public String getId() {
         return id;
@@ -83,18 +75,6 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
         this.registryBean = registryBean;
     }
 
-    public List<ServiceBean> getServices() {
-        return services;
-    }
-
-    public void setServices(List<ServiceBean> services) {
-        if (services != null) {
-            for (ServiceBean implementBindingBean : services) {
-                this.services.add(implementBindingBean);
-            }
-        }
-    }
-
     @Override
     protected Server createInstance() throws Exception {
         LOG.info("create jrpc client {}@{}", id, name);
@@ -120,7 +100,7 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
 
         server.getEndpointConfig().setEndpointId(id);
         server.getEndpointConfig().setEndpointName(name);
-        
+
         server.getServiceExporter();
 
         return server;

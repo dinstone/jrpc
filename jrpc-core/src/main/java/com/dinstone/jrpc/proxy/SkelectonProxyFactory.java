@@ -21,23 +21,10 @@ public class SkelectonProxyFactory implements ServiceProxyFactory {
     public SkelectonProxyFactory() {
     }
 
-    public <T> ServiceProxy<T> createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject) {
-        // Map<String, Method> methodMap = new HashMap<String, Method>();
-        // Method[] methods = serviceInterface.getDeclaredMethods();
-        // for (Method method : methods) {
-        // if (methodMap.containsKey(method.getName())) {
-        // throw new RuntimeException("method overloading is not supported");
-        // }
-        // methodMap.put(method.getName(), method);
-        // }
-
-        return new ServiceProxy<T>(serviceInterface, group, timeout, serviceObject);
-    }
-
     @Override
-    public <T> ServiceProxy<T> createStub(Class<T> si, String group, int timeout) throws Exception {
-        // ignore
-        return null;
+    public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceObject)
+            throws Exception {
+        return new ServiceProxy<T>(serviceInterface, group, timeout, serviceObject);
     }
 
     @Override

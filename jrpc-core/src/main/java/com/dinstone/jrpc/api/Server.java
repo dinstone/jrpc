@@ -48,7 +48,7 @@ public class Server {
             throw new RuntimeException("host is invalid", e);
         }
 
-        loadServiceProvider();
+        loadProviders();
     }
 
     public Server(String address) {
@@ -61,16 +61,16 @@ public class Server {
             throw new RuntimeException("address is invalid");
         }
 
-        loadServiceProvider();
+        loadProviders();
     }
 
     public Server(InetSocketAddress serviceAddress) {
         this.serviceAddress = serviceAddress;
 
-        loadServiceProvider();
+        loadProviders();
     }
 
-    private void loadServiceProvider() {
+    private void loadProviders() {
         ServiceLoader<AcceptanceFactory> afServiceLoader = ServiceLoader.load(AcceptanceFactory.class);
         for (AcceptanceFactory acceptanceFactory : afServiceLoader) {
             LOG.info("load acceptance provider for schema : {}", acceptanceFactory.getSchema());

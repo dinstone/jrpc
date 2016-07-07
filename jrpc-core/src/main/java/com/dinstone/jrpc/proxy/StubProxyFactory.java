@@ -31,15 +31,12 @@ public class StubProxyFactory implements ServiceProxyFactory {
     }
 
     @Override
-    public <T> ServiceProxy<T> createSkelecton(Class<T> serviceInterface, String group, int timeout, T serviceObject) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public <T> ServiceProxy<T> createStub(Class<T> si, String group, int timeout) throws Exception {
+    public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceObject)
+            throws Exception {
         ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<T>();
-        T sr = si.cast(Proxy.newProxyInstance(si.getClassLoader(), new Class[] { si }, handler));
-        ServiceProxy<T> serviceProxy = new ServiceProxy<T>(si, group, timeout, sr);
+        T proxy = serviceInterface.cast(Proxy.newProxyInstance(serviceInterface.getClassLoader(),
+            new Class[] { serviceInterface }, handler));
+        ServiceProxy<T> serviceProxy = new ServiceProxy<T>(serviceInterface, group, timeout, proxy);
         handler.serviceProxy = serviceProxy;
         return serviceProxy;
     }
