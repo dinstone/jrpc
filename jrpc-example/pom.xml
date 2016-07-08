@@ -9,22 +9,27 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.dinstone.jrpc</groupId>
-			<artifactId>jrpc-mina</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.dinstone.jrpc</groupId>
-			<artifactId>jrpc-zookeeper</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.dinstone.jrpc</groupId>
 			<artifactId>jrpc-spring</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.jrpc</groupId>
-			<artifactId>jrpc-netty4</artifactId>
+			<artifactId>jrpc-registry-zookeeper</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.jrpc</groupId>
+			<artifactId>jrpc-transport-netty5</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.jrpc</groupId>
+			<artifactId>jrpc-transport-netty4</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.dinstone.jrpc</groupId>
+			<artifactId>jrpc-transport-mina</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

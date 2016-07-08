@@ -218,12 +218,12 @@
 		</dependency>
 	</dependencies>
 	<modules>
-		<module>jrpc-mina</module>
 		<module>jrpc-core</module>
-		<module>jrpc-zookeeper</module>
+		<module>jrpc-transport-mina</module>
+		<module>jrpc-transport-netty4</module>
+		<module>jrpc-transport-netty5</module>
+		<module>jrpc-registry-zookeeper</module>
 		<module>jrpc-spring</module>
 		<module>jrpc-example</module>
-		<module>jrpc-netty4</module>
-		<module>jrpc-transport-netty5</module>
 	</modules>
 </project>
