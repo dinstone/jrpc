@@ -16,8 +16,8 @@
 
 package com.dinstone.jrpc.transport.netty5;
 
+import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.util.Map;
 
@@ -28,7 +28,7 @@ import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.protocol.Result;
 import com.dinstone.jrpc.transport.ResultFuture;
 
-public class NettyClientHandler extends ChannelInboundHandlerAdapter {
+public class NettyClientHandler extends ChannelHandlerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(NettyClientHandler.class);
 

@@ -26,7 +26,33 @@ public class ServiceWithSpring {
 
     public static void main(String[] args) {
         // case01();
-        case02();
+        // case02();
+        case03();
+    }
+
+    protected static void case03() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("jrpc-example-case3.xml");
+
+        HelloService rhsv1 = (HelloService) applicationContext.getBean("rhsv1");
+
+        try {
+            testHot(rhsv1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            testSend1k(rhsv1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            System.in.read();
+        } catch (IOException e) {
+        }
+
+        applicationContext.close();
     }
 
     private static void case02() {
