@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.mina.transport;
+package com.dinstone.jrpc.transport.mina;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -104,7 +104,7 @@ public class MinaConnector {
         DefaultIoFilterChainBuilder chainBuilder = ioConnector.getFilterChain();
 
         int maxLen = config.getMaxSize();
-        LOG.debug("rpc.protocol.maxlength is {}", maxLen);
+        // LOG.debug("rpc.protocol.maxlength is {}", maxLen);
 
         final TransportProtocolEncoder encoder = new TransportProtocolEncoder();
         final TransportProtocolDecoder decoder = new TransportProtocolDecoder();
@@ -139,7 +139,7 @@ public class MinaConnector {
      */
     public IoSession createSession() {
         // create session
-        LOG.debug("create session to {} ", ioConnector.getDefaultRemoteAddress());
+        // LOG.debug("create session to {} ", ioConnector.getDefaultRemoteAddress());
         // long s = System.currentTimeMillis();
         ConnectFuture future = ioConnector.connect().awaitUninterruptibly();
         IoSession session = future.getSession();

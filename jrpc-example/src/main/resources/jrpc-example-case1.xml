@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jrpc="http://www.dinstone.com/schema/jrpc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.dinstone.com/schema/jrpc http://www.dinstone.com/schema/jrpc-3.0.xsd">
+
+	<jrpc:server>
+		<jrpc:registry schema="zookeeper">
+			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
+		</jrpc:registry>
+		<jrpc:transport schema="mina" address="-:2001" />
+	</jrpc:server>
+	<jrpc:service interface="com.dinstone.jrpc.example.HelloService" implement="helloService" group="product-v1.0" timeout="2000" />
+
+	<jrpc:server id="netty-server">
+		<jrpc:registry schema="zookeeper">
+			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
+		</jrpc:registry>
+		<jrpc:transport schema="netty" address="localhost:2002" />
+	</jrpc:server>
+	<jrpc:service interface="com.dinstone.jrpc.example.HelloService" implement="helloService" group="product-v1.0" timeout="2000" server="netty-server" />
+
+	<bean id="helloService" class="com.dinstone.jrpc.example.HelloServiceImpl" />
+
+	<jrpc:client name="netty-client">
+		<jrpc:registry schema="zookeeper">
+			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
+		</jrpc:registry>
+		<jrpc:transport schema="netty">
+			<jrpc:property key="rpc.serialize.type" value="2" />
+		</jrpc:transport>
+	</jrpc:client>
+	<jrpc:reference id="rhsv1" interface="com.dinstone.jrpc.example.HelloService" group="product-v1.0" />
+
+</beans>

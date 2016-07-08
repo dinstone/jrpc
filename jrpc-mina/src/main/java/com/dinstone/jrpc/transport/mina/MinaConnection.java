@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.mina.transport;
+package com.dinstone.jrpc.transport.mina;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -59,21 +59,21 @@ public class MinaConnection implements Connection {
     public ResultFuture call(Call call) {
         final int id = ID_GENERATOR.incrementAndGet();
         Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(ioSession);
-        final ResultFuture callFuture = new ResultFuture();
-        futureMap.put(id, callFuture);
+        final ResultFuture resultFuture = new ResultFuture();
+        futureMap.put(id, resultFuture);
 
         WriteFuture wf = ioSession.write(new Request(id, serializeType, call));
         wf.addListener(new IoFutureListener<WriteFuture>() {
 
             public void operationComplete(WriteFuture future) {
                 if (!future.isWritten()) {
-                    callFuture.setResult(new Result(500, "connection is closed"));
+                    resultFuture.setResult(new Result(500, "can't write request"));
                 }
             }
 
         });
 
-        return callFuture;
+        return resultFuture;
     }
 
     @Override
@@ -85,14 +85,12 @@ public class MinaConnection implements Connection {
     public void destroy() {
         if (ioSession != null) {
             ioSession.close(true);
-            LOG.info("close session ID[{}]$L[{}]$R[{}]", ioSession.getId(), ioSession.getLocalAddress(),
-                ioSession.getRemoteAddress());
+            LOG.info("session closed {} to {}", ioSession.getLocalAddress(), ioSession.getRemoteAddress());
         }
 
         if (connector != null) {
             connector.dispose();
         }
-
     }
 
     @Override

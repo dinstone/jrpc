@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ * Copyright (C) 2012~2014 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.mina.transport;
+
+package com.dinstone.jrpc.transport.netty4;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToByteEncoder;
 
 import java.io.Serializable;
-
-import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.CumulativeProtocolDecoder;
-import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 
 import com.dinstone.jrpc.protocol.Message;
 import com.dinstone.jrpc.protocol.MessageCodec;
 
-/**
- * Transport Protocol Decoder.
- * 
- * @author guojinfei
- * @version 1.0.0.2014-6-19
- */
-public class TransportProtocolDecoder extends CumulativeProtocolDecoder {
+public class TransportProtocolEncoder extends MessageToByteEncoder<Message<? extends Serializable>> {
 
-    /** 2GB */
     private int maxObjectSize = Integer.MAX_VALUE;
 
-    public TransportProtocolDecoder() {
+    public TransportProtocolEncoder() {
     }
 
     /**
@@ -64,38 +57,22 @@ public class TransportProtocolDecoder extends CumulativeProtocolDecoder {
     }
 
     @Override
-    protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-        byte[] rpcBytes = readFrame(in);
-        if (rpcBytes == null) {
-            return false;
-        }
-
-        Message<? extends Serializable> message = MessageCodec.decodeMessage(rpcBytes);
-        out.write(message);
-
-        return true;
+    protected void encode(ChannelHandlerContext ctx, Message<? extends Serializable> message, ByteBuf out)
+            throws Exception {
+        byte[] rpcBytes = MessageCodec.encodeMessage(message);
+        writeFrame(out, rpcBytes);
     }
 
-    private byte[] readFrame(IoBuffer in) {
-        int remaining = in.remaining();
-        if (remaining < 4) {
-            return null;
-        }
-
-        int objectSize = in.getInt(0);
+    private void writeFrame(ByteBuf out, byte[] rpcBytes) {
+        int objectSize = rpcBytes.length;
         if (objectSize > maxObjectSize) {
             throw new IllegalArgumentException("The encoded object is too big: " + objectSize + " (> " + maxObjectSize
                     + ')');
         }
 
-        if (remaining - 4 >= objectSize) {
-            // RPC object size
-            in.getInt();
-            byte[] rpcBytes = new byte[objectSize];
-            in.get(rpcBytes);
-            return rpcBytes;
-        }
-
-        return null;
+        // FrameLen = PrefixLen + RpcObjectSize
+        out.writeInt(objectSize);
+        out.writeBytes(rpcBytes);
     }
+
 }

@@ -23,10 +23,10 @@ import com.dinstone.jrpc.api.EndpointConfig;
 import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.binding.DefaultReferenceBinding;
 import com.dinstone.jrpc.binding.ReferenceBinding;
-import com.dinstone.jrpc.mina.transport.MinaConnectionFactory;
 import com.dinstone.jrpc.registry.ServiceDiscovery;
 import com.dinstone.jrpc.transport.ConnectionFactory;
 import com.dinstone.jrpc.transport.TransportConfig;
+import com.dinstone.jrpc.transport.mina.MinaConnectionFactory;
 
 /**
  * @author guojf

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ * Copyright (C) 2012~2014 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.mina.transport;
+
+package com.dinstone.jrpc.transport.netty4;
+
+import io.netty.channel.Channel;
+import io.netty.util.AttributeKey;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.mina.core.session.IoSession;
 
 import com.dinstone.jrpc.transport.ResultFuture;
 
 public class SessionUtil {
 
-    public static void setResultFutureMap(IoSession session) {
-        session.setAttribute(ConcurrentHashMap.class.getName(), new ConcurrentHashMap<Integer, ResultFuture>());
-    }
+    private static final AttributeKey<Object> RESULT_FUTURE_KEY = AttributeKey.valueOf(ConcurrentHashMap.class
+        .getName());
 
     @SuppressWarnings("unchecked")
-    public static Map<Integer, ResultFuture> getResultFutureMap(IoSession session) {
-        return (Map<Integer, ResultFuture>) session.getAttribute(ConcurrentHashMap.class.getName());
+    public static Map<Integer, ResultFuture> getResultFutureMap(Channel session) {
+        return (Map<Integer, ResultFuture>) session.attr(RESULT_FUTURE_KEY).get();
+    }
+
+    public static void setResultFutureMap(Channel session) {
+        session.attr(RESULT_FUTURE_KEY).set(new ConcurrentHashMap<Integer, ResultFuture>());
     }
 }

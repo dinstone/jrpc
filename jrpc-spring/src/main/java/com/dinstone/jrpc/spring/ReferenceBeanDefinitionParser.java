@@ -19,6 +19,7 @@ package com.dinstone.jrpc.spring;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
 
 import com.dinstone.jrpc.api.Client;
@@ -35,7 +36,10 @@ public class ReferenceBeanDefinitionParser extends AbstractSingleBeanDefinitionP
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         builder.addPropertyValue("service", element.getAttribute("interface"));
         builder.addPropertyValue("group", element.getAttribute("group"));
-        builder.addPropertyValue("timeout", element.getAttribute("timeout"));
+        String timeout = element.getAttribute("timeout");
+        if (StringUtils.hasText(timeout)) {
+            builder.addPropertyValue("timeout", timeout);
+        }
         builder.addPropertyReference("client", getClientBeanId(element.getAttribute("client")));
     }
 

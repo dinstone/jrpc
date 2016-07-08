@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.dinstone.jrpc.example.spring;
 
@@ -10,12 +25,63 @@ import com.dinstone.jrpc.example.HelloService;
 public class ServiceWithSpring {
 
     public static void main(String[] args) {
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-            "application-jrpc-example.xml");
+        // case01();
+        case02();
+    }
 
-        jackson(applicationContext);
-        System.out.println("===========================================================");
-        protobuff(applicationContext);
+    private static void case02() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("jrpc-example-case2.xml");
+
+        HelloService rhsv1Netty = (HelloService) applicationContext.getBean("rhsv1-netty");
+        System.out.println("rhsv1Netty");
+        try {
+            testHot(rhsv1Netty);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            testSend1k(rhsv1Netty);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        HelloService rhsv1Mina = (HelloService) applicationContext.getBean("rhsv1-mina");
+        System.out.println("rhsv1Mina");
+        try {
+            testHot(rhsv1Mina);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            testSend1k(rhsv1Mina);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            System.in.read();
+        } catch (IOException e) {
+        }
+
+        applicationContext.close();
+    }
+
+    protected static void case01() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("jrpc-example-case1.xml");
+
+        HelloService rhsv1 = (HelloService) applicationContext.getBean("rhsv1");
+
+        try {
+            testHot(rhsv1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            testSend1k(rhsv1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         try {
             System.in.read();
@@ -27,6 +93,10 @@ public class ServiceWithSpring {
 
     protected static void jackson(ClassPathXmlApplicationContext applicationContext) {
         HelloService service = (HelloService) applicationContext.getBean("rhsv1-1");
+        if (service == null) {
+            return;
+        }
+
         System.out.println("jackson");
         try {
             testHot(service);
@@ -43,6 +113,10 @@ public class ServiceWithSpring {
 
     protected static void protobuff(ClassPathXmlApplicationContext applicationContext) {
         HelloService service = (HelloService) applicationContext.getBean("rhsv1");
+        if (service == null) {
+            return;
+        }
+
         System.out.println("protobuff");
         try {
             testHot(service);
@@ -60,12 +134,13 @@ public class ServiceWithSpring {
     protected static void testHot(HelloService service) {
         long st = System.currentTimeMillis();
 
-        for (int i = 0; i < 100000; i++) {
+        int count = 100000;
+        for (int i = 0; i < count; i++) {
             service.sayHello("dinstone");
         }
 
         long et = System.currentTimeMillis() - st;
-        System.out.println("hot takes " + et + "ms, " + (100000 * 1000 / et) + " tps");
+        System.out.println("hot takes " + et + "ms, " + (count * 1000 / et) + " tps");
     }
 
     public static void testSend1k(HelloService service) throws IOException {
@@ -78,7 +153,7 @@ public class ServiceWithSpring {
 
         long st = System.currentTimeMillis();
 
-        int count = 100000;
+        int count = 10000;
         for (int i = 0; i < count; i++) {
             service.sayHello(name);
         }

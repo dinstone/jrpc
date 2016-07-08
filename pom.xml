@@ -223,5 +223,7 @@
 		<module>jrpc-zookeeper</module>
 		<module>jrpc-spring</module>
 		<module>jrpc-example</module>
+		<module>jrpc-netty4</module>
+		<module>jrpc-transport-netty5</module>
 	</modules>
 </project>

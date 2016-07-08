@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.mina.transport;
+package com.dinstone.jrpc.transport.mina;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
@@ -162,8 +162,8 @@ public class MinaAcceptance extends AbstractAcceptance {
          */
         @Override
         public void sessionClosed(IoSession session) throws Exception {
-            long id = session.getId();
-            LOG.debug("Session[{}] is closed", id);
+            // long id = session.getId();
+            // LOG.debug("Session[{}] is closed", id);
         }
 
         @Override

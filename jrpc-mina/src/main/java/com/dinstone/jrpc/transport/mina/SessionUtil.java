@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.dinstone.jrpc.transport.mina;
 
-package com.dinstone.jrpc.mina.transport;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import java.net.InetSocketAddress;
+import org.apache.mina.core.session.IoSession;
 
-import com.dinstone.jrpc.transport.AbstractConnectionFactory;
-import com.dinstone.jrpc.transport.Connection;
+import com.dinstone.jrpc.transport.ResultFuture;
 
-public class MinaConnectionFactory extends AbstractConnectionFactory {
+public class SessionUtil {
 
-    @Override
-    protected Connection createConnection(InetSocketAddress sa) {
-        return new MinaConnection(sa, transportConfig);
+    public static void setResultFutureMap(IoSession session) {
+        session.setAttribute(ConcurrentHashMap.class.getName(), new ConcurrentHashMap<Integer, ResultFuture>());
     }
 
-    @Override
-    public String getSchema() {
-        return "mina";
+    @SuppressWarnings("unchecked")
+    public static Map<Integer, ResultFuture> getResultFutureMap(IoSession session) {
+        return (Map<Integer, ResultFuture>) session.getAttribute(ConcurrentHashMap.class.getName());
     }
-
 }

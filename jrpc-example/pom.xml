@@ -22,5 +22,10 @@
 			<artifactId>jrpc-spring</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.dinstone.jrpc</groupId>
+			<artifactId>jrpc-netty4</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 </project>

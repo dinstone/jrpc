@@ -28,11 +28,11 @@ import org.junit.Test;
 import com.dinstone.jrpc.cases.HelloService;
 import com.dinstone.jrpc.cases.HelloServiceImpl;
 import com.dinstone.jrpc.mina.MinaServer;
-import com.dinstone.jrpc.mina.transport.MinaConnectionFactory;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.transport.Connection;
 import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.ResultFutureListener;
+import com.dinstone.jrpc.transport.mina.MinaConnectionFactory;
 
 /**
  * @author guojf
