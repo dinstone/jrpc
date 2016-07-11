@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.netty5;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.util.concurrent.GenericFutureListener;
+import io.netty.channel.ChannelFutureListener;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class NettyConnection implements Connection {
         futureMap.put(id, resultFuture);
 
         ChannelFuture wf = ioSession.writeAndFlush(new Request(id, serializeType, call));
-        wf.addListener(new GenericFutureListener<ChannelFuture>() {
+        wf.addListener(new ChannelFutureListener() {
 
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {

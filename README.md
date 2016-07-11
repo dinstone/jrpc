@@ -9,53 +9,103 @@ git clone https://github.com/dinstone/jrpc.git
 maven install.
 
 ## step 3:
-add dependency to classpath.
-jrpc-core-2.1.0.jar
-jrpc-mina-2.1.0.jar
-
-service registry discovery libs :
-jrpc-zookeeper-2.1.0.jar
-jrpc-spring-2.1.0.jar
+select transport implement,add 'mina' or 'netty' dependency:
+```xml
+<dependency>
+	<groupId>com.dinstone.jrpc</groupId>
+	<artifactId>jrpc-transport-mina</artifactId>
+	<version>${jrpc.version}</version>
+</dependency>
+```
+or
+```xml
+<dependency>
+	<groupId>com.dinstone.jrpc</groupId>
+	<artifactId>jrpc-transport-netty4</artifactId>
+	<version>${jrpc.version}</version>
+</dependency>
+```
+if you need service registry and discovery, please add dependencies :
+```xml
+<dependency>
+	<groupId>com.dinstone.jrpc</groupId>
+	<artifactId>jrpc-registry-zookeeper</artifactId>
+	<version>${jrpc.version}</version>
+</dependency>
+```
+If you are integrated with Spring, please add dependencies :
+```xml
+<dependency>
+	<groupId>com.dinstone.jrpc</groupId>
+	<artifactId>jrpc-spring</artifactId>
+	<version>${jrpc.version}</version>
+</dependency>
+```
 	
 # Example
+For more details, please refer to the example project: jrpc-example
 ## java API
 ### export service:
 ```java
 
-MinaServer server = new MinaServer("localhost", 1234);
-server.regist(HelloService.class, new HelloServiceImpl());
-server.start();
+Server server = new Server("localhost", 4444);
+ServiceExporter serviceExporter = server.getServiceExporter();
+serviceExporter.exportService(HelloService.class, new HelloServiceImpl());
+
+System.in.read();
+
+server.destroy();
     
 ```
 
 ### import service:
 ```java
 
-Client client = new MinaClient("localhost", 1234).setDefaultTimeout(5000);
-HelloService service = client.getService(HelloService.class);
-service.sayHello("dinstone");
+Client client = new Client("localhost", 4444);
+ServiceImporter serviceImporter = client.getServiceImporter();
+HelloService helloService = serviceImporter.importService(HelloService.class);
+helloService.sayHello("dinstone");
+
+client.destroy();
     
 ```
 
-## Spring schema
+## Spring integration
 ### export service:
 ```xml
 
-<jrpc:server host="-" port="1234" transport="mina">
-	<jrpc:registry schema="zookeeper" addresses="localhost:2181" />
-</jrpc:server>
-<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v2.0" timeout="2000" />
-<jrpc:service interface="com.dinstone.jrpc.demo.HelloService" implement="helloService" group="product-v1.0" timeout="2000" />
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jrpc="http://www.dinstone.com/schema/jrpc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.dinstone.com/schema/jrpc http://www.dinstone.com/schema/jrpc-3.0.xsd">
 
-<bean id="helloService" class="com.dinstone.jrpc.demo.HelloServiceImpl" />
+	<jrpc:server>
+		<jrpc:registry schema="zookeeper">
+			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
+		</jrpc:registry>
+		<jrpc:transport schema="mina" address="-:2001" />
+	</jrpc:server>
+	<jrpc:service interface="com.dinstone.jrpc.example.HelloService" implement="helloService" group="product-v1.0" timeout="2000" />
+
+	<bean id="helloService" class="com.dinstone.jrpc.demo.HelloServiceImpl" />
+</beans>
 
 ```
 ### import service:
 ```xml
 
-<jrpc:client>
-	<jrpc:registry schema="zookeeper" addresses="localhost:2181" />
-</jrpc:client>
-<jrpc:reference id="rhs" interface="com.dinstone.jrpc.demo.HelloService" group="product-v1.0" timeout="1000" />
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jrpc="http://www.dinstone.com/schema/jrpc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.dinstone.com/schema/jrpc http://www.dinstone.com/schema/jrpc-3.0.xsd">
 	
+	<jrpc:client name="netty-client">
+		<jrpc:registry schema="zookeeper">
+			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
+		</jrpc:registry>
+		<jrpc:transport schema="netty">
+			<jrpc:property key="rpc.serialize.type" value="2" />
+		</jrpc:transport>
+	</jrpc:client>
+	<jrpc:reference id="rhsv1" interface="com.dinstone.jrpc.example.HelloService" group="product-v1.0" />
+</beans>
+
 ```
