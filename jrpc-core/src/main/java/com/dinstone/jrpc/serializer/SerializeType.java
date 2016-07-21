@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.serializer;
 
 public enum SerializeType {
@@ -36,15 +37,15 @@ public enum SerializeType {
 
     public static SerializeType valueOf(int type) {
         switch (type) {
-        case 1:
+            case 1:
 
-            return JACKSON;
-        case 2:
+                return JACKSON;
+            case 2:
 
-            return PROTOBUFF;
+                return PROTOBUFF;
 
-        default:
-            break;
+            default:
+                break;
         }
 
         throw new IllegalArgumentException("unsupported serialize type [" + type + "]");

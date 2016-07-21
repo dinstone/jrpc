@@ -56,11 +56,12 @@ public class TransportConfig extends Configuration {
     }
 
     public void setSerializeType(SerializeType type) {
-        setInt(SERIALIZE_TYPE, type.getValue());
+        set(SERIALIZE_TYPE, type.name());
     }
 
     public SerializeType getSerializeType() {
-        return SerializeType.valueOf(getInt(SERIALIZE_TYPE, SerializeType.JACKSON.getValue()));
+        String name = get(SERIALIZE_TYPE, SerializeType.JACKSON.name()).toUpperCase();
+        return SerializeType.valueOf(name);
     }
 
     public int getConnectTimeout() {

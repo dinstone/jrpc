@@ -1,7 +1,7 @@
 # What
 JRPC is a lightweight Java RPC framework. it supports service registry and discovery by the zookeeper framework.
 
-# How
+# Quick Start
 ## step 1:
 git clone https://github.com/dinstone/jrpc.git
 
@@ -43,7 +43,7 @@ If you are integrated with Spring, please add dependencies :
 ```
 	
 # Example
-For more details, please refer to the example project: jrpc-example
+For more details, please refer to the example project : [jrpc-example](https://github.com/dinstone/jrpc/tree/master/jrpc-example)
 ## java API
 ### export service:
 ```java
