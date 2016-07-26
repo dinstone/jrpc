@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.mina.transport;
 
 import java.net.InetSocketAddress;
@@ -29,8 +30,8 @@ import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Result;
 import com.dinstone.jrpc.serialize.SerializeType;
-import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.Connection;
+import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaConnection implements Connection {
@@ -50,9 +51,14 @@ public class MinaConnection implements Connection {
     }
 
     public MinaConnection(InetSocketAddress isa, TransportConfig config) {
-        connector = new MinaConnector(isa, config);
-        ioSession = connector.createSession();
         serializeType = config.getSerializeType();
+        try {
+            connector = new MinaConnector(isa, config);
+            ioSession = connector.createSession();
+        } catch (RuntimeException e) {
+            destroy();
+            throw e;
+        }
     }
 
     public ResultFuture call(Call call) {
