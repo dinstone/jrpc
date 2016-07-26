@@ -36,7 +36,7 @@ public class ServiceConsumer {
 
         client.getTransportConfig().setSchema("mina");
         other = new Properties();
-        other.setProperty("rpc.parallel.count", "2");
+        other.setProperty("rpc.handler.count", "2");
         client.getTransportConfig().setProperties(other);
 
         ServiceImporter serviceImporter = client.getServiceImporter();

@@ -40,6 +40,7 @@ import org.apache.mina.transport.socket.nio.NioSocketAcceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dinstone.jrpc.NamedThreadFactory;
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.invoker.SkelectonServiceInvoker;
 import com.dinstone.jrpc.protocol.Heartbeat;
@@ -97,8 +98,11 @@ public class MinaAcceptance extends AbstractAcceptance {
             }
         }));
 
-        executorService = Executors.newFixedThreadPool(transportConfig.getParallelCount());
-        chainBuilder.addLast("threadPool", new ExecutorFilter(executorService, IoEventType.MESSAGE_RECEIVED));
+        int handlerCount = transportConfig.getHandlerCount();
+        if (handlerCount > 0) {
+            executorService = Executors.newFixedThreadPool(handlerCount, new NamedThreadFactory("NioHandler"));
+            chainBuilder.addLast("threadPool", new ExecutorFilter(executorService, IoEventType.MESSAGE_RECEIVED));
+        }
 
         // add keep alive filter
         KeepAliveFilter kaFilter = new KeepAliveFilter(new PassiveKeepAliveMessageFactory(), IdleStatus.BOTH_IDLE);

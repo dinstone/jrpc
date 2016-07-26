@@ -58,7 +58,7 @@ public class NettyAcceptance extends AbstractAcceptance {
     @Override
     public Acceptance bind() {
         bossGroup = new NioEventLoopGroup();
-        workerGroup = new NioEventLoopGroup(transportConfig.getParallelCount());
+        workerGroup = new NioEventLoopGroup(transportConfig.getHandlerCount());
 
         ServerBootstrap boot = new ServerBootstrap();
         boot.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)

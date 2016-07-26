@@ -31,7 +31,7 @@ public class TransportConfig extends Configuration {
     private static final String CONNECT_TIMEOUT = "rpc.connect.timeout";
 
     /** parallel count */
-    private static final String PARALLEL_COUNT = "rpc.parallel.count";
+    private static final String HANDLER_COUNT = "rpc.handler.count";
 
     /** transport schema, default is 'mina' */
     private String schema = "mina";
@@ -72,12 +72,12 @@ public class TransportConfig extends Configuration {
         setInt(CONNECT_TIMEOUT, timeout);
     }
 
-    public int getParallelCount() {
-        return getInt(PARALLEL_COUNT, Runtime.getRuntime().availableProcessors());
+    public int getHandlerCount() {
+        return getInt(HANDLER_COUNT, Runtime.getRuntime().availableProcessors());
     }
 
-    public void setParallelCount(int count) {
-        setInt(PARALLEL_COUNT, count);
+    public void setHandlerCount(int count) {
+        setInt(HANDLER_COUNT, count);
     }
 
     public void setSchema(String schema) {

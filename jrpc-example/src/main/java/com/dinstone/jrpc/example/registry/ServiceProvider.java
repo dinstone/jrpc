@@ -40,7 +40,7 @@ public class ServiceProvider {
 
         server.getTransportConfig().setSchema("mina");
         other = new Properties();
-        other.setProperty("rpc.parallel.count", "2");
+        other.setProperty("rpc.handler.count", "2");
         server.getTransportConfig().setProperties(other);
 
         try {
