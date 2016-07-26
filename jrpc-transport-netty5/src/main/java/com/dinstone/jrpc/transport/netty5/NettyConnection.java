@@ -24,9 +24,6 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Result;
@@ -36,8 +33,6 @@ import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class NettyConnection implements Connection {
-
-    private static final Logger LOG = LoggerFactory.getLogger(NettyConnection.class);
 
     private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
@@ -52,9 +47,15 @@ public class NettyConnection implements Connection {
     }
 
     public NettyConnection(InetSocketAddress isa, TransportConfig config) {
-        connector = new NettyConnector(isa, config);
-        ioSession = connector.createSession();
         serializeType = config.getSerializeType();
+        try {
+            connector = new NettyConnector(isa, config);
+            ioSession = connector.createSession();
+        } catch (RuntimeException e) {
+            destroy();
+
+            throw e;
+        }
     }
 
     public ResultFuture call(Call call) {
@@ -97,7 +98,6 @@ public class NettyConnection implements Connection {
     public void destroy() {
         if (ioSession != null) {
             ioSession.close();
-            LOG.debug("session closed {} to {}", ioSession.localAddress(), ioSession.remoteAddress());
         }
 
         if (connector != null) {

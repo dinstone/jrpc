@@ -23,8 +23,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.mina.core.future.IoFutureListener;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
@@ -35,8 +33,6 @@ import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaConnection implements Connection {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MinaConnection.class);
 
     private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
@@ -51,9 +47,16 @@ public class MinaConnection implements Connection {
     }
 
     public MinaConnection(InetSocketAddress isa, TransportConfig config) {
-        connector = new MinaConnector(isa, config);
-        ioSession = connector.createSession();
         serializeType = config.getSerializeType();
+
+        try {
+            connector = new MinaConnector(isa, config);
+            ioSession = connector.createSession();
+        } catch (RuntimeException e) {
+            destroy();
+
+            throw e;
+        }
     }
 
     public ResultFuture call(Call call) {
@@ -85,7 +88,6 @@ public class MinaConnection implements Connection {
     public void destroy() {
         if (ioSession != null) {
             ioSession.close(true);
-            LOG.info("session closed {} to {}", ioSession.getLocalAddress(), ioSession.getRemoteAddress());
         }
 
         if (connector != null) {
