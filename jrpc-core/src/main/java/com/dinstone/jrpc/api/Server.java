@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.binding.DefaultImplementBinding;
+import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.endpoint.DefaultServiceExporter;
 import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.endpoint.ServiceExporter;
@@ -53,7 +54,7 @@ public class Server {
 
     private ServiceExporter serviceExporter;
 
-    private DefaultImplementBinding implementBinding;
+    private ImplementBinding implementBinding;
 
     private InetSocketAddress serviceAddress;
 
