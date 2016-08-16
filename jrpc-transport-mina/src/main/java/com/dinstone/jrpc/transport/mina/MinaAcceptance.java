@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.NamedThreadFactory;
 import com.dinstone.jrpc.binding.ImplementBinding;
-import com.dinstone.jrpc.invoker.SkelectonServiceInvoker;
 import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
@@ -61,7 +60,7 @@ public class MinaAcceptance extends AbstractAcceptance {
     private TransportConfig transportConfig;
 
     public MinaAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding) {
-        super(implementBinding, new SkelectonServiceInvoker());
+        super(implementBinding);
         this.transportConfig = transportConfig;
     }
 

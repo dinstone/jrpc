@@ -86,7 +86,7 @@ client.destroy();
 	</jrpc:server>
 	<jrpc:service interface="com.dinstone.jrpc.example.HelloService" implement="helloService" group="product-v1.0" timeout="2000" />
 
-	<bean id="helloService" class="com.dinstone.jrpc.demo.HelloServiceImpl" />
+	<bean id="helloService" class="com.dinstone.jrpc.example.HelloServiceImpl" />
 </beans>
 
 ```

@@ -17,7 +17,7 @@
 package com.dinstone.jrpc.example.common;
 
 import com.dinstone.jrpc.api.Client;
-import com.dinstone.jrpc.api.ServiceImporter;
+import com.dinstone.jrpc.endpoint.ServiceImporter;
 import com.dinstone.jrpc.example.HelloService;
 
 public class ServiceConsumer {

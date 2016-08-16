@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.binding.ImplementBinding;
-import com.dinstone.jrpc.invoker.SkelectonServiceInvoker;
 import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
@@ -51,7 +50,7 @@ public class NettyAcceptance extends AbstractAcceptance {
     private EventLoopGroup workerGroup;
 
     public NettyAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding) {
-        super(implementBinding, new SkelectonServiceInvoker());
+        super(implementBinding);
         this.transportConfig = transportConfig;
     }
 

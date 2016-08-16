@@ -19,7 +19,7 @@ package com.dinstone.jrpc.spring.factory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.dinstone.jrpc.api.Client;
-import com.dinstone.jrpc.api.ServiceImporter;
+import com.dinstone.jrpc.endpoint.ServiceImporter;
 
 public class ReferenceFactoryBean extends AbstractFactoryBean<Object> {
 

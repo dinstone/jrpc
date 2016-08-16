@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.api;
+package com.dinstone.jrpc.endpoint;
 
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.proxy.ServiceProxy;

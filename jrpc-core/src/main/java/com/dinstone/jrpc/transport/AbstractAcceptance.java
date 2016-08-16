@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.invoker.ServiceInvoker;
+import com.dinstone.jrpc.invoker.SkelectonServiceInvoker;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
@@ -33,9 +34,21 @@ public abstract class AbstractAcceptance implements Acceptance {
 
     protected ImplementBinding implementBinding;
 
+    public AbstractAcceptance(ImplementBinding implementBinding) {
+        this(implementBinding, null);
+    }
+
     public AbstractAcceptance(ImplementBinding implementBinding, ServiceInvoker serviceInvoker) {
+        if (implementBinding == null) {
+            throw new IllegalArgumentException("implementBinding is null");
+        }
         this.implementBinding = implementBinding;
-        this.serviceInvoker = serviceInvoker;
+
+        if (serviceInvoker == null) {
+            this.serviceInvoker = new SkelectonServiceInvoker();
+        } else {
+            this.serviceInvoker = serviceInvoker;
+        }
     }
 
     @Override

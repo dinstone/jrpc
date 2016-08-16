@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.dinstone.jrpc.api.EndpointConfig;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.registry.ServiceAttribute;
 import com.dinstone.jrpc.registry.ServiceDescription;

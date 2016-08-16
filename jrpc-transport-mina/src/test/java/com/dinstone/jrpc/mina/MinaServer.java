@@ -21,11 +21,11 @@ import java.net.InetSocketAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dinstone.jrpc.api.DefaultServiceExporter;
-import com.dinstone.jrpc.api.EndpointConfig;
-import com.dinstone.jrpc.api.ServiceExporter;
 import com.dinstone.jrpc.binding.DefaultImplementBinding;
 import com.dinstone.jrpc.binding.ImplementBinding;
+import com.dinstone.jrpc.endpoint.DefaultServiceExporter;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
+import com.dinstone.jrpc.endpoint.ServiceExporter;
 import com.dinstone.jrpc.registry.ServiceRegistry;
 import com.dinstone.jrpc.transport.TransportConfig;
 import com.dinstone.jrpc.transport.mina.MinaAcceptance;

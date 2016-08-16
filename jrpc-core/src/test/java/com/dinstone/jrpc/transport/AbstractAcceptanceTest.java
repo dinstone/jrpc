@@ -26,8 +26,6 @@ import com.dinstone.jrpc.binding.DefaultImplementBinding;
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.demo.DemoService;
 import com.dinstone.jrpc.demo.DemoServiceImpl;
-import com.dinstone.jrpc.invoker.ServiceInvoker;
-import com.dinstone.jrpc.invoker.SkelectonServiceInvoker;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
@@ -47,8 +45,7 @@ public class AbstractAcceptanceTest {
         ImplementBinding iBinding = new DefaultImplementBinding(new InetSocketAddress("localhost", 0));
         iBinding.bind(wrapper, null);
 
-        ServiceInvoker sInvoker = new SkelectonServiceInvoker();
-        acceptance = new AbstractAcceptance(iBinding, sInvoker) {
+        acceptance = new AbstractAcceptance(iBinding) {
 
             @Override
             public void destroy() {

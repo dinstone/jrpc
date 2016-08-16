@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.api;
+package com.dinstone.jrpc.endpoint;
 
 import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.invoker.StubServiceInvoker;
@@ -51,7 +51,7 @@ public class DefaultServiceImporter implements ServiceImporter {
     /**
      * {@inheritDoc}
      * 
-     * @see com.dinstone.jrpc.api.ServiceImporter#importService(java.lang.Class)
+     * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class)
      */
     @Override
     public <T> T importService(Class<T> sic) {
@@ -61,7 +61,7 @@ public class DefaultServiceImporter implements ServiceImporter {
     /**
      * {@inheritDoc}
      * 
-     * @see com.dinstone.jrpc.api.ServiceImporter#importService(java.lang.Class, java.lang.String)
+     * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class, java.lang.String)
      */
     @Override
     public <T> T importService(Class<T> sic, String group) {
@@ -71,7 +71,7 @@ public class DefaultServiceImporter implements ServiceImporter {
     /**
      * {@inheritDoc}
      * 
-     * @see com.dinstone.jrpc.api.ServiceImporter#importService(java.lang.Class, java.lang.String, int)
+     * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class, java.lang.String, int)
      */
     @Override
     public <T> T importService(Class<T> sic, String group, int timeout) {
@@ -87,7 +87,7 @@ public class DefaultServiceImporter implements ServiceImporter {
     /**
      * {@inheritDoc}
      * 
-     * @see com.dinstone.jrpc.api.ServiceImporter#destroy()
+     * @see com.dinstone.jrpc.endpoint.ServiceImporter#destroy()
      */
     @Override
     public void destroy() {

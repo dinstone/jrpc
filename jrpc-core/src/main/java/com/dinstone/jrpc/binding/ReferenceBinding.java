@@ -18,7 +18,7 @@ package com.dinstone.jrpc.binding;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.api.EndpointConfig;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 
 /**

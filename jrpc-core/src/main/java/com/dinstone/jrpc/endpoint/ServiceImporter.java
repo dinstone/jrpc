@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.dinstone.jrpc.api;
+package com.dinstone.jrpc.endpoint;
 
-public interface ServiceExporter {
+public interface ServiceImporter {
 
-    public abstract <T> void exportService(Class<T> serviceInterface, T serviceImplement);
+    public abstract <T> T importService(Class<T> sic);
 
-    public abstract <T> void exportService(Class<T> serviceInterface, String group, T serviceImplement);
+    public abstract <T> T importService(Class<T> sic, String group);
 
-    public abstract <T> void exportService(Class<T> serviceInterface, String group, int timeout, T serviceImplement);
+    public abstract <T> T importService(Class<T> sic, String group, int timeout);
 
     public abstract void destroy();
 

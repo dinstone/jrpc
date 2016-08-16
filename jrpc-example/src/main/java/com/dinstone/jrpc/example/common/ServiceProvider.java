@@ -19,7 +19,7 @@ package com.dinstone.jrpc.example.common;
 import java.io.IOException;
 
 import com.dinstone.jrpc.api.Server;
-import com.dinstone.jrpc.api.ServiceExporter;
+import com.dinstone.jrpc.endpoint.ServiceExporter;
 import com.dinstone.jrpc.example.HelloService;
 import com.dinstone.jrpc.example.HelloServiceImpl;
 

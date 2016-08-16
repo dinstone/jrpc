@@ -18,11 +18,11 @@ package com.dinstone.jrpc.mina;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.api.DefaultServiceImporter;
-import com.dinstone.jrpc.api.EndpointConfig;
-import com.dinstone.jrpc.api.ServiceImporter;
 import com.dinstone.jrpc.binding.DefaultReferenceBinding;
 import com.dinstone.jrpc.binding.ReferenceBinding;
+import com.dinstone.jrpc.endpoint.DefaultServiceImporter;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
+import com.dinstone.jrpc.endpoint.ServiceImporter;
 import com.dinstone.jrpc.registry.ServiceDiscovery;
 import com.dinstone.jrpc.transport.ConnectionFactory;
 import com.dinstone.jrpc.transport.TransportConfig;
