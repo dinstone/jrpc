@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import java.net.InetSocketAddress;
@@ -33,9 +34,12 @@ public abstract class AbstractConnectionFactory implements ConnectionFactory {
         synchronized (connectionMap) {
             String key = sa.getAddress().getHostAddress() + ":" + sa.getPort();
             Connection connection = connectionMap.get(key);
-            if (connection == null) {
+            if (connection == null || !connection.isAlive()) {
                 connection = createConnection(sa);
-                connectionMap.put(key, connection);
+                Connection oc = connectionMap.put(key, connection);
+                if (oc != null) {
+                    oc.destroy();
+                }
             }
             return connection;
         }

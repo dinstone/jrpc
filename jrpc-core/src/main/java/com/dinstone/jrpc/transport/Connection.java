@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import com.dinstone.jrpc.protocol.Call;
@@ -32,6 +33,8 @@ public interface Connection {
      * @return
      */
     public ResultFuture call(Call call);
+
+    public boolean isAlive();
 
     public void destroy();
 
