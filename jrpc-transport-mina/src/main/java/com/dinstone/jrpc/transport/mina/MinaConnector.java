@@ -143,6 +143,7 @@ public class MinaConnector {
         // long s = System.currentTimeMillis();
         ConnectFuture future = ioConnector.connect().awaitUninterruptibly();
         IoSession session = future.getSession();
+        SessionUtil.setResultFutureMap(session);
         // long t = System.currentTimeMillis() - s;
         LOG.debug("session connect {} to {}", session.getLocalAddress(), session.getRemoteAddress());
         return session;
@@ -153,16 +154,6 @@ public class MinaConnector {
     }
 
     private class MinaIoHandler extends IoHandlerAdapter {
-
-        /**
-         * {@inheritDoc}
-         * 
-         * @see org.apache.mina.core.service.IoHandlerAdapter#sessionCreated(org.apache.mina.core.session.IoSession)
-         */
-        @Override
-        public void sessionCreated(IoSession session) throws Exception {
-            SessionUtil.setResultFutureMap(session);
-        }
 
         @Override
         public void sessionClosed(IoSession session) throws Exception {

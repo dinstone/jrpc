@@ -26,7 +26,7 @@
 			<jrpc:property key="zookeeper.node.list" value="localhost:2181" />
 		</jrpc:registry>
 		<jrpc:transport schema="netty">
-			<jrpc:property key="rpc.serialize.type" value="2" />
+			<jrpc:property key="rpc.serialize.type" value="protobuff" />
 		</jrpc:transport>
 	</jrpc:client>
 	<jrpc:reference id="rhsv1" interface="com.dinstone.jrpc.example.HelloService" group="product-v1.0" />

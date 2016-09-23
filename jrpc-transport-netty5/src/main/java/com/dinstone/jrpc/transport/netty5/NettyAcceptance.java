@@ -56,7 +56,7 @@ public class NettyAcceptance extends AbstractAcceptance {
 
     @Override
     public Acceptance bind() {
-        bossGroup = new NioEventLoopGroup();
+        bossGroup = new NioEventLoopGroup(1);
         workerGroup = new NioEventLoopGroup(transportConfig.getHandlerCount());
 
         ServerBootstrap boot = new ServerBootstrap();
@@ -110,11 +110,6 @@ public class NettyAcceptance extends AbstractAcceptance {
                 ((Heartbeat) message).getContent().increase();
                 ctx.writeAndFlush(message);
             }
-        }
-
-        @Override
-        public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-            ctx.flush();
         }
 
         @Override

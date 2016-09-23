@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.netty5;
 
 import io.netty.channel.ChannelHandlerAdapter;
@@ -30,16 +31,6 @@ import com.dinstone.jrpc.transport.ResultFuture;
 public class NettyClientHandler extends ChannelHandlerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(NettyClientHandler.class);
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see io.netty.channel.ChannelInboundHandlerAdapter#channelActive(io.netty.channel.ChannelHandlerContext)
-     */
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        SessionUtil.setResultFutureMap(ctx.channel());
-    }
 
     /**
      * {@inheritDoc}

@@ -29,6 +29,7 @@ public class ServiceProvider {
         // Server server = new Server("-:4444");
         // Server server = new Server("-", 4444);
         Server server = new Server("localhost", 4444);
+        server.getTransportConfig().setSchema("netty5");
         ServiceExporter serviceExporter = server.getServiceExporter();
         serviceExporter.exportService(HelloService.class, new HelloServiceImpl());
 

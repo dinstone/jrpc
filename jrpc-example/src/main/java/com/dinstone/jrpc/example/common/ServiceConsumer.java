@@ -24,6 +24,7 @@ public class ServiceConsumer {
 
     public static void main(String[] args) {
         Client client = new Client("localhost", 4444);
+        // client.getTransportConfig().setSchema("netty5");
         ServiceImporter serviceImporter = client.getServiceImporter();
         HelloService helloService = serviceImporter.importService(HelloService.class);
 

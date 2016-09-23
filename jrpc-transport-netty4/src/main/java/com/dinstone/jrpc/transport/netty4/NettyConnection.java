@@ -51,6 +51,7 @@ public class NettyConnection implements Connection {
         try {
             connector = new NettyConnector(isa, config);
             ioSession = connector.createSession();
+            SessionUtil.setResultFutureMap(ioSession);
         } catch (RuntimeException e) {
             destroy();
 
