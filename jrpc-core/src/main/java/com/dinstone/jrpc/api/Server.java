@@ -156,6 +156,7 @@ public class Server {
     public synchronized ServiceExporter getServiceExporter() {
         if (serviceExporter == null) {
             createServiceExporter();
+            LOG.info("JRPC server is started");
         }
         return serviceExporter;
     }
@@ -184,7 +185,6 @@ public class Server {
         acceptance = acceptanceFactory.create(implementBinding);
 
         acceptance.bind();
-        LOG.info("JRPC server is started");
     }
 
     public InetSocketAddress getServiceAddress() {

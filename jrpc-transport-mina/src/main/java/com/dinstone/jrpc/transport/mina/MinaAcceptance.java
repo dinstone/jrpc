@@ -69,8 +69,10 @@ public class MinaAcceptance extends AbstractAcceptance {
         // This socket acceptor will handle incoming connections
         acceptor = new NioSocketAcceptor();
         acceptor.setReuseAddress(true);
+        acceptor.setBacklog(128);
 
         SocketSessionConfig sessionConfig = acceptor.getSessionConfig();
+        // sessionConfig.setTcpNoDelay(true);
 
         // set read buffer size
         sessionConfig.setReceiveBufferSize(8 * 1024);
@@ -83,9 +85,8 @@ public class MinaAcceptance extends AbstractAcceptance {
         final TransportProtocolEncoder encoder = new TransportProtocolEncoder();
         final TransportProtocolDecoder decoder = new TransportProtocolDecoder();
 
-        int maxSize = transportConfig.getMaxSize();
-        encoder.setMaxObjectSize(maxSize);
-        decoder.setMaxObjectSize(maxSize);
+        encoder.setMaxObjectSize(transportConfig.getMaxSize());
+        decoder.setMaxObjectSize(transportConfig.getMaxSize());
         chainBuilder.addLast("codec", new ProtocolCodecFilter(new ProtocolCodecFactory() {
 
             public ProtocolEncoder getEncoder(IoSession session) throws Exception {
@@ -105,6 +106,7 @@ public class MinaAcceptance extends AbstractAcceptance {
 
         // add keep alive filter
         KeepAliveFilter kaFilter = new KeepAliveFilter(new PassiveKeepAliveMessageFactory(), IdleStatus.BOTH_IDLE);
+        kaFilter.setRequestInterval(transportConfig.getHeartbeatIntervalSeconds());
         kaFilter.setForwardEvent(true);
         chainBuilder.addLast("keepAlive", kaFilter);
 
@@ -117,7 +119,7 @@ public class MinaAcceptance extends AbstractAcceptance {
         } catch (Exception e) {
             throw new RuntimeException("can't bind service on " + serviceAddress, e);
         }
-        LOG.info("JRPC acceptance bind on {}", serviceAddress);
+        LOG.info("mina acceptance bind on {}", serviceAddress);
 
         return this;
     }
@@ -136,7 +138,7 @@ public class MinaAcceptance extends AbstractAcceptance {
             }
         }
 
-        LOG.info("JRPC acceptance unbind on {}", implementBinding.getServiceAddress());
+        LOG.info("mina acceptance unbind on {}", implementBinding.getServiceAddress());
     }
 
     private class MinaIoHandler extends IoHandlerAdapter {

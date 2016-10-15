@@ -94,22 +94,18 @@ public class MinaConnector {
      */
     private void initConnector(InetSocketAddress isa, TransportConfig config) {
         // create connector
-        ioConnector = new NioSocketConnector();
+        ioConnector = new NioSocketConnector(2);
         ioConnector.setConnectTimeoutMillis(config.getConnectTimeout());
-        SocketSessionConfig sessionConfig = ioConnector.getSessionConfig();
 
-        // set read buffer size
-        sessionConfig.setReceiveBufferSize(4 * 1024);
+        SocketSessionConfig sessionConfig = ioConnector.getSessionConfig();
+        sessionConfig.setReceiveBufferSize(8 * 1024);
 
         DefaultIoFilterChainBuilder chainBuilder = ioConnector.getFilterChain();
 
-        int maxLen = config.getMaxSize();
-        // LOG.debug("rpc.protocol.maxlength is {}", maxLen);
-
         final TransportProtocolEncoder encoder = new TransportProtocolEncoder();
         final TransportProtocolDecoder decoder = new TransportProtocolDecoder();
-        encoder.setMaxObjectSize(maxLen);
-        decoder.setMaxObjectSize(maxLen);
+        encoder.setMaxObjectSize(config.getMaxSize());
+        decoder.setMaxObjectSize(config.getMaxSize());
         // add filter
         chainBuilder.addLast("codec", new ProtocolCodecFilter(new ProtocolCodecFactory() {
 
@@ -125,6 +121,7 @@ public class MinaConnector {
         // add keep alive filter
         ActiveKeepAliveMessageFactory messageFactory = new ActiveKeepAliveMessageFactory(config.getSerializeType());
         KeepAliveFilter kaFilter = new KeepAliveFilter(messageFactory, IdleStatus.BOTH_IDLE);
+        kaFilter.setRequestInterval(config.getHeartbeatIntervalSeconds());
         kaFilter.setForwardEvent(true);
         chainBuilder.addLast("keepAlive", kaFilter);
 

@@ -25,6 +25,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetSocketAddress;
 
@@ -65,18 +68,20 @@ public class NettyAcceptance extends AbstractAcceptance {
 
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
-                    TransportProtocolDecoder rpcProtocolDecoder = new TransportProtocolDecoder();
-                    rpcProtocolDecoder.setMaxObjectSize(transportConfig.getMaxSize());
-                    TransportProtocolEncoder rpcProtocolEncoder = new TransportProtocolEncoder();
-                    rpcProtocolEncoder.setMaxObjectSize(transportConfig.getMaxSize());
-                    NettyServerHandler nettyServerHandler = new NettyServerHandler();
-                    ch.pipeline().addLast(rpcProtocolDecoder);
-                    ch.pipeline().addLast(rpcProtocolEncoder);
-                    ch.pipeline().addLast(nettyServerHandler);
+                    TransportProtocolDecoder decoder = new TransportProtocolDecoder();
+                    decoder.setMaxObjectSize(transportConfig.getMaxSize());
+                    TransportProtocolEncoder encoder = new TransportProtocolEncoder();
+                    encoder.setMaxObjectSize(transportConfig.getMaxSize());
+                    ch.pipeline().addLast("TransportProtocolDecoder", decoder);
+                    ch.pipeline().addLast("TransportProtocolEncoder", encoder);
+
+                    int intervalSeconds = transportConfig.getHeartbeatIntervalSeconds();
+                    ch.pipeline().addLast("IdleStateHandler", new IdleStateHandler(0, 0, intervalSeconds * 2));
+                    ch.pipeline().addLast("NettyServerHandler", new NettyServerHandler());
                 }
             });
-        boot.option(ChannelOption.SO_BACKLOG, 128);
-        boot.childOption(ChannelOption.SO_KEEPALIVE, true);
+        boot.option(ChannelOption.SO_REUSEADDR, true).option(ChannelOption.SO_BACKLOG, 128);
+        boot.childOption(ChannelOption.SO_RCVBUF, 8 * 1024).childOption(ChannelOption.SO_SNDBUF, 8 * 1024);
 
         InetSocketAddress serviceAddress = implementBinding.getServiceAddress();
         try {
@@ -84,7 +89,7 @@ public class NettyAcceptance extends AbstractAcceptance {
         } catch (Exception e) {
             throw new RuntimeException("can't bind service on " + serviceAddress, e);
         }
-        LOG.info("JRPC acceptance bind on {}", serviceAddress);
+        LOG.info("netty acceptance bind on {}", serviceAddress);
 
         return this;
     }
@@ -102,12 +107,24 @@ public class NettyAcceptance extends AbstractAcceptance {
     public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
         @Override
+        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+            if (evt instanceof IdleStateEvent) {
+                IdleStateEvent event = (IdleStateEvent) evt;
+                if (event.state() == IdleState.ALL_IDLE) {
+                    ctx.close();
+                }
+            } else {
+                super.userEventTriggered(ctx, evt);
+            }
+        }
+
+        @Override
         public void channelRead(ChannelHandlerContext ctx, Object message) {
             if (message instanceof Request) {
                 Response response = handle((Request) message);
                 ctx.writeAndFlush(response);
             } else if (message instanceof Heartbeat) {
-                ((Heartbeat) message).getContent().increase();
+                // ((Heartbeat) message).getContent().increase();
                 ctx.writeAndFlush(message);
             }
         }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.netty5;
 
 import io.netty.bootstrap.Bootstrap;
@@ -23,6 +24,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import java.net.InetSocketAddress;
 
@@ -41,17 +43,25 @@ public class NettyConnector {
 
     private Bootstrap boot;
 
-    public NettyConnector(InetSocketAddress isa, TransportConfig config) {
-        workerGroup = new NioEventLoopGroup();
+    public NettyConnector(InetSocketAddress isa, final TransportConfig transportConfig) {
+        workerGroup = new NioEventLoopGroup(2);
         boot = new Bootstrap().group(workerGroup).channel(NioSocketChannel.class);
-        boot.option(ChannelOption.SO_KEEPALIVE, true);
+        boot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
+        boot.option(ChannelOption.SO_RCVBUF, 8 * 1024);
         boot.handler(new ChannelInitializer<SocketChannel>() {
 
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(new TransportProtocolDecoder());
-                ch.pipeline().addLast(new TransportProtocolEncoder());
-                ch.pipeline().addLast(new NettyClientHandler());
+                TransportProtocolDecoder decoder = new TransportProtocolDecoder();
+                decoder.setMaxObjectSize(transportConfig.getMaxSize());
+                TransportProtocolEncoder encoder = new TransportProtocolEncoder();
+                encoder.setMaxObjectSize(transportConfig.getMaxSize());
+                ch.pipeline().addLast("TransportProtocolDecoder", decoder);
+                ch.pipeline().addLast("TransportProtocolEncoder", encoder);
+
+                int intervalSeconds = transportConfig.getHeartbeatIntervalSeconds();
+                ch.pipeline().addLast("IdleStateHandler", new IdleStateHandler(0, 0, intervalSeconds));
+                ch.pipeline().addLast("NettyClientHandler", new NettyClientHandler());
             }
         });
 

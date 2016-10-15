@@ -33,6 +33,8 @@ public class TransportConfig extends Configuration {
     /** parallel count */
     private static final String HANDLER_COUNT = "rpc.handler.count";
 
+    private static final String HEARTBEAT_INTERVAL_SECONDS = "heartbeat.interval.seconds";
+
     /** transport schema, default is 'mina' */
     private String schema = "mina";
 
@@ -73,7 +75,7 @@ public class TransportConfig extends Configuration {
     }
 
     public int getHandlerCount() {
-        return getInt(HANDLER_COUNT, Runtime.getRuntime().availableProcessors());
+        return getInt(HANDLER_COUNT, Runtime.getRuntime().availableProcessors() * 2);
     }
 
     public void setHandlerCount(int count) {
@@ -88,6 +90,14 @@ public class TransportConfig extends Configuration {
 
     public String getSchema() {
         return schema;
+    }
+
+    public int getHeartbeatIntervalSeconds() {
+        return getInt(HEARTBEAT_INTERVAL_SECONDS, 60);
+    }
+
+    public void setHeartbeatIntervalSeconds(int interval) {
+        setInt(HEARTBEAT_INTERVAL_SECONDS, interval);
     }
 
 }
