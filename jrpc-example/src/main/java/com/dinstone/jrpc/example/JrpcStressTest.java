@@ -1,37 +1,30 @@
-/*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
-package com.dinstone.jrpc.example.common;
+package com.dinstone.jrpc.example;
 
 import java.util.concurrent.CountDownLatch;
 
 import com.dinstone.jrpc.api.Client;
-import com.dinstone.jrpc.endpoint.ServiceImporter;
-import com.dinstone.jrpc.example.HelloService;
+import com.dinstone.jrpc.api.Server;
+import com.dinstone.jrpc.endpoint.ServiceExporter;
 
-public class ServiceConsumer {
+public class JrpcStressTest {
 
     public static void main(String[] args) throws Exception {
-        Client client = new Client("localhost", 4444);
-        client.getTransportConfig().setSchema("netty5");
-        ServiceImporter serviceImporter = client.getServiceImporter();
-        HelloService helloService = serviceImporter.importService(HelloService.class);
+        caseTemplate("netty5", "netty5");
+        caseTemplate("netty5", "mina");
+        caseTemplate("mina", "mina");
+        caseTemplate("mina", "netty5");
+    }
+
+    protected static void caseTemplate(String serverSchema, String clientSchema) throws Exception {
+        Server server = createServer(serverSchema);
+        Client client = createClient(clientSchema);
+        HelloService helloService = client.getServiceImporter().importService(HelloService.class);
 
         try {
             testHot(helloService);
+
+            System.out.println("case server[" + serverSchema + "] client[" + clientSchema + "] start");
 
             testMultiThread(helloService, 500, 1);
 
@@ -51,19 +44,37 @@ public class ServiceConsumer {
 
             testMultiThread(helloService, 1 * 1024, 40);
 
-            testMultiThread(helloService, 5 * 1024, 1);
+            // testMultiThread(helloService, 5 * 1024, 1);
+            //
+            // testMultiThread(helloService, 5 * 1024, 10);
+            //
+            // testMultiThread(helloService, 5 * 1024, 20);
+            //
+            // testMultiThread(helloService, 5 * 1024, 32);
+            //
+            // testMultiThread(helloService, 5 * 1024, 40);
 
-            testMultiThread(helloService, 5 * 1024, 10);
-
-            testMultiThread(helloService, 5 * 1024, 20);
-
-            testMultiThread(helloService, 5 * 1024, 32);
-
-            testMultiThread(helloService, 5 * 1024, 40);
-
+            System.out.println("case server[" + serverSchema + "] client[" + clientSchema + "] end");
         } finally {
             client.destroy();
         }
+
+        server.destroy();
+
+    }
+
+    protected static Client createClient(String schema) {
+        Client client = new Client("localhost", 4444);
+        client.getTransportConfig().setSchema(schema);
+        return client;
+    }
+
+    protected static Server createServer(String schema) {
+        Server server = new Server("localhost", 4444);
+        server.getTransportConfig().setSchema(schema);
+        ServiceExporter serviceExporter = server.getServiceExporter();
+        serviceExporter.exportService(HelloService.class, new HelloServiceImpl());
+        return server;
     }
 
     protected static void testHot(HelloService service) {

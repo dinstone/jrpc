@@ -18,7 +18,6 @@ package com.dinstone.jrpc.binding;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,7 +43,7 @@ public abstract class AbstractReferenceBinding implements ReferenceBinding {
         try {
             InetAddress addr = NetworkAddressUtil.getPrivateInetInetAddress().get(0);
             consumerAddress = new InetSocketAddress(addr, 0);
-        } catch (SocketException e) {
+        } catch (Exception e) {
             throw new RuntimeException("can't init ReferenceBinding", e);
         }
     }
