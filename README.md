@@ -143,7 +143,7 @@ client.destroy();
 10 Threads,	500 Bytes,	2437 ms,	AVG: 41034 tps
 20 Threads,	500 Bytes,	4149 ms,	AVG: 48204 tps
 32 Threads,	500 Bytes,	6694 ms,	AVG: 47804 tps
-1 Threads,	1024 Bytes,	957 ms,	AVG: 10449 tps
+1  Threads,	1024 Bytes,	957 ms,	    AVG: 10449 tps
 10 Threads,	1024 Bytes,	3168 ms,	AVG: 31565 tps
 20 Threads,	1024 Bytes,	6071 ms,	AVG: 32943 tps
 32 Threads,	1024 Bytes,	9485 ms,	AVG: 33737 tps
