@@ -113,7 +113,8 @@ client.destroy();
 ```
 
 ## Case: Server[netty5] Client[netty5]
-```	1 Threads,	500 Bytes,	4824 ms,	AVG: 2072 tps
+```	
+1 Threads,	500 Bytes,	4824 ms,	AVG: 2072 tps
 10 Threads,	500 Bytes,	17325 ms,	AVG: 5772 tps
 20 Threads,	500 Bytes,	13456 ms,	AVG: 14863 tps
 32 Threads,	500 Bytes,	11134 ms,	AVG: 28740 tps
