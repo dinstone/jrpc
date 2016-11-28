@@ -23,20 +23,9 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 public class NettyAcceptanceFactory implements AcceptanceFactory {
 
-    protected TransportConfig transportConfig = new TransportConfig();
-
     @Override
-    public TransportConfig getTransportConfig() {
-        return transportConfig;
-    }
-
-    @Override
-    public Acceptance create(ImplementBinding implementBinding) {
+    public Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding) {
         return new NettyAcceptance(transportConfig, implementBinding);
-    }
-
-    @Override
-    public void destroy() {
     }
 
     @Override

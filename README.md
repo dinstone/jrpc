@@ -50,23 +50,57 @@ For more details, please refer to the example project : [jrpc-example](https://g
 ## java programming by API
 ### export service:
 ```java
-Server server = new Server("localhost", 4444);
-ServiceExporter serviceExporter = server.getServiceExporter();
-serviceExporter.exportService(HelloService.class, new HelloServiceImpl());
 
-System.in.read();
+        ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
+        // setting endpoint config
+        builder.endpointConfig().setEndpointId("provider-1").setEndpointName("example-registry-provider");
 
-server.destroy();
+        // setting registry config
+        Properties props = new Properties();
+        props.setProperty("zookeeper.node.list", "localhost:2181");
+        builder.registryConfig().setSchema("zookeeper").setProperties(props);
+
+        // setting transport config
+        props = new Properties();
+        props.setProperty("rpc.handler.count", "2");
+        builder.transportConfig().setSchema("mina").setProperties(props);
+
+        Server server = null;
+        try {
+            // build server and start it
+            server = builder.build().start();
+
+            // export service
+            server.serviceExporter().exportService(HelloService.class, new HelloServiceImpl());
+
+            System.in.read();
+        } finally {
+            if (server != null) {
+                server.stop();
+            }
+        }
 ```
 
 ### import service:
 ```java
-Client client = new Client("localhost", 4444);
-ServiceImporter serviceImporter = client.getServiceImporter();
-HelloService helloService = serviceImporter.importService(HelloService.class);
-helloService.sayHello("dinstone");
 
-client.destroy();
+        ClientBuilder builder = new ClientBuilder();
+        builder.endpointConfig().setEndpointId("consumer-1").setEndpointName("example-registry-consumer");
+
+        Properties props = new Properties();
+        props.setProperty("zookeeper.node.list", "localhost:2181");
+        builder.registryConfig().setSchema("zookeeper").setProperties(props);
+
+        props = new Properties();
+        props.setProperty("rpc.handler.count", "2");
+        builder.transportConfig().setSchema("mina").setProperties(props);
+
+        Client client = builder.build();
+        
+        HelloService helloService = client.serviceImporter().importService(HelloService.class);
+        helloService.sayHello("dinstone");
+
+	   client.destroy();
 ```
 
 ## declarative programming by Spring

@@ -23,46 +23,19 @@ import com.dinstone.jrpc.registry.ServiceRegistry;
 
 public class ZookeeperRegistryFactory implements RegistryFactory {
 
-    private RegistryConfig registryConfig = new RegistryConfig();
-
-    private ServiceRegistry serviceRegistry;
-
-    private ServiceDiscovery serviceDiscovery;
-
     @Override
     public String getSchema() {
         return "zookeeper";
     }
 
     @Override
-    public RegistryConfig getRegistryConfig() {
-        return registryConfig;
+    public synchronized ServiceRegistry createServiceRegistry(RegistryConfig registryConfig) {
+        return new ZookeeperServiceRegistry(new ZookeeperRegistryConfig(registryConfig));
     }
 
     @Override
-    public synchronized ServiceRegistry createServiceRegistry() {
-        if (serviceRegistry == null) {
-            serviceRegistry = new ZookeeperServiceRegistry(new ZookeeperRegistryConfig(registryConfig));
-        }
-        return serviceRegistry;
-    }
-
-    @Override
-    public synchronized ServiceDiscovery createServiceDiscovery() {
-        if (serviceDiscovery == null) {
-            serviceDiscovery = new ZookeeperServiceDiscovery(new ZookeeperRegistryConfig(registryConfig));
-        }
-        return serviceDiscovery;
-    }
-
-    @Override
-    public void destroy() {
-        if (serviceRegistry != null) {
-            serviceRegistry.destroy();
-        }
-        if (serviceDiscovery != null) {
-            serviceDiscovery.destroy();
-        }
+    public synchronized ServiceDiscovery createServiceDiscovery(RegistryConfig registryConfig) {
+        return new ZookeeperServiceDiscovery(new ZookeeperRegistryConfig(registryConfig));
     }
 
 }

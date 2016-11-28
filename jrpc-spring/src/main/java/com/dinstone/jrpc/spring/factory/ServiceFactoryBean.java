@@ -80,7 +80,7 @@ public class ServiceFactoryBean extends AbstractFactoryBean<Object> {
 
     @Override
     protected Object createInstance() throws Exception {
-        ServiceExporter exporter = server.getServiceExporter();
+        ServiceExporter exporter = server.serviceExporter();
         exporter.exportService(service, group, timeout, instance);
 
         return instance;

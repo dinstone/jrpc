@@ -40,20 +40,23 @@ public class EndpointConfig extends Configuration {
         super(configLocation);
     }
 
-    public void setDefaultTimeout(int defaultTimeout) {
+    public EndpointConfig setDefaultTimeout(int defaultTimeout) {
         setInt(DEFAULT_TIMEOUT_KEY, defaultTimeout);
+        return this;
     }
 
     public int getDefaultTimeout() {
         return getInt(DEFAULT_TIMEOUT_KEY, DEFAULT_TIMEOUT);
     }
 
-    public void setEndpointId(String id) {
+    public EndpointConfig setEndpointId(String id) {
         set(ENDPOINT_ID, id);
+        return this;
     }
 
-    public void setEndpointName(String name) {
+    public EndpointConfig setEndpointName(String name) {
         set(ENDPOINT_NAME, name);
+        return this;
     }
 
     public String getEndpointId() {

@@ -53,12 +53,16 @@ public class TransportConfig extends Configuration {
         return getInt(MAX_SIZE, Integer.MAX_VALUE);
     }
 
-    public void setMaxSize(int maxSize) {
+    public TransportConfig setMaxSize(int maxSize) {
         setInt(MAX_SIZE, maxSize);
+
+        return this;
     }
 
-    public void setSerializeType(SerializeType type) {
+    public TransportConfig setSerializeType(SerializeType type) {
         set(SERIALIZE_TYPE, type.name());
+
+        return this;
     }
 
     public SerializeType getSerializeType() {
@@ -70,22 +74,28 @@ public class TransportConfig extends Configuration {
         return getInt(CONNECT_TIMEOUT, 30000);
     }
 
-    public void setConnectTimeout(int timeout) {
+    public TransportConfig setConnectTimeout(int timeout) {
         setInt(CONNECT_TIMEOUT, timeout);
+
+        return this;
     }
 
     public int getHandlerCount() {
         return getInt(HANDLER_COUNT, Runtime.getRuntime().availableProcessors() * 2);
     }
 
-    public void setHandlerCount(int count) {
+    public TransportConfig setHandlerCount(int count) {
         setInt(HANDLER_COUNT, count);
+
+        return this;
     }
 
-    public void setSchema(String schema) {
+    public TransportConfig setSchema(String schema) {
         if (schema != null && !schema.isEmpty()) {
             this.schema = schema;
         }
+
+        return this;
     }
 
     public String getSchema() {
@@ -96,8 +106,10 @@ public class TransportConfig extends Configuration {
         return getInt(HEARTBEAT_INTERVAL_SECONDS, 60);
     }
 
-    public void setHeartbeatIntervalSeconds(int interval) {
+    public TransportConfig setHeartbeatIntervalSeconds(int interval) {
         setInt(HEARTBEAT_INTERVAL_SECONDS, interval);
+
+        return this;
     }
 
 }

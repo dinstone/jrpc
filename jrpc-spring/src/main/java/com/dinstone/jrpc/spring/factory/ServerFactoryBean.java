@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.dinstone.jrpc.api.Server;
+import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.transport.NetworkAddressUtil;
 
 public class ServerFactoryBean extends AbstractFactoryBean<Server> {
@@ -84,26 +85,23 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
             throw new RuntimeException("transport address attribute is empty.");
         }
 
-        InetSocketAddress serviceAddress = getProviderAddress(address);
-        if (serviceAddress == null) {
-            throw new RuntimeException("transport address attribute is invalid.");
-        }
+        ServerBuilder builder = new ServerBuilder();
 
-        Server server = new Server(serviceAddress);
-        server.getTransportConfig().setSchema(transportBean.getSchema());
-        server.getTransportConfig().setProperties(transportBean.getProperties());
+        // setting transport config
+        builder.transportConfig().setSchema(transportBean.getSchema());
+        builder.transportConfig().setProperties(transportBean.getProperties());
 
+        // setting registry config
         if (registryBean.getSchema() != null && !registryBean.getSchema().isEmpty()) {
-            server.getRegistryConfig().setSchema(registryBean.getSchema());
-            server.getRegistryConfig().setProperties(registryBean.getProperties());
+            builder.registryConfig().setSchema(registryBean.getSchema());
+            builder.registryConfig().setProperties(registryBean.getProperties());
         }
 
-        server.getEndpointConfig().setEndpointId(id);
-        server.getEndpointConfig().setEndpointName(name);
+        // setting endpoint config
+        builder.endpointConfig().setEndpointId(id);
+        builder.endpointConfig().setEndpointName(name);
 
-        server.getServiceExporter();
-
-        return server;
+        return builder.bind(address).build().start();
     }
 
     protected InetSocketAddress getProviderAddress(String address) {
@@ -131,7 +129,7 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
 
     @Override
     protected void destroyInstance(Server instance) throws Exception {
-        instance.destroy();
+        instance.stop();
     }
 
     @Override

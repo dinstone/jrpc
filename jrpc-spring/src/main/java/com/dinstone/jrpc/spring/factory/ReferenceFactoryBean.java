@@ -38,7 +38,7 @@ public class ReferenceFactoryBean extends AbstractFactoryBean<Object> {
 
     @Override
     protected Object createInstance() throws Exception {
-        ServiceImporter serviceImporter = client.getServiceImporter();
+        ServiceImporter serviceImporter = client.serviceImporter();
         if (group == null || group.length() == 0) {
             group = "";
         }

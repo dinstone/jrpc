@@ -4,7 +4,9 @@ package com.dinstone.jrpc.example;
 import java.util.concurrent.CountDownLatch;
 
 import com.dinstone.jrpc.api.Client;
+import com.dinstone.jrpc.api.ClientBuilder;
 import com.dinstone.jrpc.api.Server;
+import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.endpoint.ServiceExporter;
 
 public class JrpcStressTest {
@@ -19,7 +21,7 @@ public class JrpcStressTest {
     protected static void caseTemplate(String serverSchema, String clientSchema) throws Exception {
         Server server = createServer(serverSchema);
         Client client = createClient(clientSchema);
-        HelloService helloService = client.getServiceImporter().importService(HelloService.class);
+        HelloService helloService = client.serviceImporter().importService(HelloService.class);
 
         try {
             testHot(helloService);
@@ -59,21 +61,27 @@ public class JrpcStressTest {
             client.destroy();
         }
 
-        server.destroy();
+        server.stop();
 
     }
 
     protected static Client createClient(String schema) {
-        Client client = new Client("localhost", 4444);
-        client.getTransportConfig().setSchema(schema);
+        ClientBuilder builder = new ClientBuilder().bind("localhost", 4444);
+        builder.transportConfig().setSchema(schema);
+
+        Client client = builder.build();
+
         return client;
     }
 
     protected static Server createServer(String schema) {
-        Server server = new Server("localhost", 4444);
-        server.getTransportConfig().setSchema(schema);
-        ServiceExporter serviceExporter = server.getServiceExporter();
+        ServerBuilder builder = new ServerBuilder();
+        builder.transportConfig().setSchema(schema);
+        Server server = builder.bind("localhost", 4444).build().start();
+
+        ServiceExporter serviceExporter = server.serviceExporter();
         serviceExporter.exportService(HelloService.class, new HelloServiceImpl());
+
         return server;
     }
 

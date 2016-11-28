@@ -23,25 +23,14 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaAcceptanceFactory implements AcceptanceFactory {
 
-    protected TransportConfig transportConfig = new TransportConfig();
-
-    @Override
-    public TransportConfig getTransportConfig() {
-        return transportConfig;
-    }
-
-    @Override
-    public Acceptance create(ImplementBinding implementBinding) {
-        return new MinaAcceptance(transportConfig, implementBinding);
-    }
-
-    @Override
-    public void destroy() {
-    }
-
     @Override
     public String getSchema() {
         return "mina";
+    }
+
+    @Override
+    public Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding) {
+        return new MinaAcceptance(transportConfig, implementBinding);
     }
 
 }

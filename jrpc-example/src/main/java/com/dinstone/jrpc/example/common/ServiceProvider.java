@@ -19,7 +19,7 @@ package com.dinstone.jrpc.example.common;
 import java.io.IOException;
 
 import com.dinstone.jrpc.api.Server;
-import com.dinstone.jrpc.endpoint.ServiceExporter;
+import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.example.HelloService;
 import com.dinstone.jrpc.example.HelloServiceImpl;
 
@@ -28,14 +28,18 @@ public class ServiceProvider {
     public static void main(String[] args) throws IOException {
         // Server server = new Server("-:4444");
         // Server server = new Server("-", 4444);
-        Server server = new Server("localhost", 4444);
-        server.getTransportConfig().setSchema("netty5");
-        ServiceExporter serviceExporter = server.getServiceExporter();
-        serviceExporter.exportService(HelloService.class, new HelloServiceImpl());
+        // Server server = new Server("localhost", 4444);
+        // server.getTransportConfig().setSchema("netty5");
+
+        ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
+        builder.transportConfig().setSchema("netty5");
+
+        Server server = builder.build().start();
+        server.serviceExporter().exportService(HelloService.class, new HelloServiceImpl());
 
         System.in.read();
 
-        server.destroy();
+        server.stop();
     }
 
 }

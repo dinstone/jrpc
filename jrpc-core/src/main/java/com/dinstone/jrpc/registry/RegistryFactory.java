@@ -20,12 +20,8 @@ public interface RegistryFactory {
 
     public abstract String getSchema();
 
-    public abstract RegistryConfig getRegistryConfig();
+    public abstract ServiceRegistry createServiceRegistry(RegistryConfig registryConfig);
 
-    public abstract ServiceRegistry createServiceRegistry();
-
-    public abstract ServiceDiscovery createServiceDiscovery();
-
-    public abstract void destroy();
+    public abstract ServiceDiscovery createServiceDiscovery(RegistryConfig registryConfig);
 
 }

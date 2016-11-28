@@ -19,28 +19,25 @@ package com.dinstone.jrpc.example.registry;
 import java.util.Properties;
 
 import com.dinstone.jrpc.api.Client;
-import com.dinstone.jrpc.endpoint.ServiceImporter;
+import com.dinstone.jrpc.api.ClientBuilder;
 import com.dinstone.jrpc.example.HelloService;
 
 public class ServiceConsumer {
 
     public static void main(String[] args) {
-        Client client = new Client();
-        client.getEndpointConfig().setEndpointId("consumer-1");
-        client.getEndpointConfig().setEndpointName("example-registry-consumer");
+        ClientBuilder builder = new ClientBuilder();
+        builder.endpointConfig().setEndpointId("consumer-1").setEndpointName("example-registry-consumer");
 
-        client.getRegistryConfig().setSchema("zookeeper");
-        Properties other = new Properties();
-        other.setProperty("zookeeper.node.list", "localhost:2181");
-        client.getRegistryConfig().setProperties(other);
+        Properties props = new Properties();
+        props.setProperty("zookeeper.node.list", "localhost:2181");
+        builder.registryConfig().setSchema("zookeeper").setProperties(props);
 
-        client.getTransportConfig().setSchema("mina");
-        other = new Properties();
-        other.setProperty("rpc.handler.count", "2");
-        client.getTransportConfig().setProperties(other);
+        props = new Properties();
+        props.setProperty("rpc.handler.count", "2");
+        builder.transportConfig().setSchema("mina").setProperties(props);
 
-        ServiceImporter serviceImporter = client.getServiceImporter();
-        HelloService helloService = serviceImporter.importService(HelloService.class);
+        Client client = builder.build();
+        HelloService helloService = client.serviceImporter().importService(HelloService.class);
 
         testHot(helloService);
 

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import com.dinstone.jrpc.api.Server;
-import com.dinstone.jrpc.endpoint.ServiceExporter;
+import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.example.HelloService;
 import com.dinstone.jrpc.example.HelloServiceImpl;
 
@@ -29,27 +29,35 @@ public class ServiceProvider {
     public static void main(String[] args) throws IOException {
         // Server server = new Server("-:4444");
         // Server server = new Server("-", 4444);
-        Server server = new Server("localhost", 4444);
-        server.getEndpointConfig().setEndpointId("provider-1");
-        server.getEndpointConfig().setEndpointName("example-registry-provider");
+        // Server server = new Server("localhost", 4444);
 
-        server.getRegistryConfig().setSchema("zookeeper");
-        Properties other = new Properties();
-        other.setProperty("zookeeper.node.list", "localhost:2181");
-        server.getRegistryConfig().setProperties(other);
+        ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
+        // setting endpoint config
+        builder.endpointConfig().setEndpointId("provider-1").setEndpointName("example-registry-provider");
 
-        server.getTransportConfig().setSchema("mina");
-        other = new Properties();
-        other.setProperty("rpc.handler.count", "2");
-        server.getTransportConfig().setProperties(other);
+        // setting registry config
+        Properties props = new Properties();
+        props.setProperty("zookeeper.node.list", "localhost:2181");
+        builder.registryConfig().setSchema("zookeeper").setProperties(props);
 
+        // setting transport config
+        props = new Properties();
+        props.setProperty("rpc.handler.count", "2");
+        builder.transportConfig().setSchema("mina").setProperties(props);
+
+        Server server = null;
         try {
-            ServiceExporter serviceExporter = server.getServiceExporter();
-            serviceExporter.exportService(HelloService.class, new HelloServiceImpl());
+            // build server and start it
+            server = builder.build().start();
+
+            // export service
+            server.serviceExporter().exportService(HelloService.class, new HelloServiceImpl());
 
             System.in.read();
         } finally {
-            server.destroy();
+            if (server != null) {
+                server.stop();
+            }
         }
     }
 

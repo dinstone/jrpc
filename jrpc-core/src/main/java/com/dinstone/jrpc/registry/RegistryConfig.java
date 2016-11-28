@@ -38,8 +38,9 @@ public class RegistryConfig extends Configuration {
         return this.schema;
     }
 
-    public void setSchema(String schema) {
+    public RegistryConfig setSchema(String schema) {
         this.schema = schema;
+        return this;
     }
 
 }

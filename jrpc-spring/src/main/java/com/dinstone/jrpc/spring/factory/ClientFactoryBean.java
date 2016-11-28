@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.dinstone.jrpc.api.Client;
+import com.dinstone.jrpc.api.ClientBuilder;
 
 public class ClientFactoryBean extends AbstractFactoryBean<Client> {
 
@@ -76,25 +77,21 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
     protected Client createInstance() throws Exception {
         LOG.info("create jrpc client {}@{}", id, name);
 
-        Client client = null;
-        String address = transportBean.getAddress();
-        if (address != null && !address.isEmpty()) {
-            client = new Client(address);
-        } else {
-            client = new Client();
-        }
-        client.getTransportConfig().setSchema(transportBean.getSchema());
-        client.getTransportConfig().setProperties(transportBean.getProperties());
+        ClientBuilder builder = new ClientBuilder().bind("localhost", 4444);
+        builder.bind(transportBean.getAddress());
+
+        builder.transportConfig().setSchema(transportBean.getSchema());
+        builder.transportConfig().setProperties(transportBean.getProperties());
 
         if (registryBean.getSchema() != null && !registryBean.getSchema().isEmpty()) {
-            client.getRegistryConfig().setSchema(registryBean.getSchema());
-            client.getRegistryConfig().setProperties(registryBean.getProperties());
+            builder.registryConfig().setSchema(registryBean.getSchema());
+            builder.registryConfig().setProperties(registryBean.getProperties());
         }
 
-        client.getEndpointConfig().setEndpointId(id);
-        client.getEndpointConfig().setEndpointName(name);
+        builder.endpointConfig().setEndpointId(id);
+        builder.endpointConfig().setEndpointName(name);
 
-        return client;
+        return builder.build();
     }
 
     @Override
