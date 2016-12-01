@@ -33,5 +33,4 @@ public interface ServiceInvoker {
      */
     Object invoke(ServiceProxy<?> serviceProxy, Method method, Object[] args) throws Exception;
 
-    void destroy();
 }

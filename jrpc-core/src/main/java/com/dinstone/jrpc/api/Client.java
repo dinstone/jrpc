@@ -16,32 +16,73 @@
 
 package com.dinstone.jrpc.api;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.net.InetSocketAddress;
+import java.util.List;
 
+import com.dinstone.jrpc.SchemaFactoryLoader;
 import com.dinstone.jrpc.binding.DefaultReferenceBinding;
+import com.dinstone.jrpc.endpoint.DefaultServiceImporter;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.endpoint.ServiceImporter;
+import com.dinstone.jrpc.registry.RegistryConfig;
+import com.dinstone.jrpc.registry.RegistryFactory;
+import com.dinstone.jrpc.transport.ConnectionFactory;
+import com.dinstone.jrpc.transport.TransportConfig;
 
-public class Client {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Client.class);
+public class Client implements ServiceImporter {
 
     private ServiceImporter serviceImporter;
 
     private DefaultReferenceBinding referenceBinding;
 
-    Client(DefaultReferenceBinding referenceBinding, ServiceImporter serviceImporter) {
-        this.referenceBinding = referenceBinding;
-        this.serviceImporter = serviceImporter;
+    Client(EndpointConfig endpointConfig, RegistryConfig registryConfig, TransportConfig transportConfig,
+            List<InetSocketAddress> serviceAddresses) {
+        checkAndInit(endpointConfig, registryConfig, transportConfig, serviceAddresses);
     }
 
-    public ServiceImporter serviceImporter() {
-        return serviceImporter;
+    protected void checkAndInit(EndpointConfig endpointConfig, RegistryConfig registryConfig,
+            TransportConfig transportConfig, List<InetSocketAddress> serviceAddresses) {
+        // check transport provider
+        String transportSchema = transportConfig.getSchema();
+        SchemaFactoryLoader<ConnectionFactory> cfLoader = SchemaFactoryLoader.getInstance(ConnectionFactory.class);
+        ConnectionFactory connectionFactory = cfLoader.getSchemaFactory(transportSchema);
+        if (connectionFactory == null) {
+            throw new RuntimeException("can't find transport provider for schema : " + transportSchema);
+        }
+
+        // check regitry provider
+        String registrySchema = registryConfig.getSchema();
+        if (registrySchema != null && !registrySchema.isEmpty()) {
+            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
+            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
+            if (registryFactory == null) {
+                throw new RuntimeException("can't find regitry provider for schema : " + registrySchema);
+            }
+        }
+
+        // init
+        this.referenceBinding = new DefaultReferenceBinding(registryConfig, serviceAddresses);
+        this.serviceImporter = new DefaultServiceImporter(endpointConfig, transportConfig, referenceBinding);
     }
 
     public void destroy() {
         serviceImporter.destroy();
         referenceBinding.destroy();
+    }
+
+    @Override
+    public <T> T importService(Class<T> sic) {
+        return serviceImporter.importService(sic);
+    }
+
+    @Override
+    public <T> T importService(Class<T> sic, String group) {
+        return serviceImporter.importService(sic, group);
+    }
+
+    @Override
+    public <T> T importService(Class<T> sic, String group, int timeout) {
+        return serviceImporter.importService(sic, group, timeout);
     }
 
 }

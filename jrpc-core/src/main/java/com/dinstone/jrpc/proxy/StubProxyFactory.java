@@ -41,10 +41,6 @@ public class StubProxyFactory implements ServiceProxyFactory {
         return serviceProxy;
     }
 
-    @Override
-    public void destroy() {
-    }
-
     private class ProxyInvocationHandler<T> implements InvocationHandler {
 
         private ServiceProxy<T> serviceProxy;

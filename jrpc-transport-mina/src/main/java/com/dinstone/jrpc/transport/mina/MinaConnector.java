@@ -94,7 +94,7 @@ public class MinaConnector {
      */
     private void initConnector(InetSocketAddress isa, TransportConfig config) {
         // create connector
-        ioConnector = new NioSocketConnector(2);
+        ioConnector = new NioSocketConnector(1);
         ioConnector.setConnectTimeoutMillis(config.getConnectTimeout());
 
         SocketSessionConfig sessionConfig = ioConnector.getSessionConfig();

@@ -35,6 +35,8 @@ public class TransportConfig extends Configuration {
 
     private static final String HEARTBEAT_INTERVAL_SECONDS = "heartbeat.interval.seconds";
 
+    private static final String CONNECT_POOL_SIZE = "connect.pool.size";
+
     /** transport schema, default is 'mina' */
     private String schema = "mina";
 
@@ -109,6 +111,17 @@ public class TransportConfig extends Configuration {
     public TransportConfig setHeartbeatIntervalSeconds(int interval) {
         setInt(HEARTBEAT_INTERVAL_SECONDS, interval);
 
+        return this;
+    }
+
+    public int getConnectPoolSize() {
+        return getInt(CONNECT_POOL_SIZE, 2);
+    }
+
+    public TransportConfig setConnectPoolSize(int size) {
+        if (size > 0) {
+            setInt(CONNECT_POOL_SIZE, size);
+        }
         return this;
     }
 

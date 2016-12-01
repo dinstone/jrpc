@@ -37,7 +37,7 @@ public class ServiceConsumer {
         builder.transportConfig().setSchema("mina").setProperties(props);
 
         Client client = builder.build();
-        HelloService helloService = client.serviceImporter().importService(HelloService.class);
+        HelloService helloService = client.importService(HelloService.class);
 
         testHot(helloService);
 

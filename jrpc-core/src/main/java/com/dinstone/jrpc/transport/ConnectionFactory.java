@@ -18,19 +18,15 @@ package com.dinstone.jrpc.transport;
 
 import java.net.InetSocketAddress;
 
+import com.dinstone.jrpc.SchemaFactory;
+
 /**
  * connetcion factory.
  * 
  * @author guojinfei
  * @version 2.0.0.2015-11-3
  */
-public interface ConnectionFactory {
+public interface ConnectionFactory extends SchemaFactory {
 
-    public abstract String getSchema();
-
-    public abstract Connection create(InetSocketAddress sa);
-
-    public abstract TransportConfig getTransportConfig();
-
-    public abstract void destroy();
+    public abstract Connection create(TransportConfig transportConfig, InetSocketAddress sa);
 }

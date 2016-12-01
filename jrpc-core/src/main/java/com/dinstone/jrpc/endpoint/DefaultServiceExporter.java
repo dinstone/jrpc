@@ -70,9 +70,6 @@ public class DefaultServiceExporter implements ServiceExporter {
 
     @Override
     public void destroy() {
-        if (serviceProxyFactory != null) {
-            serviceProxyFactory.destroy();
-        }
     }
 
 }

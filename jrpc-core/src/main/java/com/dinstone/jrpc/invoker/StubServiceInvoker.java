@@ -23,7 +23,7 @@ import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.transport.Connection;
-import com.dinstone.jrpc.transport.ConnectionFactory;
+import com.dinstone.jrpc.transport.ConnectionManager;
 
 /**
  * client-side service invoker.
@@ -35,14 +35,11 @@ public class StubServiceInvoker implements ServiceInvoker {
 
     private ReferenceBinding referenceBinding;
 
-    private ConnectionFactory connectionFactory;
+    private ConnectionManager connectionManager;
 
-    public StubServiceInvoker(ReferenceBinding referenceBinding, ConnectionFactory connectionFactory) {
+    public StubServiceInvoker(ConnectionManager connectionManager, ReferenceBinding referenceBinding) {
+        this.connectionManager = connectionManager;
         this.referenceBinding = referenceBinding;
-        this.connectionFactory = connectionFactory;
-    }
-
-    public void destroy() {
     }
 
     @Override
@@ -62,7 +59,9 @@ public class StubServiceInvoker implements ServiceInvoker {
         String group = serviceProxy.getGroup();
         int timeout = serviceProxy.getTimeout();
         Class<?> service = serviceProxy.getService();
-        Connection connection = connectionFactory.create(referenceBinding.getServiceAddress(service, group));
+
+        Connection connection = connectionManager.getConnection(referenceBinding.getServiceAddress(service, group));
+
         Call call = new Call(service.getName(), group, timeout, methodName, args, method.getParameterTypes());
         return connection.call(call).get(timeout, TimeUnit.MILLISECONDS);
     }

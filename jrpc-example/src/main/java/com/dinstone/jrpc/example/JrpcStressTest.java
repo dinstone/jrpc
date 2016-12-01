@@ -21,7 +21,7 @@ public class JrpcStressTest {
     protected static void caseTemplate(String serverSchema, String clientSchema) throws Exception {
         Server server = createServer(serverSchema);
         Client client = createClient(clientSchema);
-        HelloService helloService = client.serviceImporter().importService(HelloService.class);
+        HelloService helloService = client.importService(HelloService.class);
 
         try {
             testHot(helloService);

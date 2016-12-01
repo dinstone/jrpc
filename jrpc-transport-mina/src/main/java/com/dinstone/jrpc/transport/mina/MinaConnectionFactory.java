@@ -18,19 +18,20 @@ package com.dinstone.jrpc.transport.mina;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.transport.AbstractConnectionFactory;
 import com.dinstone.jrpc.transport.Connection;
+import com.dinstone.jrpc.transport.ConnectionFactory;
+import com.dinstone.jrpc.transport.TransportConfig;
 
-public class MinaConnectionFactory extends AbstractConnectionFactory {
-
-    @Override
-    protected Connection createConnection(InetSocketAddress sa) {
-        return new MinaConnection(sa, transportConfig);
-    }
+public class MinaConnectionFactory implements ConnectionFactory {
 
     @Override
     public String getSchema() {
         return "mina";
+    }
+
+    @Override
+    public Connection create(TransportConfig transportConfig, InetSocketAddress sa) {
+        return new MinaConnection(sa, transportConfig);
     }
 
 }

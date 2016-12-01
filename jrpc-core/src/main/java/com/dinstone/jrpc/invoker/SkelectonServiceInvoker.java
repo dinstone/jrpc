@@ -33,8 +33,4 @@ public class SkelectonServiceInvoker implements ServiceInvoker {
         return method.invoke(serviceProxy.getInstance(), args);
     }
 
-    @Override
-    public void destroy() {
-    }
-
 }

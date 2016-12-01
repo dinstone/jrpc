@@ -21,31 +21,38 @@ import com.dinstone.jrpc.invoker.StubServiceInvoker;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
 import com.dinstone.jrpc.proxy.StubProxyFactory;
-import com.dinstone.jrpc.transport.ConnectionFactory;
+import com.dinstone.jrpc.transport.ConnectionManager;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class DefaultServiceImporter implements ServiceImporter {
 
-    private EndpointConfig endpointConfig = new EndpointConfig();
+    private final EndpointConfig endpointConfig;
 
-    private ServiceProxyFactory serviceStubFactory;
+    private final ReferenceBinding referenceBinding;
 
-    private ReferenceBinding referenceBinding;
+    private final ConnectionManager connectionManager;
 
-    public DefaultServiceImporter(EndpointConfig endpointConfig, ReferenceBinding referenceBinding,
-            ConnectionFactory connectionFactory) {
+    private final ServiceProxyFactory serviceStubFactory;
+
+    public DefaultServiceImporter(EndpointConfig endpointConfig, TransportConfig transportConfig,
+            ReferenceBinding referenceBinding) {
+        if (endpointConfig == null) {
+            throw new IllegalArgumentException("endpointConfig is null");
+        }
+        this.endpointConfig = endpointConfig;
+
+        if (transportConfig == null) {
+            throw new IllegalArgumentException("transportConfig is null");
+        }
+        this.connectionManager = new ConnectionManager(transportConfig);
+
         if (referenceBinding == null) {
             throw new IllegalArgumentException("referenceBinding is null");
         }
         this.referenceBinding = referenceBinding;
 
-        if (connectionFactory == null) {
-            throw new IllegalArgumentException("connectionFactory is null");
-        }
-        this.serviceStubFactory = new StubProxyFactory(new StubServiceInvoker(referenceBinding, connectionFactory));
+        this.serviceStubFactory = new StubProxyFactory(new StubServiceInvoker(connectionManager, referenceBinding));
 
-        if (endpointConfig != null) {
-            this.endpointConfig.merge(endpointConfig);
-        }
     }
 
     /**
@@ -91,9 +98,7 @@ public class DefaultServiceImporter implements ServiceImporter {
      */
     @Override
     public void destroy() {
-        if (serviceStubFactory != null) {
-            serviceStubFactory.destroy();
-        }
+        connectionManager.destroy();
     }
 
 }

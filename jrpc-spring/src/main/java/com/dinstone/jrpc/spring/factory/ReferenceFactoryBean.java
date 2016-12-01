@@ -19,7 +19,6 @@ package com.dinstone.jrpc.spring.factory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.dinstone.jrpc.api.Client;
-import com.dinstone.jrpc.endpoint.ServiceImporter;
 
 public class ReferenceFactoryBean extends AbstractFactoryBean<Object> {
 
@@ -38,15 +37,14 @@ public class ReferenceFactoryBean extends AbstractFactoryBean<Object> {
 
     @Override
     protected Object createInstance() throws Exception {
-        ServiceImporter serviceImporter = client.serviceImporter();
         if (group == null || group.length() == 0) {
             group = "";
         }
 
         if (timeout > 0) {
-            return serviceImporter.importService(service, group, timeout);
+            return client.importService(service, group, timeout);
         } else {
-            return serviceImporter.importService(service, group);
+            return client.importService(service, group);
         }
     }
 

@@ -27,7 +27,4 @@ public class SkelectonProxyFactory implements ServiceProxyFactory {
         return new ServiceProxy<T>(serviceInterface, group, timeout, serviceObject);
     }
 
-    @Override
-    public void destroy() {
-    }
 }

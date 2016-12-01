@@ -32,6 +32,7 @@ import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.transport.Connection;
 import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.ResultFutureListener;
+import com.dinstone.jrpc.transport.TransportConfig;
 import com.dinstone.jrpc.transport.mina.MinaConnectionFactory;
 
 /**
@@ -43,8 +44,6 @@ public class DefaultConnectionTest {
     private static MinaServer server;
 
     private Connection connect;
-
-    private MinaConnectionFactory minaConnectionFactory;
 
     @BeforeClass
     public static void startServer() {
@@ -65,8 +64,8 @@ public class DefaultConnectionTest {
      */
     @Before
     public void setUp() throws Exception {
-        minaConnectionFactory = new MinaConnectionFactory();
-        connect = minaConnectionFactory.create(new InetSocketAddress("localhost", 1234));
+        MinaConnectionFactory connectionFactory = new MinaConnectionFactory();
+        connect = connectionFactory.create(new TransportConfig(), new InetSocketAddress("localhost", 1234));
     }
 
     /**
@@ -74,7 +73,7 @@ public class DefaultConnectionTest {
      */
     @After
     public void tearDown() throws Exception {
-        minaConnectionFactory.destroy();
+        connect.destroy();
     }
 
     /**

@@ -16,6 +16,8 @@
 
 package com.dinstone.jrpc.spring;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -27,7 +29,7 @@ import com.dinstone.jrpc.spring.factory.ServiceFactoryBean;
 
 public class ServiceBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
-    private static int count = 0;
+    private AtomicInteger count = new AtomicInteger();
 
     @Override
     protected Class<?> getBeanClass(Element element) {
@@ -38,7 +40,7 @@ public class ServiceBeanDefinitionParser extends AbstractSingleBeanDefinitionPar
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         String id = element.getAttribute("id");
         if (!StringUtils.hasText(id)) {
-            int index = ++count;
+            int index = count.incrementAndGet();
             element.setAttribute("id", "ServiceBean[" + index + "]");
         }
 

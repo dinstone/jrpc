@@ -20,18 +20,16 @@ import java.util.concurrent.CountDownLatch;
 
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.ClientBuilder;
-import com.dinstone.jrpc.endpoint.ServiceImporter;
 import com.dinstone.jrpc.example.HelloService;
 
 public class ServiceConsumer {
 
     public static void main(String[] args) throws Exception {
         ClientBuilder builder = new ClientBuilder().bind("localhost", 4444);
-        builder.transportConfig().setSchema("netty5");
-        
+        builder.transportConfig().setSchema("netty5").setConnectPoolSize(2);
+
         Client client = builder.build();
-        ServiceImporter serviceImporter = client.serviceImporter();
-        HelloService helloService = serviceImporter.importService(HelloService.class);
+        HelloService helloService = client.importService(HelloService.class);
 
         try {
             testHot(helloService);

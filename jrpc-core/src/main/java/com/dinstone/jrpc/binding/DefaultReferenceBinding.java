@@ -19,7 +19,9 @@ package com.dinstone.jrpc.binding;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import com.dinstone.jrpc.registry.ServiceDiscovery;
+import com.dinstone.jrpc.SchemaFactoryLoader;
+import com.dinstone.jrpc.registry.RegistryConfig;
+import com.dinstone.jrpc.registry.RegistryFactory;
 
 public class DefaultReferenceBinding extends AbstractReferenceBinding {
 
@@ -27,11 +29,19 @@ public class DefaultReferenceBinding extends AbstractReferenceBinding {
         backupServiceAddresses.add(serviceAddress);
     }
 
-    public DefaultReferenceBinding(List<InetSocketAddress> serviceAddresses, ServiceDiscovery serviceDiscovery) {
+    public DefaultReferenceBinding(RegistryConfig registryConfig, List<InetSocketAddress> serviceAddresses) {
+        String registrySchema = registryConfig.getSchema();
+        if (registrySchema != null && !registrySchema.isEmpty()) {
+            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
+            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
+            if (registryFactory != null) {
+                this.serviceDiscovery = registryFactory.createServiceDiscovery(registryConfig);
+            }
+        }
+
         if (serviceAddresses != null) {
             backupServiceAddresses.addAll(serviceAddresses);
         }
-        this.serviceDiscovery = serviceDiscovery;
     }
 
 }

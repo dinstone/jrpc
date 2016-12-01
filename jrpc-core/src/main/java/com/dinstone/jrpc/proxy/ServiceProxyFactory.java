@@ -20,5 +20,4 @@ public interface ServiceProxyFactory {
 
     public <T> ServiceProxy<T> create(Class<T> service, String group, int timeout, T instance) throws Exception;
 
-    public void destroy();
 }
