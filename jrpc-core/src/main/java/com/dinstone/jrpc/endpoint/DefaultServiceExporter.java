@@ -30,15 +30,18 @@ public class DefaultServiceExporter implements ServiceExporter {
     private ServiceProxyFactory serviceProxyFactory;
 
     public DefaultServiceExporter(EndpointConfig endpointConfig, ImplementBinding implementBinding) {
+        if (endpointConfig == null) {
+            throw new IllegalArgumentException("endpointConfig is null");
+        }
+        this.endpointConfig = endpointConfig;
+
         if (implementBinding == null) {
             throw new IllegalArgumentException("implementBinding is null");
         }
         this.implementBinding = implementBinding;
+
         this.serviceProxyFactory = new SkelectonProxyFactory();
 
-        if (endpointConfig != null) {
-            this.endpointConfig.merge(endpointConfig);
-        }
     }
 
     @Override

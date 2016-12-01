@@ -26,7 +26,7 @@ public class ServiceConsumer {
 
     public static void main(String[] args) throws Exception {
         ClientBuilder builder = new ClientBuilder().bind("localhost", 4444);
-        builder.transportConfig().setSchema("netty5").setConnectPoolSize(2);
+        // builder.transportConfig().setSchema("netty5").setConnectPoolSize(2);
 
         Client client = builder.build();
         HelloService helloService = client.importService(HelloService.class);

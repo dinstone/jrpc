@@ -32,7 +32,7 @@ public class ServiceDescription implements Serializable {
 
     private String id;
 
-    private String name;
+    private String serviceName;
 
     private String group;
 
@@ -56,12 +56,12 @@ public class ServiceDescription implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getServiceName() {
+        return serviceName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
     }
 
     public String getGroup() {
@@ -122,9 +122,9 @@ public class ServiceDescription implements Serializable {
 
     @Override
     public String toString() {
-        return "ServiceDescription [id=" + id + ", name=" + name + ", group=" + group + ", host=" + host + ", port="
-                + port + ", uri=" + uri + ", registryTime=" + registryTime + ", serviceAttribute=" + serviceAttribute
-                + "]";
+        return "ServiceDescription [id=" + id + ", name=" + serviceName + ", group=" + group + ", host=" + host
+                + ", port=" + port + ", uri=" + uri + ", registryTime=" + registryTime + ", serviceAttribute="
+                + serviceAttribute + "]";
     }
 
 }

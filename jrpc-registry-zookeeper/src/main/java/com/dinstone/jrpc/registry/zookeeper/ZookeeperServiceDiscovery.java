@@ -81,20 +81,20 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
 
     @Override
     public void cancel(ServiceDescription description) {
-        ServiceCache serviceCache = serviceCacheMap.get(description.getName());
+        ServiceCache serviceCache = serviceCacheMap.get(description.getServiceName());
         if (serviceCache != null) {
             serviceCache.destroy();
-            serviceCacheMap.remove(description.getName());
+            serviceCacheMap.remove(description.getServiceName());
         }
     }
 
     @Override
     public void listen(ServiceDescription description) throws Exception {
-        ServiceCache serviceCache = serviceCacheMap.get(description.getName());
+        ServiceCache serviceCache = serviceCacheMap.get(description.getServiceName());
         if (serviceCache == null) {
-            String path = pathForProviders(description.getName());
+            String path = pathForProviders(description.getServiceName());
             serviceCache = new ServiceCache(client, path, threadFactory).build();
-            serviceCacheMap.put(description.getName(), serviceCache);
+            serviceCacheMap.put(description.getServiceName(), serviceCache);
         }
         serviceCache.addConsumer(description);
     }
@@ -150,7 +150,7 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
 
         public void addConsumer(ServiceDescription service) throws Exception {
             byte[] bytes = serializer.serialize(service);
-            String path = pathForConsumer(service.getName(), service.getId());
+            String path = pathForConsumer(service.getServiceName(), service.getId());
 
             final int MAX_TRIES = 2;
             boolean isDone = false;
@@ -197,7 +197,7 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
 
         public void destroy() {
             for (ServiceDescription consumer : consumers.values()) {
-                String path = pathForConsumer(consumer.getName(), consumer.getId());
+                String path = pathForConsumer(consumer.getServiceName(), consumer.getId());
                 try {
                     client.delete().forPath(path);
                 } catch (Exception e) {

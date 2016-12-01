@@ -16,12 +16,11 @@
 
 package com.dinstone.jrpc.transport;
 
+import com.dinstone.jrpc.SchemaFactory;
 import com.dinstone.jrpc.binding.ImplementBinding;
 
-public interface AcceptanceFactory {
+public interface AcceptanceFactory extends SchemaFactory {
 
     public abstract Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding);
-
-    public abstract String getSchema();
 
 }

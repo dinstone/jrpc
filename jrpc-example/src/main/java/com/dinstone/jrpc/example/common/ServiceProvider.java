@@ -35,7 +35,7 @@ public class ServiceProvider {
         builder.transportConfig().setSchema("netty5");
 
         Server server = builder.build().start();
-        server.serviceExporter().exportService(HelloService.class, new HelloServiceImpl());
+        server.exportService(HelloService.class, new HelloServiceImpl());
 
         System.in.read();
 

@@ -63,7 +63,7 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
         description.setId(id.toString());
         description.setHost(host);
         description.setPort(port);
-        description.setName(wrapper.getService().getName());
+        description.setServiceName(wrapper.getService().getName());
         description.setGroup(group);
         description.setRegistryTime(System.currentTimeMillis());
 

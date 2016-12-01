@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.example;
 
 /**
@@ -33,14 +34,13 @@ public class HelloServiceImpl implements HelloService {
             e.printStackTrace();
         }
 
-        return "hi, " + name;
+        return name;
     }
 
     /**
      * {@inheritDoc}
      * 
-     * @see com.dinstone.jrpc.cases.SuperInterface#sayHello(java.lang.String,
-     *      int)
+     * @see com.dinstone.jrpc.cases.SuperInterface#sayHello(java.lang.String, int)
      */
     public String sayHello(String name, int age) {
         if (age < 3) {

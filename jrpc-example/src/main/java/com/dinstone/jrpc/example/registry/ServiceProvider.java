@@ -51,7 +51,7 @@ public class ServiceProvider {
             server = builder.build().start();
 
             // export service
-            server.serviceExporter().exportService(HelloService.class, new HelloServiceImpl());
+            server.exportService(HelloService.class, new HelloServiceImpl());
 
             System.in.read();
         } finally {

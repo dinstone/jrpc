@@ -18,17 +18,21 @@ package com.dinstone.jrpc.binding;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.registry.ServiceRegistry;
+import com.dinstone.jrpc.SchemaFactoryLoader;
+import com.dinstone.jrpc.registry.RegistryConfig;
+import com.dinstone.jrpc.registry.RegistryFactory;
 
 public class DefaultImplementBinding extends AbstractImplementBinding {
 
-    public DefaultImplementBinding(InetSocketAddress providerAddress) {
-        this.providerAddress = providerAddress;
-    }
+    public DefaultImplementBinding(RegistryConfig registryConfig, InetSocketAddress serviceAddress) {
+        this.providerAddress = serviceAddress;
 
-    public DefaultImplementBinding(InetSocketAddress providerAddress, ServiceRegistry serviceRegistry) {
-        this.providerAddress = providerAddress;
-        this.serviceRegistry = serviceRegistry;
+        if (registryConfig != null && registryConfig.getSchema() != null) {
+            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
+            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registryConfig.getSchema());
+            if (registryFactory != null) {
+                this.serviceRegistry = registryFactory.createServiceRegistry(registryConfig);
+            }
+        }
     }
-
 }

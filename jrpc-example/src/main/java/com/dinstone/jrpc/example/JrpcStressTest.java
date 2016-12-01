@@ -7,7 +7,6 @@ import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.ClientBuilder;
 import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServerBuilder;
-import com.dinstone.jrpc.endpoint.ServiceExporter;
 
 public class JrpcStressTest {
 
@@ -79,8 +78,7 @@ public class JrpcStressTest {
         builder.transportConfig().setSchema(schema);
         Server server = builder.bind("localhost", 4444).build().start();
 
-        ServiceExporter serviceExporter = server.serviceExporter();
-        serviceExporter.exportService(HelloService.class, new HelloServiceImpl());
+        server.exportService(HelloService.class, new HelloServiceImpl());
 
         return server;
     }

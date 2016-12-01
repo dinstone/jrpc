@@ -72,7 +72,7 @@ public abstract class AbstractReferenceBinding implements ReferenceBinding {
 
         ServiceDescription description = new ServiceDescription();
         description.setId(id.toString());
-        description.setName(wrapper.getService().getName());
+        description.setServiceName(wrapper.getService().getName());
         description.setGroup(group);
         description.setHost(host);
         description.setPort(port);

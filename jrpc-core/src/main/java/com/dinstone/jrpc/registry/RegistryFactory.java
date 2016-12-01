@@ -16,9 +16,9 @@
 
 package com.dinstone.jrpc.registry;
 
-public interface RegistryFactory {
+import com.dinstone.jrpc.SchemaFactory;
 
-    public abstract String getSchema();
+public interface RegistryFactory extends SchemaFactory {
 
     public abstract ServiceRegistry createServiceRegistry(RegistryConfig registryConfig);
 

@@ -19,7 +19,6 @@ package com.dinstone.jrpc.spring.factory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.dinstone.jrpc.api.Server;
-import com.dinstone.jrpc.endpoint.ServiceExporter;
 
 public class ServiceFactoryBean extends AbstractFactoryBean<Object> {
 
@@ -80,8 +79,7 @@ public class ServiceFactoryBean extends AbstractFactoryBean<Object> {
 
     @Override
     protected Object createInstance() throws Exception {
-        ServiceExporter exporter = server.serviceExporter();
-        exporter.exportService(service, group, timeout, instance);
+        server.exportService(service, group, timeout, instance);
 
         return instance;
     }

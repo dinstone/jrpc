@@ -74,7 +74,7 @@ public class Configuration {
     }
 
     public Configuration(Configuration config) {
-        this.properties.putAll(config.properties);
+        merge(config);
     }
 
     public void merge(Configuration config) {

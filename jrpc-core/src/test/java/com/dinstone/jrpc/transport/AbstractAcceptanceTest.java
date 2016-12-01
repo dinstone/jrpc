@@ -42,7 +42,7 @@ public class AbstractAcceptanceTest {
         SkelectonProxyFactory factory = new SkelectonProxyFactory();
         ServiceProxy<DemoService> wrapper = factory.create(DemoService.class, "", 3000, new DemoServiceImpl());
 
-        ImplementBinding iBinding = new DefaultImplementBinding(new InetSocketAddress("localhost", 0));
+        ImplementBinding iBinding = new DefaultImplementBinding(null, new InetSocketAddress("localhost", 0));
         iBinding.bind(wrapper, null);
 
         acceptance = new AbstractAcceptance(iBinding) {

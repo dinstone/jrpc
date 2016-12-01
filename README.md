@@ -71,7 +71,7 @@ For more details, please refer to the example project : [jrpc-example](https://g
             server = builder.build().start();
 
             // export service
-            server.serviceExporter().exportService(HelloService.class, new HelloServiceImpl());
+            server.exportService(HelloService.class, new HelloServiceImpl());
 
             System.in.read();
         } finally {
@@ -97,7 +97,7 @@ For more details, please refer to the example project : [jrpc-example](https://g
 
         Client client = builder.build();
         
-        HelloService helloService = client.serviceImporter().importService(HelloService.class);
+        HelloService helloService = client.importService(HelloService.class);
         helloService.sayHello("dinstone");
 
 	   client.destroy();
