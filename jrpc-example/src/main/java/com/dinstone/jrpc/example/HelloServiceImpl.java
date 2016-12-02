@@ -29,7 +29,7 @@ public class HelloServiceImpl implements HelloService {
      */
     public String sayHello(String name) {
         try {
-            // System.out.println(name.length());
+            System.out.println(name.length());
         } catch (Exception e) {
             e.printStackTrace();
         }
