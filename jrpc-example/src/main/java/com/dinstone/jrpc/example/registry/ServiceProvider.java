@@ -23,6 +23,7 @@ import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.example.HelloService;
 import com.dinstone.jrpc.example.HelloServiceImpl;
+import com.dinstone.jrpc.example.MetricService;
 
 public class ServiceProvider {
 
@@ -46,12 +47,13 @@ public class ServiceProvider {
         builder.transportConfig().setSchema("mina").setProperties(props);
 
         Server server = null;
+        MetricService metricService = new MetricService();
         try {
             // build server and start it
             server = builder.build().start();
 
             // export service
-            server.exportService(HelloService.class, new HelloServiceImpl());
+            server.exportService(HelloService.class, new HelloServiceImpl(metricService));
 
             System.in.read();
         } finally {
@@ -59,6 +61,8 @@ public class ServiceProvider {
                 server.stop();
             }
         }
+
+        metricService.destory();
     }
 
 }

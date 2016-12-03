@@ -30,12 +30,14 @@ public class TransportConfig extends Configuration {
     /** Connect Timeout */
     private static final String CONNECT_TIMEOUT = "rpc.connect.timeout";
 
-    /** parallel count */
-    private static final String HANDLER_COUNT = "rpc.handler.count";
-
     private static final String HEARTBEAT_INTERVAL_SECONDS = "heartbeat.interval.seconds";
 
     private static final String CONNECT_POOL_SIZE = "connect.pool.size";
+
+    /** parallel count */
+    private static final String BUSINESS_PROCESSOR_COUNT = "business.processor.count";
+
+    private static final String NIO_PROCESSOR_COUNT = "nio.processor.count";
 
     /** transport schema, default is 'mina' */
     private String schema = "mina";
@@ -82,16 +84,6 @@ public class TransportConfig extends Configuration {
         return this;
     }
 
-    public int getHandlerCount() {
-        return getInt(HANDLER_COUNT, Runtime.getRuntime().availableProcessors() * 2);
-    }
-
-    public TransportConfig setHandlerCount(int count) {
-        setInt(HANDLER_COUNT, count);
-
-        return this;
-    }
-
     public TransportConfig setSchema(String schema) {
         if (schema != null && !schema.isEmpty()) {
             this.schema = schema;
@@ -122,6 +114,27 @@ public class TransportConfig extends Configuration {
         if (size > 0) {
             setInt(CONNECT_POOL_SIZE, size);
         }
+        return this;
+    }
+
+    public int getNioProcessorCount() {
+        return getInt(NIO_PROCESSOR_COUNT, Runtime.getRuntime().availableProcessors());
+    }
+
+    public TransportConfig setNioProcessorCount(int count) {
+        if (count > 0) {
+            setInt(NIO_PROCESSOR_COUNT, count);
+        }
+        return this;
+    }
+
+    public int getBusinessProcessorCount() {
+        return getInt(BUSINESS_PROCESSOR_COUNT, 0);
+    }
+
+    public TransportConfig setBusinessProcessorCount(int count) {
+        setInt(BUSINESS_PROCESSOR_COUNT, count);
+
         return this;
     }
 

@@ -26,57 +26,55 @@ import com.dinstone.jrpc.api.ServerBuilder;
 public class JrpcStressTest {
 
     public static void main(String[] args) throws Exception {
-        caseTemplate("netty5", "netty5");
-        caseTemplate("netty5", "mina");
-        caseTemplate("mina", "mina");
-        caseTemplate("mina", "netty5");
+        String schema = "netty5";
+        int dataLength = 1024;
+        int parallel = 32;
+        if (args.length == 3) {
+            schema = args[0];
+            dataLength = Integer.parseInt(args[1]);
+            parallel = Integer.parseInt(args[2]);
+        } else if (args.length > 0 && args.length < 3) {
+            System.out.println("Usage: schema data-length parallel");
+            System.out.println("example: netty5 1024 32");
+
+            System.exit(-1);
+        }
+
+        caseTemplate(schema, schema, dataLength, parallel);
+
+        // caseTemplate("mina", "mina");
+        // caseTemplate(nettySchema, "mina");
+        // caseTemplate("mina", nettySchema);
     }
 
-    protected static void caseTemplate(String serverSchema, String clientSchema) throws Exception {
+    protected static void caseTemplate(String serverSchema, String clientSchema, int dataLength, int parallel)
+            throws Exception {
+        MetricService metricService = new MetricService();
+
         Server server = createServer(serverSchema);
+        server.exportService(HelloService.class, new HelloServiceImpl(metricService));
+
         Client client = createClient(clientSchema);
         HelloService helloService = client.importService(HelloService.class);
 
         try {
             testHot(helloService);
 
-            System.out.println("case server[" + serverSchema + "] client[" + clientSchema + "] start");
+            System.out.println("Case S/C[" + serverSchema + ":" + clientSchema + "] dataLength[" + dataLength
+                    + "] parallel[" + parallel + "] start");
 
-            testMultiThread(helloService, 500, 1);
+            testMultiThread(helloService, dataLength, parallel);
 
-            testMultiThread(helloService, 500, 10);
+            System.out.println("Case S/C[" + serverSchema + ":" + clientSchema + "] dataLength[" + dataLength
+                    + "] parallel[" + parallel + "] end");
 
-            testMultiThread(helloService, 500, 20);
-
-            testMultiThread(helloService, 500, 32);
-
-            testMultiThread(helloService, 1 * 1024, 1);
-
-            testMultiThread(helloService, 1 * 1024, 10);
-
-            testMultiThread(helloService, 1 * 1024, 20);
-
-            testMultiThread(helloService, 1 * 1024, 32);
-
-            testMultiThread(helloService, 1 * 1024, 40);
-
-            // testMultiThread(helloService, 5 * 1024, 1);
-            //
-            // testMultiThread(helloService, 5 * 1024, 10);
-            //
-            // testMultiThread(helloService, 5 * 1024, 20);
-            //
-            // testMultiThread(helloService, 5 * 1024, 32);
-            //
-            // testMultiThread(helloService, 5 * 1024, 40);
-
-            System.out.println("case server[" + serverSchema + "] client[" + clientSchema + "] end");
         } finally {
             client.destroy();
         }
 
         server.stop();
 
+        metricService.destory();
     }
 
     protected static Client createClient(String schema) {
@@ -90,11 +88,8 @@ public class JrpcStressTest {
 
     protected static Server createServer(String schema) {
         ServerBuilder builder = new ServerBuilder();
-        builder.transportConfig().setSchema(schema);
+        builder.transportConfig().setSchema(schema).setNioProcessorCount(2).setBusinessProcessorCount(4);
         Server server = builder.bind("localhost", 4444).build().start();
-
-        server.exportService(HelloService.class, new HelloServiceImpl());
-
         return server;
     }
 

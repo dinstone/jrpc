@@ -25,6 +25,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultExecutorServiceFactory;
 
 import java.net.InetSocketAddress;
 
@@ -41,14 +42,14 @@ public class NettyConnector {
 
     private NioEventLoopGroup workerGroup;
 
-    private Bootstrap boot;
+    private Bootstrap clientBoot;
 
     public NettyConnector(InetSocketAddress isa, final TransportConfig transportConfig) {
-        workerGroup = new NioEventLoopGroup(1);
-        boot = new Bootstrap().group(workerGroup).channel(NioSocketChannel.class);
-        boot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
-        boot.option(ChannelOption.SO_RCVBUF, 8 * 1024);
-        boot.handler(new ChannelInitializer<SocketChannel>() {
+        workerGroup = new NioEventLoopGroup(1, new DefaultExecutorServiceFactory("N5CWork"));
+        clientBoot = new Bootstrap().group(workerGroup).channel(NioSocketChannel.class);
+        clientBoot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
+        clientBoot.option(ChannelOption.SO_RCVBUF, 8 * 1024);
+        clientBoot.handler(new ChannelInitializer<SocketChannel>() {
 
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
@@ -65,7 +66,7 @@ public class NettyConnector {
             }
         });
 
-        boot.remoteAddress(isa);
+        clientBoot.remoteAddress(isa);
     }
 
     /**
@@ -98,7 +99,7 @@ public class NettyConnector {
     }
 
     public Channel createSession() {
-        ChannelFuture cf = boot.connect().awaitUninterruptibly();
+        ChannelFuture cf = clientBoot.connect().awaitUninterruptibly();
         Channel channel = cf.channel();
         LOG.debug("session connect {} to {}", channel.localAddress(), channel.remoteAddress());
         return channel;

@@ -21,6 +21,10 @@
 			<param name="AcceptOnMatch" value="true" />
 		</filter>
 	</appender>
+	<logger name="metrics" additivity="false">
+		<level value="info" />
+		<appender-ref ref="file" />
+	</logger>
 	<root>
 		<level value="info" />
 		<appender-ref ref="console" />

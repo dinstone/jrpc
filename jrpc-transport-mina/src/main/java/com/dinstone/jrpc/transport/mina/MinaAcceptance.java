@@ -24,14 +24,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
-import org.apache.mina.core.session.IoEventType;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
 import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
 import org.apache.mina.filter.codec.ProtocolEncoder;
-import org.apache.mina.filter.executor.ExecutorFilter;
 import org.apache.mina.filter.keepalive.KeepAliveFilter;
 import org.apache.mina.filter.keepalive.KeepAliveMessageFactory;
 import org.apache.mina.transport.socket.SocketAcceptor;
@@ -46,7 +44,6 @@ import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.transport.AbstractAcceptance;
-import com.dinstone.jrpc.transport.Acceptance;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaAcceptance extends AbstractAcceptance {
@@ -67,7 +64,7 @@ public class MinaAcceptance extends AbstractAcceptance {
     @Override
     public MinaAcceptance bind() {
         // This socket acceptor will handle incoming connections
-        acceptor = new NioSocketAcceptor();
+        acceptor = new NioSocketAcceptor(transportConfig.getNioProcessorCount());
         acceptor.setReuseAddress(true);
         acceptor.setBacklog(128);
 
@@ -98,12 +95,6 @@ public class MinaAcceptance extends AbstractAcceptance {
             }
         }));
 
-        int handlerCount = transportConfig.getHandlerCount();
-        if (handlerCount > 0) {
-            executorService = Executors.newFixedThreadPool(handlerCount, new NamedThreadFactory("NioHandler"));
-            chainBuilder.addLast("threadPool", new ExecutorFilter(executorService, IoEventType.MESSAGE_RECEIVED));
-        }
-
         // add keep alive filter
         KeepAliveFilter kaFilter = new KeepAliveFilter(new PassiveKeepAliveMessageFactory(), IdleStatus.BOTH_IDLE);
         kaFilter.setRequestInterval(transportConfig.getHeartbeatIntervalSeconds());
@@ -111,11 +102,17 @@ public class MinaAcceptance extends AbstractAcceptance {
         chainBuilder.addLast("keepAlive", kaFilter);
 
         // add business handler
-        acceptor.setHandler(new MinaIoHandler(this));
+        acceptor.setHandler(new MinaIoHandler());
 
         InetSocketAddress serviceAddress = implementBinding.getServiceAddress();
         try {
             acceptor.bind(serviceAddress);
+
+            int processorCount = transportConfig.getBusinessProcessorCount();
+            if (processorCount > 0) {
+                NamedThreadFactory threadFactory = new NamedThreadFactory("Mina-BusinssProcessor");
+                executorService = Executors.newFixedThreadPool(processorCount, threadFactory);
+            }
         } catch (Exception e) {
             throw new RuntimeException("can't bind service on " + serviceAddress, e);
         }
@@ -143,21 +140,27 @@ public class MinaAcceptance extends AbstractAcceptance {
 
     private class MinaIoHandler extends IoHandlerAdapter {
 
-        private Acceptance acceptance;
+        @Override
+        public void messageReceived(final IoSession session, final Object message) throws Exception {
+            if (message instanceof Request) {
+                if (executorService != null) {
+                    executorService.execute(new Runnable() {
 
-        /**
-         * @param acceptance
-         */
-        public MinaIoHandler(Acceptance acceptance) {
-            this.acceptance = acceptance;
+                        @Override
+                        public void run() {
+                            process(session, message);
+                        }
+
+                    });
+                } else {
+                    process(session, message);
+                }
+            }
         }
 
-        @Override
-        public void messageReceived(IoSession session, Object message) throws Exception {
-            if (message instanceof Request) {
-                Response response = acceptance.handle((Request) message);
-                session.write(response);
-            }
+        protected void process(IoSession session, Object message) {
+            Response response = handle((Request) message);
+            session.write(response);
         }
 
         /**

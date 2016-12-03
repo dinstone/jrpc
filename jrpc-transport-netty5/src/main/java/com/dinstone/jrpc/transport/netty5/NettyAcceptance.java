@@ -28,12 +28,17 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultExecutorServiceFactory;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dinstone.jrpc.NamedThreadFactory;
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Request;
@@ -52,6 +57,8 @@ public class NettyAcceptance extends AbstractAcceptance {
 
     private EventLoopGroup workGroup;
 
+    private ExecutorService executorService;
+
     public NettyAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding) {
         super(implementBinding);
         this.transportConfig = transportConfig;
@@ -59,8 +66,9 @@ public class NettyAcceptance extends AbstractAcceptance {
 
     @Override
     public Acceptance bind() {
-        bossGroup = new NioEventLoopGroup(1);
-        workGroup = new NioEventLoopGroup(transportConfig.getHandlerCount());
+        bossGroup = new NioEventLoopGroup(1, new DefaultExecutorServiceFactory("N5A-Boss"));
+        workGroup = new NioEventLoopGroup(transportConfig.getNioProcessorCount(), new DefaultExecutorServiceFactory(
+            "N5A-Work"));
 
         ServerBootstrap boot = new ServerBootstrap();
         boot.group(bossGroup, workGroup).channel(NioServerSocketChannel.class)
@@ -86,6 +94,12 @@ public class NettyAcceptance extends AbstractAcceptance {
         InetSocketAddress serviceAddress = implementBinding.getServiceAddress();
         try {
             boot.bind(serviceAddress).sync();
+
+            int processorCount = transportConfig.getBusinessProcessorCount();
+            if (processorCount > 0) {
+                NamedThreadFactory threadFactory = new NamedThreadFactory("Netty5-BusinssProcessor");
+                executorService = Executors.newFixedThreadPool(processorCount, threadFactory);
+            }
         } catch (Exception e) {
             throw new RuntimeException("can't bind service on " + serviceAddress, e);
         }
@@ -101,6 +115,14 @@ public class NettyAcceptance extends AbstractAcceptance {
         }
         if (bossGroup != null) {
             bossGroup.shutdownGracefully();
+        }
+
+        if (executorService != null) {
+            executorService.shutdownNow();
+            try {
+                executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+            }
         }
     }
 
@@ -119,14 +141,28 @@ public class NettyAcceptance extends AbstractAcceptance {
         }
 
         @Override
-        public void channelRead(ChannelHandlerContext ctx, Object message) {
+        public void channelRead(final ChannelHandlerContext ctx, final Object message) {
             if (message instanceof Request) {
-                Response response = handle((Request) message);
-                ctx.writeAndFlush(response);
+                if (executorService != null) {
+                    executorService.execute(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            process(ctx, message);
+                        }
+
+                    });
+                } else {
+                    process(ctx, message);
+                }
             } else if (message instanceof Heartbeat) {
-                // ((Heartbeat) message).getContent().increase();
                 ctx.writeAndFlush(message);
             }
+        }
+
+        protected void process(final ChannelHandlerContext ctx, final Object message) {
+            Response response = handle((Request) message);
+            ctx.writeAndFlush(response);
         }
 
         @Override

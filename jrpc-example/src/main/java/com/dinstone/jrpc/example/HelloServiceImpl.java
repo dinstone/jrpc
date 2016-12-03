@@ -16,11 +16,19 @@
 
 package com.dinstone.jrpc.example;
 
+import com.codahale.metrics.Counter;
+
 /**
  * @author guojf
  * @version 1.0.0.2013-10-29
  */
 public class HelloServiceImpl implements HelloService {
+
+    private Counter counter;
+
+    public HelloServiceImpl(MetricService metricService) {
+        counter = metricService.getCounter("sayHello");
+    }
 
     /**
      * {@inheritDoc}
@@ -29,7 +37,7 @@ public class HelloServiceImpl implements HelloService {
      */
     public String sayHello(String name) {
         try {
-            System.out.println(name.length());
+            counter.inc();
         } catch (Exception e) {
             e.printStackTrace();
         }

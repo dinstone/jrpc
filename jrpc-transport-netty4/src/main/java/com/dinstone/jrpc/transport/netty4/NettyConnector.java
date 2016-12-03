@@ -25,6 +25,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
 
 import java.net.InetSocketAddress;
 
@@ -44,7 +45,7 @@ public class NettyConnector {
     private Bootstrap boot;
 
     public NettyConnector(InetSocketAddress isa, final TransportConfig transportConfig) {
-        workerGroup = new NioEventLoopGroup(1);
+        workerGroup = new NioEventLoopGroup(1, new DefaultThreadFactory("N4CWork"));
         boot = new Bootstrap().group(workerGroup).channel(NioSocketChannel.class);
         boot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
         boot.option(ChannelOption.SO_RCVBUF, 8 * 1024);
