@@ -18,7 +18,6 @@ package com.dinstone.jrpc.transport.netty5;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -45,7 +44,7 @@ public class NettyConnector {
     private Bootstrap clientBoot;
 
     public NettyConnector(InetSocketAddress isa, final TransportConfig transportConfig) {
-        workerGroup = new NioEventLoopGroup(1, new DefaultExecutorServiceFactory("N5CWork"));
+        workerGroup = new NioEventLoopGroup(1, new DefaultExecutorServiceFactory("N5C-Work"));
         clientBoot = new Bootstrap().group(workerGroup).channel(NioSocketChannel.class);
         clientBoot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
         clientBoot.option(ChannelOption.SO_RCVBUF, 8 * 1024);
@@ -99,8 +98,7 @@ public class NettyConnector {
     }
 
     public Channel createSession() {
-        ChannelFuture cf = clientBoot.connect().awaitUninterruptibly();
-        Channel channel = cf.channel();
+        Channel channel = clientBoot.connect().awaitUninterruptibly().channel();
         LOG.debug("session connect {} to {}", channel.localAddress(), channel.remoteAddress());
         return channel;
     }

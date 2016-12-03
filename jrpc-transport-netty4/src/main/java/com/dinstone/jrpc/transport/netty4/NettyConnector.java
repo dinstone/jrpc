@@ -18,7 +18,6 @@ package com.dinstone.jrpc.transport.netty4;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -42,14 +41,14 @@ public class NettyConnector {
 
     private NioEventLoopGroup workerGroup;
 
-    private Bootstrap boot;
+    private Bootstrap clientBoot;
 
     public NettyConnector(InetSocketAddress isa, final TransportConfig transportConfig) {
-        workerGroup = new NioEventLoopGroup(1, new DefaultThreadFactory("N4CWork"));
-        boot = new Bootstrap().group(workerGroup).channel(NioSocketChannel.class);
-        boot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
-        boot.option(ChannelOption.SO_RCVBUF, 8 * 1024);
-        boot.handler(new ChannelInitializer<SocketChannel>() {
+        workerGroup = new NioEventLoopGroup(1, new DefaultThreadFactory("N4C-Work"));
+        clientBoot = new Bootstrap().group(workerGroup).channel(NioSocketChannel.class);
+        clientBoot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
+        clientBoot.option(ChannelOption.SO_RCVBUF, 8 * 1024);
+        clientBoot.handler(new ChannelInitializer<SocketChannel>() {
 
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
@@ -66,7 +65,7 @@ public class NettyConnector {
             }
         });
 
-        boot.remoteAddress(isa);
+        clientBoot.remoteAddress(isa);
     }
 
     /**
@@ -99,8 +98,7 @@ public class NettyConnector {
     }
 
     public Channel createSession() {
-        ChannelFuture cf = boot.connect().awaitUninterruptibly();
-        Channel channel = cf.channel();
+        Channel channel = clientBoot.connect().awaitUninterruptibly().channel();
         LOG.debug("session connect {} to {}", channel.localAddress(), channel.remoteAddress());
         return channel;
     }

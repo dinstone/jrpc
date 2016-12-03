@@ -164,11 +164,6 @@ public class NettyAcceptance extends AbstractAcceptance {
         }
 
         @Override
-        public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-            ctx.flush();
-        }
-
-        @Override
         public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
             LOG.error("untreated exception", cause);
             ctx.close();
