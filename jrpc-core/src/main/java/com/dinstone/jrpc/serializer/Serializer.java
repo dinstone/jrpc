@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.serializer;
 
 /**
- * Serialize java object to byte array and Deserialize byte array to java
- * object.
+ * Serialize java object to byte array and Deserialize byte array to java object.
  * 
  * @author guojinfei
  * @version 1.0.0.2014-7-29
@@ -27,5 +27,7 @@ public interface Serializer {
     public <T> byte[] serialize(T data) throws Exception;
 
     public <T> T deserialize(byte[] bytes, Class<T> clazz) throws Exception;
+
+    public <T> T deserialize(byte[] bytes, int offset, int length, Class<T> clazz) throws Exception;
 
 }

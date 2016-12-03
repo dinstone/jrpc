@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.serializer;
 
 import org.codehaus.jackson.JsonParser.Feature;
@@ -45,6 +46,11 @@ public class JacksonSerializer implements Serializer {
 
     public <T> T deserialize(byte[] bodyBytes, Class<T> clazz) throws Exception {
         return objectMapper.readValue(bodyBytes, clazz);
+    }
+
+    @Override
+    public <T> T deserialize(byte[] bytes, int offset, int length, Class<T> clazz) throws Exception {
+        return objectMapper.readValue(bytes, offset, length, clazz);
     }
 
 }

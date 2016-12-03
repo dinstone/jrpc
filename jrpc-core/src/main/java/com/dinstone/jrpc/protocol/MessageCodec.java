@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.protocol;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import com.dinstone.jrpc.serializer.SerializeType;
 import com.dinstone.jrpc.serializer.SerializerRegister;
@@ -74,15 +74,16 @@ public class MessageCodec {
         MessageType messageType = MessageType.valueOf(messageBuf.get());
         SerializeType serializeType = SerializeType.valueOf(messageBuf.get());
 
-        byte[] bodyBytes = Arrays.copyOfRange(rpcBytes, 6, rpcBytes.length);
+        // byte[] bodyBytes = Arrays.copyOfRange(rpcBytes, 6, rpcBytes.length);
+        int bodyLength = rpcBytes.length - 6;
         if (messageType == MessageType.REQUEST) {
-            Call call = REGISTER.find(serializeType).deserialize(bodyBytes, Call.class);
+            Call call = REGISTER.find(serializeType).deserialize(rpcBytes, 6, bodyLength, Call.class);
             return new Request(messageId, serializeType, call);
         } else if (messageType == MessageType.RESPONSE) {
-            Result result = REGISTER.find(serializeType).deserialize(bodyBytes, Result.class);
+            Result result = REGISTER.find(serializeType).deserialize(rpcBytes, 6, bodyLength, Result.class);
             return new Response(messageId, serializeType, result);
         } else if (messageType == MessageType.HEARTBEAT) {
-            Tick tick = REGISTER.find(serializeType).deserialize(bodyBytes, Tick.class);
+            Tick tick = REGISTER.find(serializeType).deserialize(rpcBytes, 6, bodyLength, Tick.class);
             return new Heartbeat(messageId, serializeType, tick);
         } else {
             throw new IllegalStateException("unsupported content type [" + messageType + "]");

@@ -44,9 +44,14 @@ public class ProtobuffSerializer implements Serializer {
 
     @Override
     public <T> T deserialize(byte[] bytes, Class<T> targetClass) throws Exception {
+        return deserialize(bytes, 0, bytes.length, targetClass);
+    }
+
+    @Override
+    public <T> T deserialize(byte[] bytes, int offset, int length, Class<T> targetClass) throws Exception {
         Schema<T> schema = getSchema(targetClass);
         T instance = targetClass.newInstance();
-        ProtostuffIOUtil.mergeFrom(bytes, instance, schema);
+        ProtostuffIOUtil.mergeFrom(bytes, offset, length, instance, schema);
         return instance;
     }
 
