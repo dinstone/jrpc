@@ -90,6 +90,8 @@ public class NettyAcceptance extends AbstractAcceptance {
             });
         boot.option(ChannelOption.SO_REUSEADDR, true).option(ChannelOption.SO_BACKLOG, 128);
         boot.childOption(ChannelOption.SO_RCVBUF, 8 * 1024).childOption(ChannelOption.SO_SNDBUF, 8 * 1024);
+        // boot.childOption(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 32 * 1024).childOption(
+        // ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8 * 1024);
 
         InetSocketAddress serviceAddress = implementBinding.getServiceAddress();
         try {

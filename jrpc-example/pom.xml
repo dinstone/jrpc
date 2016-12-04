@@ -19,11 +19,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.dinstone.jrpc</groupId>
-			<artifactId>jrpc-transport-netty5</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.dinstone.jrpc</groupId>
 			<artifactId>jrpc-transport-netty4</artifactId>
 			<version>${project.version}</version>
 		</dependency>

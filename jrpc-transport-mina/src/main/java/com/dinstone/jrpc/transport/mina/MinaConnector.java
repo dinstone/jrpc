@@ -99,6 +99,7 @@ public class MinaConnector {
 
         SocketSessionConfig sessionConfig = ioConnector.getSessionConfig();
         sessionConfig.setReceiveBufferSize(8 * 1024);
+        sessionConfig.setSendBufferSize(8 * 1024);
 
         DefaultIoFilterChainBuilder chainBuilder = ioConnector.getFilterChain();
 

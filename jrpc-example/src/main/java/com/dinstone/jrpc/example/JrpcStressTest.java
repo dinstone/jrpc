@@ -26,35 +26,39 @@ import com.dinstone.jrpc.api.ServerBuilder;
 public class JrpcStressTest {
 
     public static void main(String[] args) throws Exception {
-        String schema = "netty5";
         int dataLength = 1024;
         int parallel = 32;
-        if (args.length == 3) {
-            schema = args[0];
-            dataLength = Integer.parseInt(args[1]);
-            parallel = Integer.parseInt(args[2]);
-        } else if (args.length > 0 && args.length < 3) {
-            System.out.println("Usage: schema data-length parallel");
-            System.out.println("example: netty5 1024 32");
+        int conPollSize = 2;
+        int nioSize = 2;
+        int businessSize = 4;
+        if (args.length == 5) {
+            dataLength = Integer.parseInt(args[0]);
+            parallel = Integer.parseInt(args[1]);
+            conPollSize = Integer.parseInt(args[2]);
+            nioSize = Integer.parseInt(args[3]);
+            businessSize = Integer.parseInt(args[4]);
+        } else if (args.length > 0 && args.length < 5) {
+            System.out.println("Usage: data-length parallel connection-poll-size server-nio-size server-business-size");
+            System.out.println("example: 1024 32 2 2 4");
 
             System.exit(-1);
         }
 
-        caseTemplate(schema, schema, dataLength, parallel);
-
+        caseTemplate("mina", "mina", dataLength, parallel, conPollSize, nioSize, businessSize);
+        caseTemplate("netty", "netty", dataLength, parallel, conPollSize, nioSize, businessSize);
         // caseTemplate("mina", "mina");
         // caseTemplate(nettySchema, "mina");
         // caseTemplate("mina", nettySchema);
     }
 
-    protected static void caseTemplate(String serverSchema, String clientSchema, int dataLength, int parallel)
-            throws Exception {
+    protected static void caseTemplate(String serverSchema, String clientSchema, int dataLength, int parallel,
+            int conPollSize, int nioSize, int businessSize) throws Exception {
         MetricService metricService = new MetricService();
 
-        Server server = createServer(serverSchema);
+        Server server = createServer(serverSchema, nioSize, businessSize);
         server.exportService(HelloService.class, new HelloServiceImpl(metricService));
 
-        Client client = createClient(clientSchema);
+        Client client = createClient(clientSchema, conPollSize);
         HelloService helloService = client.importService(HelloService.class);
 
         try {
@@ -77,18 +81,19 @@ public class JrpcStressTest {
         metricService.destory();
     }
 
-    protected static Client createClient(String schema) {
+    protected static Client createClient(String schema, int conPollSize) {
         ClientBuilder builder = new ClientBuilder().bind("localhost", 4444);
-        builder.transportConfig().setSchema(schema);
+        builder.transportConfig().setSchema(schema).setConnectPoolSize(conPollSize);
 
         Client client = builder.build();
 
         return client;
     }
 
-    protected static Server createServer(String schema) {
+    protected static Server createServer(String schema, int nioSize, int businessSize) {
         ServerBuilder builder = new ServerBuilder();
-        builder.transportConfig().setSchema(schema).setNioProcessorCount(2).setBusinessProcessorCount(4);
+        builder.transportConfig().setSchema(schema).setNioProcessorCount(nioSize)
+            .setBusinessProcessorCount(businessSize);
         Server server = builder.bind("localhost", 4444).build().start();
         return server;
     }
