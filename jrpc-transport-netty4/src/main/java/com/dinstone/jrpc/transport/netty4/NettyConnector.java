@@ -37,17 +37,18 @@ public class NettyConnector {
 
     private static final Logger LOG = LoggerFactory.getLogger(NettyConnector.class);
 
-    private int refCount;
-
     private NioEventLoopGroup workerGroup;
 
     private Bootstrap clientBoot;
 
+    private int refCount;
+
     public NettyConnector(InetSocketAddress isa, final TransportConfig transportConfig) {
         workerGroup = new NioEventLoopGroup(1, new DefaultThreadFactory("N4C-Work"));
         clientBoot = new Bootstrap().group(workerGroup).channel(NioSocketChannel.class);
+        clientBoot.option(ChannelOption.TCP_NODELAY, true);
         clientBoot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
-        clientBoot.option(ChannelOption.SO_RCVBUF, 8 * 1024);
+        clientBoot.option(ChannelOption.SO_RCVBUF, 8 * 1024).option(ChannelOption.SO_SNDBUF, 8 * 1024);
         clientBoot.handler(new ChannelInitializer<SocketChannel>() {
 
             @Override
@@ -60,7 +61,7 @@ public class NettyConnector {
                 ch.pipeline().addLast("TransportProtocolEncoder", encoder);
 
                 int intervalSeconds = transportConfig.getHeartbeatIntervalSeconds();
-                ch.pipeline().addLast("IdleStateHandler", new IdleStateHandler(0, 0, intervalSeconds));
+                ch.pipeline().addLast("IdleStateHandler", new IdleStateHandler(0, intervalSeconds, 0));
                 ch.pipeline().addLast("NettyClientHandler", new NettyClientHandler());
             }
         });

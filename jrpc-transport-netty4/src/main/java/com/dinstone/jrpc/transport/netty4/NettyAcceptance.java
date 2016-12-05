@@ -82,12 +82,13 @@ public class NettyAcceptance extends AbstractAcceptance {
                 ch.pipeline().addLast("TransportProtocolEncoder", encoder);
 
                 int intervalSeconds = transportConfig.getHeartbeatIntervalSeconds();
-                ch.pipeline().addLast("IdleStateHandler", new IdleStateHandler(0, 0, intervalSeconds * 2));
+                ch.pipeline().addLast("IdleStateHandler", new IdleStateHandler(intervalSeconds * 2, 0, 0));
                 ch.pipeline().addLast("NettyServerHandler", new NettyServerHandler());
             }
         });
         boot.option(ChannelOption.SO_REUSEADDR, true).option(ChannelOption.SO_BACKLOG, 128);
-        boot.childOption(ChannelOption.SO_RCVBUF, 8 * 1024).childOption(ChannelOption.SO_SNDBUF, 8 * 1024);
+        boot.childOption(ChannelOption.SO_RCVBUF, 16 * 1024).childOption(ChannelOption.SO_SNDBUF, 16 * 1024)
+            .childOption(ChannelOption.TCP_NODELAY, true);
 
         InetSocketAddress serviceAddress = implementBinding.getServiceAddress();
         try {
@@ -130,7 +131,7 @@ public class NettyAcceptance extends AbstractAcceptance {
         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
             if (evt instanceof IdleStateEvent) {
                 IdleStateEvent event = (IdleStateEvent) evt;
-                if (event.state() == IdleState.ALL_IDLE) {
+                if (event.state() == IdleState.READER_IDLE) {
                     ctx.close();
                 }
             } else {

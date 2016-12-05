@@ -43,7 +43,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
-            if (event.state() == IdleState.ALL_IDLE) {
+            if (event.state() == IdleState.WRITER_IDLE) {
                 heartbeat.getContent().increase();
                 ctx.writeAndFlush(heartbeat);
             }

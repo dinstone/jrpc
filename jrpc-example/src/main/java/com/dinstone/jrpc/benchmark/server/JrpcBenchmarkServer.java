@@ -38,7 +38,7 @@ public class JrpcBenchmarkServer {
         } else if (args.length == 3) {
             nioCount = Integer.parseInt(args[0]);
             businessCount = Integer.parseInt(args[1]);
-            schema = args[3];
+            schema = args[2];
         }
 
         System.out.println("NioProcessorCount=" + nioCount + ",BusinessProcessorCount=" + businessCount
