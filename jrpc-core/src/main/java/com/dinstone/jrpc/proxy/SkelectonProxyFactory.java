@@ -24,6 +24,17 @@ public class SkelectonProxyFactory implements ServiceProxyFactory {
     @Override
     public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceObject)
             throws Exception {
+        if (!serviceInterface.isInterface()) {
+
+        }
+
+        if (!serviceInterface.isInterface()) {
+            throw new IllegalArgumentException(serviceInterface.getName() + " is not interface");
+        }
+        if (!serviceInterface.isInstance(serviceObject)) {
+            throw new IllegalArgumentException(serviceObject + " is not an instance of " + serviceInterface.getName());
+        }
+
         return new ServiceProxy<T>(serviceInterface, group, timeout, serviceObject);
     }
 

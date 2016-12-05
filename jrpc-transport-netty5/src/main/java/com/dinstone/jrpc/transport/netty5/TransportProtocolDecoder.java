@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.netty5;
 
 import io.netty.buffer.ByteBuf;
@@ -69,24 +70,25 @@ public class TransportProtocolDecoder extends ByteToMessageDecoder {
     }
 
     private byte[] readFrame(ByteBuf in) {
-        int remaining = in.readableBytes();
-        if (remaining < 4) {
-            return null;
-        }
+        if (in.readableBytes() > 4) {
+            in.markReaderIndex();
+            int len = in.readInt();
+            if (len > maxObjectSize) {
+                throw new IllegalStateException("The encoded object is too big: " + len + " (> " + maxObjectSize + ")");
+            } else if (len < 1) {
+                throw new IllegalStateException("The encoded object is too small: " + len + " (< 1)");
+            }
 
-        int objectSize = in.getInt(0);
-        if (objectSize > maxObjectSize) {
-            throw new IllegalArgumentException("The encoded object is too big: " + objectSize + " (> " + maxObjectSize
-                    + ')');
-        }
+            if (in.readableBytes() < len) {
+                in.resetReaderIndex();
+                return null;
+            }
 
-        if (remaining - 4 >= objectSize) {
-            objectSize = in.readInt();
-            // RPC object size
-            byte[] rpcBytes = new byte[objectSize];
+            byte[] rpcBytes = new byte[len];
             in.readBytes(rpcBytes);
             return rpcBytes;
         }
+
         return null;
     }
 }

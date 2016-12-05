@@ -33,7 +33,7 @@ public class ServiceProvider {
         // server.getTransportConfig().setSchema("netty5");
 
         ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
-        builder.transportConfig().setSchema("netty5");
+        builder.transportConfig().setSchema("netty");
         Server server = builder.build().start();
 
         MetricService metricService = new MetricService();
