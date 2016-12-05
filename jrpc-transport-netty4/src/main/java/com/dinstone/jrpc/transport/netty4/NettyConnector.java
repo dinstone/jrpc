@@ -18,19 +18,30 @@ package com.dinstone.jrpc.transport.netty4;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.dinstone.jrpc.protocol.Heartbeat;
+import com.dinstone.jrpc.protocol.Response;
+import com.dinstone.jrpc.protocol.Result;
+import com.dinstone.jrpc.protocol.Tick;
+import com.dinstone.jrpc.serializer.SerializeType;
+import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class NettyConnector {
@@ -102,5 +113,55 @@ public class NettyConnector {
         Channel channel = clientBoot.connect().awaitUninterruptibly().channel();
         LOG.debug("session connect {} to {}", channel.localAddress(), channel.remoteAddress());
         return channel;
+    }
+
+    public class NettyClientHandler extends ChannelInboundHandlerAdapter {
+
+        private Heartbeat heartbeat = new Heartbeat(0, SerializeType.JACKSON, new Tick());
+
+        @Override
+        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+            if (evt instanceof IdleStateEvent) {
+                IdleStateEvent event = (IdleStateEvent) evt;
+                if (event.state() == IdleState.WRITER_IDLE) {
+                    heartbeat.getContent().increase();
+                    ctx.writeAndFlush(heartbeat);
+                }
+            } else {
+                super.userEventTriggered(ctx, evt);
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         * 
+         * @see io.netty.channel.ChannelInboundHandlerAdapter#channelInactive(io.netty.channel.ChannelHandlerContext)
+         */
+        @Override
+        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+            Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(ctx.channel());
+            for (ResultFuture future : futureMap.values()) {
+                future.setResult(new Result(400, "connection is closed"));
+            }
+        }
+
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            if (msg instanceof Response) {
+                Response response = (Response) msg;
+                Map<Integer, ResultFuture> cfMap = SessionUtil.getResultFutureMap(ctx.channel());
+                ResultFuture future = cfMap.remove(response.getMessageId());
+                if (future != null) {
+                    future.setResult(response.getResult());
+                }
+            }
+        }
+
+        @Override
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { // (4)
+            LOG.error("Unhandled Exception", cause);
+            ctx.close();
+        }
+
     }
 }
