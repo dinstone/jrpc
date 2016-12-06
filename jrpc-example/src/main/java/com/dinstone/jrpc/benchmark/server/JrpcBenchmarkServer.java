@@ -26,13 +26,16 @@ import com.dinstone.jrpc.example.MetricService;
 public class JrpcBenchmarkServer {
 
     public static void main(String[] args) throws IOException {
+        System.out.println("Usage:[TransportSchema]");
         System.out.println("Usage:[NioProcessorCount] [BusinessProcessorCount]");
         System.out.println("Usage:[NioProcessorCount] [BusinessProcessorCount] [TransportSchema]");
 
         String schema = "netty";
+        int businessCount = 0;
         int nioCount = Runtime.getRuntime().availableProcessors();
-        int businessCount = nioCount * 2;
-        if (args.length == 2) {
+        if (args.length == 1) {
+            schema = args[0];
+        } else if (args.length == 2) {
             nioCount = Integer.parseInt(args[0]);
             businessCount = Integer.parseInt(args[1]);
         } else if (args.length == 3) {

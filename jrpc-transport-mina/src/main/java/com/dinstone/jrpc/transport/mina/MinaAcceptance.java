@@ -69,11 +69,11 @@ public class MinaAcceptance extends AbstractAcceptance {
         acceptor.setBacklog(128);
 
         SocketSessionConfig sessionConfig = acceptor.getSessionConfig();
-        // sessionConfig.setTcpNoDelay(true);
+        sessionConfig.setTcpNoDelay(true);
 
         // set read buffer size
-        sessionConfig.setReceiveBufferSize(8 * 1024);
-        sessionConfig.setSendBufferSize(8 * 1024);
+        sessionConfig.setReceiveBufferSize(16 * 1024);
+        sessionConfig.setSendBufferSize(16 * 1024);
 
         // get filter chain builder
         DefaultIoFilterChainBuilder chainBuilder = acceptor.getFilterChain();

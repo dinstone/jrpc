@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.benchmark.client;
 
 import java.text.SimpleDateFormat;
@@ -27,24 +28,22 @@ public abstract class AbstractBenchmarkClient {
 
     private static final int WARMUPTIME = 30;
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss,SSS");
 
-    protected int concurrents;
-
-    protected int runTime;
-
-    protected String classname;
-
-    protected String params;
+    protected CaseConfig caseConfig;
 
     protected CaseStatistics statistics;
+
+    public AbstractBenchmarkClient(CaseConfig caseConfig) {
+        this.caseConfig = caseConfig;
+    }
 
     /**
      */
     public void execute() {
         init();
 
-        printStartInfo();
+        printCaseInfo();
 
         doCase();
 
@@ -55,32 +54,16 @@ public abstract class AbstractBenchmarkClient {
 
     protected abstract void init();
 
-    protected void printStartInfo() {
-        Date currentDate = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(currentDate);
-        calendar.add(Calendar.SECOND, runTime);
-        Date finishDate = calendar.getTime();
-
-        StringBuilder startInfo = new StringBuilder(dateFormat.format(currentDate));
-        startInfo.append(" ready to start client benchmark");
-        startInfo.append(", concurrents = ").append(concurrents);
-        startInfo.append(", data-length = ").append(params).append("KB");
-        startInfo.append(", the benchmark will end at ").append(dateFormat.format(finishDate));
-
-        System.out.println(startInfo.toString());
-    }
-
     protected void doCase() {
-        // prepare runnables
         long currentTime = System.nanoTime() / 1000L;
         long startTime = currentTime + WARMUPTIME * 1000 * 1000L;
-        long stopTime = currentTime + runTime * 1000 * 1000L;
+        long stopTime = currentTime + caseConfig.runTimeSeconds * 1000 * 1000L;
 
+        int concurrents = caseConfig.concurrents;
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(concurrents);
+        CountDownLatch countDownLatch = new CountDownLatch(concurrents);
         List<CaseRunnable> runnables = new ArrayList<>();
-        CyclicBarrier cyclicBarrier = new CyclicBarrier(this.concurrents);
-        CountDownLatch countDownLatch = new CountDownLatch(this.concurrents);
-        for (int i = 0; i < this.concurrents; i++) {
+        for (int i = 0; i < concurrents; i++) {
             CaseRunnable runnable = getCaseRunnable(cyclicBarrier, countDownLatch, startTime, stopTime);
             runnables.add(runnable);
             new Thread(runnable, "benchmarkclient-" + i).start();
@@ -103,13 +86,43 @@ public abstract class AbstractBenchmarkClient {
     protected abstract CaseRunnable getCaseRunnable(CyclicBarrier barrier, CountDownLatch latch, long startTime,
             long endTime);
 
+    protected void printCaseInfo() {
+        Date startTime = new Date();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startTime);
+        calendar.add(Calendar.SECOND, caseConfig.runTimeSeconds);
+        Date finishTime = calendar.getTime();
+
+        // StringBuilder caseInfo = new StringBuilder();
+        // caseInfo.append(" ready to start benchmark");
+        // caseInfo.append(", concurrents = ").append(caseConfig.concurrents);
+        // caseInfo.append(", data-length = ").append(caseConfig.dataLength);
+        // caseInfo.append(", the benchmark will be end at ").append(dateFormat.format(finishDate));
+        // System.out.println(caseInfo.toString());
+
+        System.out.println("-----------Benchmark CaseInfo----------------");
+        System.out.println("ClassName: " + caseConfig.caseClassName);
+        System.out.println("Concurrent: " + caseConfig.concurrents);
+        System.out.println("DataLength: " + caseConfig.dataLength);
+        System.out.println("Runtime(second): " + caseConfig.runTimeSeconds);
+        System.out.println("StartTime : " + dateFormat.format(startTime));
+        System.out.println("FinishTime: " + dateFormat.format(finishTime));
+        System.out.println("--------------------------------------------");
+
+    }
+
     protected void printStatistics() {
         System.out.println("----------Benchmark Statistics--------------");
-        System.out.println("Concurrents: " + concurrents);
-        System.out.println("Runtime: " + runTime + " seconds");
-        System.out.println("ClassName: " + classname);
-        System.out.println("Params: " + params);
+        System.out.println("ClassName: " + caseConfig.caseClassName);
+        System.out.println("Runtime(second): " + caseConfig.runTimeSeconds);
+        System.out.println("Concurrent: " + caseConfig.concurrents);
+        System.out.println("DataLength: " + caseConfig.dataLength);
+        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
         statistics.printStatistics();
+
+        System.out.println("--------------------------------------------");
     }
 
     protected abstract void destory();

@@ -20,48 +20,39 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 
-import com.dinstone.jrpc.Configuration;
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.ClientBuilder;
 import com.dinstone.jrpc.benchmark.BenchmarkService;
 
 public class JrpcBenchmarkClient extends AbstractBenchmarkClient {
 
-    private Configuration caseConfig;
-
-    private BenchmarkService service;
+    private BenchmarkService benchmarkService;
 
     private Client client;
 
-    public JrpcBenchmarkClient(Configuration caseConfig) {
-        this.caseConfig = caseConfig;
+    public JrpcBenchmarkClient(CaseConfig caseConfig) {
+        super(caseConfig);
     }
 
     @Override
     protected void init() {
-        concurrents = caseConfig.getInt("concurrents", 10);
-        params = caseConfig.get("params", "1");
-        runTime = caseConfig.getInt("runTimeSeconds", 90);
-        classname = caseConfig.get("caseClassName", StringCaseRunnable.class.getName());
-
-        String schema = caseConfig.get("schema", "netty");
-        int conPollSize = caseConfig.getInt("connectPoolSize", 10);
         ClientBuilder builder = new ClientBuilder().bind("localhost", 4444);
-        builder.transportConfig().setSchema(schema).setConnectPoolSize(conPollSize);
+        builder.transportConfig().setSchema(caseConfig.transportSchema).setConnectPoolSize(caseConfig.connectPoolSize);
 
         client = builder.build();
-        service = client.importService(BenchmarkService.class);
+        benchmarkService = client.importService(BenchmarkService.class);
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected CaseRunnable getCaseRunnable(CyclicBarrier barrier, CountDownLatch latch, long startTime, long endTime) {
-        Class[] parameterTypes = new Class[] { BenchmarkService.class, String.class, CyclicBarrier.class,
+        Class[] parameterTypes = new Class[] { BenchmarkService.class, CaseConfig.class, CyclicBarrier.class,
                 CountDownLatch.class, long.class, long.class };
-        Object[] parameters = new Object[] { service, params, barrier, latch, startTime, endTime };
+        Object[] parameters = new Object[] { benchmarkService, caseConfig, barrier, latch, startTime, endTime };
 
         CaseRunnable clientRunnable = null;
         try {
-            clientRunnable = (CaseRunnable) Class.forName(classname).getConstructor(parameterTypes)
+            clientRunnable = (CaseRunnable) Class.forName(caseConfig.caseClassName).getConstructor(parameterTypes)
                 .newInstance(parameters);
         } catch (InstantiationException | NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
             e.printStackTrace();
@@ -78,23 +69,15 @@ public class JrpcBenchmarkClient extends AbstractBenchmarkClient {
     }
 
     public static void main(String[] args) {
-        System.out.println("Usage:[Config-File]");
-        System.out.println("Usage:[Concurrents] [Params]");
-        System.out.println("Usage:[Concurrents] [Params] [TransportSchema]");
+        System.out.println("Usage:[TransportSchema] [Concurrents] ");
 
-        Configuration caseConfig = new Configuration();
-        if (args.length == 1) {
-            caseConfig = new Configuration(args[0]);
-        } else if (args.length == 2) {
-            caseConfig.setInt("concurrents", Integer.parseInt(args[0]));
-            caseConfig.setInt("params", Integer.parseInt(args[1]));
-        } else if (args.length == 3) {
-            caseConfig.setInt("concurrents", Integer.parseInt(args[0]));
-            caseConfig.setInt("params", Integer.parseInt(args[1]));
-            caseConfig.set("schema", args[2]);
+        CaseConfig caseConfig = new CaseConfig();
+        if (args.length == 2) {
+            caseConfig.transportSchema = args[0];
+            caseConfig.concurrents = Integer.parseInt(args[1]);
         }
 
-        JrpcBenchmarkClient benchmarkClient = new JrpcBenchmarkClient(caseConfig);
-        benchmarkClient.execute();
+        // caseConfig.dataLengthKb=1;
+        new JrpcBenchmarkClient(caseConfig).execute();
     }
 }

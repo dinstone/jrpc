@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.benchmark.client;
 
 import java.util.concurrent.CountDownLatch;
@@ -25,15 +26,15 @@ public class StringCaseRunnable extends AbstractCaseRunnable {
 
     private String caseString;
 
-    public StringCaseRunnable(BenchmarkService service, String params, CyclicBarrier barrier, CountDownLatch latch,
-            long startTime, long endTime) {
+    public StringCaseRunnable(BenchmarkService service, CaseConfig caseConfig, CyclicBarrier barrier,
+            CountDownLatch latch, long startTime, long endTime) {
         super(service, barrier, latch, startTime, endTime);
 
-        int size = Integer.parseInt(params);
-        int length = 1024 * size;
+        int length = caseConfig.dataLength;
         StringBuilder builder = new StringBuilder(length);
+        ThreadLocalRandom current = ThreadLocalRandom.current();
         for (int i = 0; i < length; i++) {
-            builder.append((char) (ThreadLocalRandom.current().nextInt(33, 128)));
+            builder.append((char) (current.nextInt(33, 128)));
         }
         caseString = builder.toString();
     }

@@ -87,17 +87,13 @@ public class MinaConnector {
         initConnector(isa, config);
     }
 
-    /**
-     * @param port2
-     * @param host2
-     * @param config
-     */
     private void initConnector(InetSocketAddress isa, TransportConfig config) {
         // create connector
         ioConnector = new NioSocketConnector(1);
         ioConnector.setConnectTimeoutMillis(config.getConnectTimeout());
 
         SocketSessionConfig sessionConfig = ioConnector.getSessionConfig();
+        sessionConfig.setTcpNoDelay(true);
         sessionConfig.setReceiveBufferSize(8 * 1024);
         sessionConfig.setSendBufferSize(8 * 1024);
 
