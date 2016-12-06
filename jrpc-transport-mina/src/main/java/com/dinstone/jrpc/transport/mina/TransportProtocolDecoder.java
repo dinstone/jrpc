@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.mina;
 
 import java.io.Serializable;
@@ -77,21 +78,21 @@ public class TransportProtocolDecoder extends CumulativeProtocolDecoder {
     }
 
     private byte[] readFrame(IoBuffer in) {
-        int remaining = in.remaining();
-        if (remaining < 4) {
-            return null;
-        }
+        if (in.remaining() > 4) {
+            in.mark();
+            int len = in.getInt();
+            if (len > maxObjectSize) {
+                throw new IllegalStateException("The encoded object is too big: " + len + " (> " + maxObjectSize + ")");
+            } else if (len < 1) {
+                throw new IllegalStateException("The encoded object is too small: " + len + " (< 1)");
+            }
 
-        int objectSize = in.getInt(0);
-        if (objectSize > maxObjectSize) {
-            throw new IllegalArgumentException("The encoded object is too big: " + objectSize + " (> " + maxObjectSize
-                    + ')');
-        }
+            if (in.remaining() < len) {
+                in.reset();
+                return null;
+            }
 
-        if (remaining - 4 >= objectSize) {
-            // RPC object size
-            in.getInt();
-            byte[] rpcBytes = new byte[objectSize];
+            byte[] rpcBytes = new byte[len];
             in.get(rpcBytes);
             return rpcBytes;
         }

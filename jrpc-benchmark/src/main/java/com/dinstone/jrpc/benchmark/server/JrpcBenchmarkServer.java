@@ -26,28 +26,24 @@ public class JrpcBenchmarkServer {
 
     public static void main(String[] args) throws IOException {
         System.out.println("Usage:[TransportSchema]");
-        System.out.println("Usage:[NioProcessorCount] [BusinessProcessorCount]");
-        System.out.println("Usage:[NioProcessorCount] [BusinessProcessorCount] [TransportSchema]");
+        System.out.println("Usage:[TransportSchema] [NioProcessorCount] [BusinessProcessorCount]");
 
-        String schema = "netty";
+        String transportSchema = "netty";
         int businessCount = 0;
         int nioCount = Runtime.getRuntime().availableProcessors();
         if (args.length == 1) {
-            schema = args[0];
-        } else if (args.length == 2) {
-            nioCount = Integer.parseInt(args[0]);
-            businessCount = Integer.parseInt(args[1]);
+            transportSchema = args[0];
         } else if (args.length == 3) {
-            nioCount = Integer.parseInt(args[0]);
-            businessCount = Integer.parseInt(args[1]);
-            schema = args[2];
+            transportSchema = args[0];
+            nioCount = Integer.parseInt(args[1]);
+            businessCount = Integer.parseInt(args[2]);
         }
 
         System.out.println("NioProcessorCount=" + nioCount + ",BusinessProcessorCount=" + businessCount
-                + ",TransportSchema=" + schema);
+                + ",TransportSchema=" + transportSchema);
 
         ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
-        builder.transportConfig().setSchema(schema).setNioProcessorCount(nioCount)
+        builder.transportConfig().setSchema(transportSchema).setNioProcessorCount(nioCount)
             .setBusinessProcessorCount(businessCount);
         Server server = builder.build().start();
 

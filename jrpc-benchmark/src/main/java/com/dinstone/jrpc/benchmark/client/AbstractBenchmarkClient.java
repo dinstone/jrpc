@@ -94,15 +94,10 @@ public abstract class AbstractBenchmarkClient {
         calendar.add(Calendar.SECOND, caseConfig.runTimeSeconds);
         Date finishTime = calendar.getTime();
 
-        // StringBuilder caseInfo = new StringBuilder();
-        // caseInfo.append(" ready to start benchmark");
-        // caseInfo.append(", concurrents = ").append(caseConfig.concurrents);
-        // caseInfo.append(", data-length = ").append(caseConfig.dataLength);
-        // caseInfo.append(", the benchmark will be end at ").append(dateFormat.format(finishDate));
-        // System.out.println(caseInfo.toString());
-
         System.out.println("-----------Benchmark CaseInfo----------------");
-        System.out.println("ClassName: " + caseConfig.caseClassName);
+        System.out.println("Transport : " + caseConfig.transportSchema);
+        System.out.println("Connection: " + caseConfig.connectPoolSize);
+        System.out.println("ClassName : " + caseConfig.caseClassName);
         System.out.println("Concurrent: " + caseConfig.concurrents);
         System.out.println("DataLength: " + caseConfig.dataLength);
         System.out.println("Runtime(second): " + caseConfig.runTimeSeconds);

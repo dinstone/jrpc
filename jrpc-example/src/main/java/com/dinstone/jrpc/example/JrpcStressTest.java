@@ -45,7 +45,7 @@ public class JrpcStressTest {
         }
 
         caseTemplate("mina", "mina", dataLength, parallel, conPollSize, nioSize, businessSize);
-        caseTemplate("netty", "netty", dataLength, parallel, conPollSize, nioSize, businessSize);
+        //caseTemplate("netty", "netty", dataLength, parallel, conPollSize, nioSize, businessSize);
         // caseTemplate("mina", "mina");
         // caseTemplate(nettySchema, "mina");
         // caseTemplate("mina", nettySchema);

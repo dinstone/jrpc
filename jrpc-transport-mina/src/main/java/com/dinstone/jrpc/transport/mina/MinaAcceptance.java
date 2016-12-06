@@ -17,6 +17,8 @@
 package com.dinstone.jrpc.transport.mina;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -25,11 +27,8 @@ import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.codec.ProtocolDecoder;
 import org.apache.mina.filter.codec.ProtocolDecoderException;
-import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.keepalive.KeepAliveFilter;
 import org.apache.mina.filter.keepalive.KeepAliveMessageFactory;
 import org.apache.mina.transport.socket.SocketAcceptor;
@@ -44,6 +43,7 @@ import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.transport.AbstractAcceptance;
+import com.dinstone.jrpc.transport.NetworkAddressUtil;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaAcceptance extends AbstractAcceptance {
@@ -84,16 +84,7 @@ public class MinaAcceptance extends AbstractAcceptance {
 
         encoder.setMaxObjectSize(transportConfig.getMaxSize());
         decoder.setMaxObjectSize(transportConfig.getMaxSize());
-        chainBuilder.addLast("codec", new ProtocolCodecFilter(new ProtocolCodecFactory() {
-
-            public ProtocolEncoder getEncoder(IoSession session) throws Exception {
-                return encoder;
-            }
-
-            public ProtocolDecoder getDecoder(IoSession session) throws Exception {
-                return decoder;
-            }
-        }));
+        chainBuilder.addLast("codec", new ProtocolCodecFilter(encoder, decoder));
 
         // add keep alive filter
         KeepAliveFilter kaFilter = new KeepAliveFilter(new PassiveKeepAliveMessageFactory(), IdleStatus.BOTH_IDLE);
@@ -140,6 +131,25 @@ public class MinaAcceptance extends AbstractAcceptance {
 
     private class MinaIoHandler extends IoHandlerAdapter {
 
+        private static final String LOCAL_REMOTE_ADDRESS_KEY = "local-remote-address-key";
+
+        private final int maxConnectionCount = transportConfig.getMaxConnectionCount();
+
+        private ConcurrentMap<String, IoSession> connectionMap = new ConcurrentHashMap<>();
+
+        @Override
+        public void sessionCreated(IoSession session) throws Exception {
+            int currentConnectioncount = connectionMap.size();
+            if (currentConnectioncount > maxConnectionCount) {
+                session.close(true);
+                LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount, currentConnectioncount);
+            } else {
+                String key = NetworkAddressUtil.addressLabel(session.getRemoteAddress(), session.getLocalAddress());
+                session.setAttribute(LOCAL_REMOTE_ADDRESS_KEY, key);
+                connectionMap.put(key, session);
+            }
+        }
+
         @Override
         public void messageReceived(final IoSession session, final Object message) throws Exception {
             if (message instanceof Request) {
@@ -170,8 +180,8 @@ public class MinaAcceptance extends AbstractAcceptance {
          */
         @Override
         public void sessionClosed(IoSession session) throws Exception {
-            // long id = session.getId();
-            // LOG.debug("Session[{}] is closed", id);
+            String key = (String) session.getAttribute(LOCAL_REMOTE_ADDRESS_KEY);
+            connectionMap.remove(key);
         }
 
         @Override
@@ -185,6 +195,7 @@ public class MinaAcceptance extends AbstractAcceptance {
         public void sessionIdle(IoSession session, IdleStatus status) throws Exception {
             LOG.debug("Session[{}] is idle with status[{}]", session.getId(), status);
         }
+
     }
 
     private final class PassiveKeepAliveMessageFactory implements KeepAliveMessageFactory {

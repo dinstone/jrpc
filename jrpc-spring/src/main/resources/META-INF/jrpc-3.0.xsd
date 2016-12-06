@@ -33,40 +33,6 @@
 		</xsd:attribute>
 	</xsd:complexType>
 
-	<xsd:complexType name="RegistryType">
-		<xsd:complexContent>
-			<xsd:extension base="beans:identifiedType">
-				<xsd:attribute name="schema" type="xsd:string" use="required">
-					<xsd:annotation>
-						<xsd:documentation>
-						<![CDATA[ 
-							service registry discovery type, for exmaple zookeeper.
-						]]>
-						</xsd:documentation>
-					</xsd:annotation>
-				</xsd:attribute>
-				<xsd:attribute name="address" type="xsd:string" use="required">
-					<xsd:annotation>
-						<xsd:documentation>
-						<![CDATA[ 
-							registry's address string, for exmaple 'localhost:2181'
-						]]>
-						</xsd:documentation>
-					</xsd:annotation>
-				</xsd:attribute>
-				<xsd:attribute name="basePath" type="xsd:string" use="optional">
-					<xsd:annotation>
-						<xsd:documentation>
-						<![CDATA[ 
-							service registry discovery base path for zookeeper
-						]]>
-						</xsd:documentation>
-					</xsd:annotation>
-				</xsd:attribute>
-				<xsd:anyAttribute />
-			</xsd:extension>
-		</xsd:complexContent>
-	</xsd:complexType>
 
 	<xsd:element name="server">
 		<xsd:complexType>

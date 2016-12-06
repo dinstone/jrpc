@@ -24,10 +24,7 @@ import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
-import org.apache.mina.filter.codec.ProtocolCodecFactory;
 import org.apache.mina.filter.codec.ProtocolCodecFilter;
-import org.apache.mina.filter.codec.ProtocolDecoder;
-import org.apache.mina.filter.codec.ProtocolEncoder;
 import org.apache.mina.filter.keepalive.KeepAliveFilter;
 import org.apache.mina.filter.keepalive.KeepAliveMessageFactory;
 import org.apache.mina.transport.socket.SocketSessionConfig;
@@ -104,16 +101,7 @@ public class MinaConnector {
         encoder.setMaxObjectSize(config.getMaxSize());
         decoder.setMaxObjectSize(config.getMaxSize());
         // add filter
-        chainBuilder.addLast("codec", new ProtocolCodecFilter(new ProtocolCodecFactory() {
-
-            public ProtocolEncoder getEncoder(IoSession session) throws Exception {
-                return encoder;
-            }
-
-            public ProtocolDecoder getDecoder(IoSession session) throws Exception {
-                return decoder;
-            }
-        }));
+        chainBuilder.addLast("codec", new ProtocolCodecFilter(encoder, decoder));
 
         // add keep alive filter
         ActiveKeepAliveMessageFactory messageFactory = new ActiveKeepAliveMessageFactory(config.getSerializeType());

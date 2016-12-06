@@ -39,6 +39,8 @@ public class TransportConfig extends Configuration {
 
     private static final String NIO_PROCESSOR_COUNT = "nio.processor.count";
 
+    private static final String MAX_CONNECTION_COUNT = "max.connection.count";
+
     /** transport schema, default is 'mina' */
     private String schema = "mina";
 
@@ -135,6 +137,17 @@ public class TransportConfig extends Configuration {
     public TransportConfig setBusinessProcessorCount(int count) {
         setInt(BUSINESS_PROCESSOR_COUNT, count);
 
+        return this;
+    }
+
+    public int getMaxConnectionCount() {
+        return getInt(MAX_CONNECTION_COUNT, 1000);
+    }
+
+    public TransportConfig setMaxConnectionCount(int count) {
+        if (count > 0) {
+            setInt(MAX_CONNECTION_COUNT, count);
+        }
         return this;
     }
 

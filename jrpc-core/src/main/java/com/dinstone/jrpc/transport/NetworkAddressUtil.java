@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -64,6 +67,26 @@ public class NetworkAddressUtil {
         }
 
         return inetAddresses;
+    }
+
+    public static String addressLabel(SocketAddress localAddress, SocketAddress remoteAddress) {
+        InetSocketAddress local = (InetSocketAddress) localAddress;
+        InetSocketAddress remote = (InetSocketAddress) remoteAddress;
+
+        String key = "";
+        if (local == null || local.getAddress() == null) {
+            key += "local-";
+        } else {
+            key += local.getAddress().getHostAddress() + ":" + local.getPort() + "-";
+        }
+
+        if (remote == null || remote.getAddress() == null) {
+            key += "remote";
+        } else {
+            key += remote.getAddress().getHostAddress() + ":" + remote.getPort();
+        }
+
+        return key;
     }
 
 }

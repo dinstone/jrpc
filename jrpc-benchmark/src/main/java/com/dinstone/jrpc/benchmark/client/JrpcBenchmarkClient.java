@@ -69,7 +69,7 @@ public class JrpcBenchmarkClient extends AbstractBenchmarkClient {
     }
 
     public static void main(String[] args) {
-        System.out.println("Usage:[TransportSchema] [Concurrents] ");
+        System.out.println("Usage:[TransportSchema] [Concurrents]");
 
         CaseConfig caseConfig = new CaseConfig();
         if (args.length == 2) {
