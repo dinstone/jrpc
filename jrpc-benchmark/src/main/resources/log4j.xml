@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
+	<!-- This default ConsoleAppender is used to log all NON perf4j messages to System.out -->
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSS} [%-5p] %l - %m%n" />
+		</layout>
+	</appender>
+	<appender name="file" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="logs/jrpc.log" />
+		<param name="Append" value="true" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss,SSS} [%-5p] %l - %m%n" />
+		</layout>
+	</appender>
+	<logger name="metrics" additivity="false">
+		<level value="info" />
+		<appender-ref ref="file" />
+	</logger>
+	<root>
+		<level value="info" />
+		<appender-ref ref="console" />
+		<appender-ref ref="file" />
+	</root>
+</log4j:configuration>

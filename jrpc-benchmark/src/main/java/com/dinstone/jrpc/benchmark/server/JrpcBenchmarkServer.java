@@ -21,7 +21,6 @@ import java.io.IOException;
 import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.benchmark.BenchmarkService;
-import com.dinstone.jrpc.example.MetricService;
 
 public class JrpcBenchmarkServer {
 

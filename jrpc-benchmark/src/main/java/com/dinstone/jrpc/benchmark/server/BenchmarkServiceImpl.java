@@ -17,7 +17,6 @@ package com.dinstone.jrpc.benchmark.server;
 
 import com.codahale.metrics.Counter;
 import com.dinstone.jrpc.benchmark.BenchmarkService;
-import com.dinstone.jrpc.example.MetricService;
 
 public class BenchmarkServiceImpl implements BenchmarkService {
 

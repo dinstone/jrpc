@@ -77,7 +77,22 @@ public class JrpcBenchmarkClient extends AbstractBenchmarkClient {
             caseConfig.concurrents = Integer.parseInt(args[1]);
         }
 
-        // caseConfig.dataLengthKb=1;
+        caseConfig.dataLength = 1024;
+        new JrpcBenchmarkClient(caseConfig).execute();
+
+        caseConfig.dataLength = 5 * 1024;
+        new JrpcBenchmarkClient(caseConfig).execute();
+
+        caseConfig.dataLength = 10 * 1024;
+        new JrpcBenchmarkClient(caseConfig).execute();
+
+        caseConfig.dataLength = 20 * 1024;
+        new JrpcBenchmarkClient(caseConfig).execute();
+
+        caseConfig.dataLength = 30 * 1024;
+        new JrpcBenchmarkClient(caseConfig).execute();
+
+        caseConfig.dataLength = 50 * 1024;
         new JrpcBenchmarkClient(caseConfig).execute();
     }
 }

@@ -225,5 +225,6 @@
 		<module>jrpc-registry-zookeeper</module>
 		<module>jrpc-spring</module>
 		<module>jrpc-example</module>
+		<module>jrpc-benchmark</module>
 	</modules>
 </project>
