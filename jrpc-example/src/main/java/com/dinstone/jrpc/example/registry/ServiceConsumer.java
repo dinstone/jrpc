@@ -37,13 +37,16 @@ public class ServiceConsumer {
         builder.transportConfig().setSchema("mina").setProperties(props);
 
         Client client = builder.build();
-        HelloService helloService = client.importService(HelloService.class);
 
-        testHot(helloService);
+        try {
+            HelloService helloService = client.importService(HelloService.class);
+            
+            testHot(helloService);
 
-        testSend1k(helloService);
-
-        client.destroy();
+            testSend1k(helloService);
+        } finally {
+            client.destroy();
+        }
     }
 
     protected static void testHot(HelloService service) {

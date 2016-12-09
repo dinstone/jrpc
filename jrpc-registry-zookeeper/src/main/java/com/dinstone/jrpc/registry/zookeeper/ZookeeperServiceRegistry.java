@@ -41,24 +41,13 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
 
     private final ServiceDescriptionSerializer serializer = new ServiceDescriptionSerializer();
 
-    private final ConnectionStateListener connectionStateListener = new ConnectionStateListener() {
-
-        @Override
-        public void stateChanged(CuratorFramework client, ConnectionState newState) {
-            if ((newState == ConnectionState.RECONNECTED) || (newState == ConnectionState.CONNECTED)) {
-                try {
-                    LOG.debug("Re-registering due to reconnection");
-                    reRegister();
-                } catch (Exception e) {
-                    LOG.error("Could not re-register instances after reconnection", e);
-                }
-            }
-        }
-    };
+    private volatile ConnectionState connectionState = ConnectionState.LOST;
 
     private final String basePath;
 
     private final CuratorFramework client;
+
+    private ConnectionStateListener connectionStateListener;
 
     public ZookeeperServiceRegistry(ZookeeperRegistryConfig registryConfig) {
         String zkNodes = registryConfig.getZookeeperNodes();
@@ -72,17 +61,38 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
         }
         this.basePath = basePath;
 
-        client = CuratorFrameworkFactory.newClient(zkNodes,
+        // build CuratorFramework Object;
+        this.client = CuratorFrameworkFactory.newClient(zkNodes,
             new ExponentialBackoffRetry(registryConfig.getBaseSleepTime(), registryConfig.getMaxRetries()));
-        client.start();
 
-        client.getConnectionStateListenable().addListener(connectionStateListener);
+        // add connection state change listener
+        this.connectionStateListener = new ConnectionStateListener() {
+
+            @Override
+            public void stateChanged(CuratorFramework client, ConnectionState newState) {
+                connectionState = newState;
+                if ((newState == ConnectionState.RECONNECTED) || (newState == ConnectionState.CONNECTED)) {
+                    try {
+                        LOG.debug("Re-registering due to reconnection");
+                        reRegister();
+                    } catch (Exception e) {
+                        LOG.error("Could not re-register instances after reconnection", e);
+                    }
+                }
+            }
+        };
+        this.client.getConnectionStateListenable().addListener(connectionStateListener);
+
+        // start CuratorFramework service;
+        this.client.start();
     }
 
     @Override
     public void register(ServiceDescription service) throws Exception {
         services.put(service.getId(), service);
-        internalRegister(service);
+        if (connectionState == ConnectionState.CONNECTED) {
+            internalRegister(service);
+        }
     }
 
     @Override
@@ -97,12 +107,14 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
     }
 
     public void destroy() {
-        for (ServiceDescription service : services.values()) {
-            String path = pathForProvider(service.getServiceName(), service.getId());
-            try {
-                client.delete().forPath(path);
-            } catch (Exception ignore) {
-                // ignore
+        if (connectionState == ConnectionState.CONNECTED) {
+            for (ServiceDescription service : services.values()) {
+                String path = pathForProvider(service.getServiceName(), service.getId());
+                try {
+                    client.delete().forPath(path);
+                } catch (Exception ignore) {
+                    // ignore
+                }
             }
         }
         services.clear();

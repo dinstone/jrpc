@@ -4,7 +4,7 @@
 
 	<xsd:import namespace="http://www.springframework.org/schema/beans" schemaLocation="http://www.springframework.org/schema/beans/spring-beans-3.0.xsd" />
 
-	<xsd:complexType name="ConfigType">
+	<xsd:complexType name="SchemaConfigType">
 		<xsd:sequence>
 			<xsd:element name="property" minOccurs="0" maxOccurs="unbounded">
 				<xsd:complexType>
@@ -39,8 +39,8 @@
 			<xsd:complexContent>
 				<xsd:extension base="beans:identifiedType">
 					<xsd:all>
-						<xsd:element name="registry" type="ConfigType" minOccurs="0" maxOccurs="1" />
-						<xsd:element name="transport" type="ConfigType" minOccurs="0" maxOccurs="1" />
+						<xsd:element name="registry" type="SchemaConfigType" minOccurs="0" maxOccurs="1" />
+						<xsd:element name="transport" type="SchemaConfigType" minOccurs="0" maxOccurs="1" />
 					</xsd:all>
 					<xsd:attribute name="name" type="xsd:string" />
 					<xsd:anyAttribute />
@@ -69,8 +69,8 @@
 			<xsd:complexContent>
 				<xsd:extension base="beans:identifiedType">
 					<xsd:all>
-						<xsd:element name="registry" type="ConfigType" minOccurs="0" maxOccurs="1" />
-						<xsd:element name="transport" type="ConfigType" minOccurs="0" maxOccurs="1" />
+						<xsd:element name="registry" type="SchemaConfigType" minOccurs="0" maxOccurs="1" />
+						<xsd:element name="transport" type="SchemaConfigType" minOccurs="0" maxOccurs="1" />
 					</xsd:all>
 					<xsd:attribute name="name" type="xsd:string" />
 					<xsd:anyAttribute />

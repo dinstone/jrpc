@@ -19,8 +19,8 @@ package com.dinstone.jrpc.registry.zookeeper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -30,25 +30,35 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache.StartMode;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.curator.utils.ThreadUtils;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.registry.ServiceDescription;
 
 public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.ServiceDiscovery {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ZookeeperServiceDiscovery.class);
+
     private final ServiceDescriptionSerializer serializer = new ServiceDescriptionSerializer();
 
-    private final Map<String, ServiceCache> serviceCacheMap = new ConcurrentHashMap<String, ServiceCache>();
+    private final ConcurrentHashMap<String, ServiceCache> serviceCacheMap = new ConcurrentHashMap<>();
+
+    private final ConcurrentLinkedQueue<ServiceDescription> listenServices = new ConcurrentLinkedQueue<>();
+
+    private volatile ConnectionState connectionState = ConnectionState.LOST;
 
     private final String basePath;
 
     private final CuratorFramework client;
 
-    private final ThreadFactory threadFactory;
+    private ConnectionStateListener connectionStateListener;
 
     public ZookeeperServiceDiscovery(ZookeeperRegistryConfig discoveryConfig) {
         String zkNodes = discoveryConfig.getZookeeperNodes();
@@ -62,11 +72,38 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
         }
         this.basePath = basePath;
 
-        client = CuratorFrameworkFactory.newClient(zkNodes,
+        // build CuratorFramework Object;
+        this.client = CuratorFrameworkFactory.newClient(zkNodes,
             new ExponentialBackoffRetry(discoveryConfig.getBaseSleepTime(), discoveryConfig.getMaxRetries()));
-        client.start();
 
-        threadFactory = ThreadUtils.newThreadFactory("ServiceDiscovery");
+        // add connection state change listener
+        this.connectionStateListener = new ConnectionStateListener() {
+
+            @Override
+            public void stateChanged(CuratorFramework client, ConnectionState newState) {
+                connectionState = newState;
+                if ((newState == ConnectionState.RECONNECTED) || (newState == ConnectionState.CONNECTED)) {
+                    try {
+                        watch();
+                    } catch (Exception e) {
+                        LOG.error("Could not re-register instances after reconnection", e);
+                    }
+                }
+            }
+        };
+        this.client.getConnectionStateListenable().addListener(connectionStateListener);
+
+        // start CuratorFramework service;
+        this.client.start();
+    }
+
+    protected void watch() throws Exception {
+        ServiceDescription serviceDescription = null;
+        while ((serviceDescription = listenServices.peek()) != null) {
+            internalListen(serviceDescription);
+
+            listenServices.remove();
+        }
     }
 
     @Override
@@ -90,12 +127,26 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
 
     @Override
     public void listen(ServiceDescription description) throws Exception {
-        ServiceCache serviceCache = serviceCacheMap.get(description.getServiceName());
-        if (serviceCache == null) {
-            String path = pathForProviders(description.getServiceName());
-            serviceCache = new ServiceCache(client, path, threadFactory).build();
-            serviceCacheMap.put(description.getServiceName(), serviceCache);
+        if (connectionState != ConnectionState.CONNECTED) {
+            listenServices.add(description);
+        } else {
+            internalListen(description);
         }
+    }
+
+    protected void internalListen(ServiceDescription description) throws Exception {
+        ServiceCache serviceCache = null;
+
+        synchronized (serviceCacheMap) {
+            serviceCache = serviceCacheMap.get(description.getServiceName());
+            if (serviceCache == null) {
+                String providerPath = pathForProviders(description.getServiceName());
+                ThreadFactory threadFactory = ThreadUtils.newThreadFactory("ServiceDiscovery");
+                serviceCache = new ServiceCache(client, providerPath, threadFactory).build();
+                serviceCacheMap.put(description.getServiceName(), serviceCache);
+            }
+        }
+
         serviceCache.addConsumer(description);
     }
 
@@ -141,6 +192,7 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
 
         public ServiceCache build() throws Exception {
             cache.start(StartMode.BUILD_INITIAL_CACHE);
+            // init cache data
             for (ChildData childData : cache.getCurrentData()) {
                 addProvider(childData, true);
             }
@@ -149,21 +201,28 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
         }
 
         public void addConsumer(ServiceDescription service) throws Exception {
-            byte[] bytes = serializer.serialize(service);
-            String path = pathForConsumer(service.getServiceName(), service.getId());
-
-            final int MAX_TRIES = 2;
-            boolean isDone = false;
-            for (int i = 0; !isDone && (i < MAX_TRIES); ++i) {
-                try {
-                    client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, bytes);
-                    isDone = true;
-                } catch (KeeperException.NodeExistsException e) {
-                    client.delete().forPath(path); // must delete then re-create so that watchers fire
+            synchronized (consumers) {
+                if (consumers.containsKey(service.getId())) {
+                    return;
                 }
-            }
 
-            consumers.put(service.getId(), service);
+                byte[] bytes = serializer.serialize(service);
+                String path = pathForConsumer(service.getServiceName(), service.getId());
+
+                final int MAX_TRIES = 2;
+                boolean isDone = false;
+                for (int i = 0; !isDone && (i < MAX_TRIES); ++i) {
+                    try {
+                        client.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, bytes);
+                        isDone = true;
+                    } catch (KeeperException.NodeExistsException e) {
+                        // must delete then re-create so that watchers fire
+                        client.delete().forPath(path);
+                    }
+                }
+
+                consumers.put(service.getId(), service);
+            }
         }
 
         private void addProvider(ChildData childData, boolean onlyIfAbsent) throws Exception {
@@ -196,11 +255,13 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
         }
 
         public void destroy() {
-            for (ServiceDescription consumer : consumers.values()) {
-                String path = pathForConsumer(consumer.getServiceName(), consumer.getId());
-                try {
-                    client.delete().forPath(path);
-                } catch (Exception e) {
+            if (connectionState == ConnectionState.CONNECTED) {
+                for (ServiceDescription consumer : consumers.values()) {
+                    String path = pathForConsumer(consumer.getServiceName(), consumer.getId());
+                    try {
+                        client.delete().forPath(path);
+                    } catch (Exception e) {
+                    }
                 }
             }
 
