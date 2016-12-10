@@ -17,6 +17,7 @@
 package com.dinstone.jrpc.transport.netty4;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
@@ -28,9 +29,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -45,11 +49,17 @@ import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.transport.AbstractAcceptance;
 import com.dinstone.jrpc.transport.Acceptance;
+import com.dinstone.jrpc.transport.NetworkAddressUtil;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class NettyAcceptance extends AbstractAcceptance {
 
     private static final Logger LOG = LoggerFactory.getLogger(NettyAcceptance.class);
+
+    private static final AttributeKey<String> LOCAL_REMOTE_ADDRESS_KEY = AttributeKey
+        .valueOf("local-remote-address-key");
+
+    private final ConcurrentMap<String, Channel> connectionMap = new ConcurrentHashMap<>();
 
     private TransportConfig transportConfig;
 
@@ -125,7 +135,9 @@ public class NettyAcceptance extends AbstractAcceptance {
         }
     }
 
-    public class NettyServerHandler extends ChannelInboundHandlerAdapter {
+    private class NettyServerHandler extends ChannelInboundHandlerAdapter {
+
+        private final int maxConnectionCount = transportConfig.getMaxConnectionCount();
 
         @Override
         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -137,6 +149,32 @@ public class NettyAcceptance extends AbstractAcceptance {
             } else {
                 super.userEventTriggered(ctx, evt);
             }
+        }
+
+        @Override
+        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+            int currentConnectioncount = connectionMap.size();
+            if (currentConnectioncount >= maxConnectionCount) {
+                ctx.close();
+                LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount, currentConnectioncount);
+            } else {
+                Channel channel = ctx.channel();
+                String addressLabel = NetworkAddressUtil.addressLabel(channel.remoteAddress(), channel.localAddress());
+                channel.attr(LOCAL_REMOTE_ADDRESS_KEY).set(addressLabel);
+                connectionMap.put(addressLabel, channel);
+
+                super.channelActive(ctx);
+            }
+        }
+
+        @Override
+        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+            String connectionKey = ctx.channel().attr(LOCAL_REMOTE_ADDRESS_KEY).get();
+            if (connectionKey != null) {
+                connectionMap.remove(connectionKey);
+            }
+
+            super.channelInactive(ctx);
         }
 
         @Override

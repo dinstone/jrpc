@@ -52,6 +52,7 @@ public class MinaConnection implements Connection {
         try {
             connector = new MinaConnector(isa, config);
             ioSession = connector.createSession();
+            SessionUtil.setResultFutureMap(ioSession);
         } catch (RuntimeException e) {
             destroy();
 

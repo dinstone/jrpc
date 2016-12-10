@@ -20,7 +20,6 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 
 import org.apache.mina.core.filterchain.DefaultIoFilterChainBuilder;
-import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -123,9 +122,7 @@ public class MinaConnector {
         // create session
         // LOG.debug("create session to {} ", ioConnector.getDefaultRemoteAddress());
         // long s = System.currentTimeMillis();
-        ConnectFuture future = ioConnector.connect().awaitUninterruptibly();
-        IoSession session = future.getSession();
-        SessionUtil.setResultFutureMap(session);
+        IoSession session = ioConnector.connect().awaitUninterruptibly().getSession();
         // long t = System.currentTimeMillis() - s;
         LOG.debug("session connect {} to {}", session.getLocalAddress(), session.getRemoteAddress());
         return session;
@@ -141,8 +138,10 @@ public class MinaConnector {
         public void sessionClosed(IoSession session) throws Exception {
             // LOG.debug("Session[{}] is closed", session.getId());
             Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(session);
-            for (ResultFuture future : futureMap.values()) {
-                future.setResult(new Result(400, "connection is closed"));
+            if (futureMap != null) {
+                for (ResultFuture future : futureMap.values()) {
+                    future.setResult(new Result(400, "connection is closed"));
+                }
             }
         }
 
@@ -152,12 +151,6 @@ public class MinaConnector {
             session.close(true);
         }
 
-        /**
-         * {@inheritDoc}
-         * 
-         * @see org.apache.mina.core.service.IoHandlerAdapter#messageReceived(org.apache.mina.core.session.IoSession,
-         *      java.lang.Object)
-         */
         @Override
         public void messageReceived(IoSession session, Object message) throws Exception {
             handle(session, (Response) message);

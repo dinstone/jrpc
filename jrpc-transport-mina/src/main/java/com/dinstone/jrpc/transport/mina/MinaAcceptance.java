@@ -140,13 +140,14 @@ public class MinaAcceptance extends AbstractAcceptance {
         @Override
         public void sessionCreated(IoSession session) throws Exception {
             int currentConnectioncount = connectionMap.size();
-            if (currentConnectioncount > maxConnectionCount) {
+            if (currentConnectioncount >= maxConnectionCount) {
                 session.close(true);
                 LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount, currentConnectioncount);
             } else {
-                String key = NetworkAddressUtil.addressLabel(session.getRemoteAddress(), session.getLocalAddress());
-                session.setAttribute(LOCAL_REMOTE_ADDRESS_KEY, key);
-                connectionMap.put(key, session);
+                String addressLabel = NetworkAddressUtil.addressLabel(session.getRemoteAddress(),
+                    session.getLocalAddress());
+                session.setAttribute(LOCAL_REMOTE_ADDRESS_KEY, addressLabel);
+                connectionMap.put(addressLabel, session);
             }
         }
 
@@ -180,8 +181,10 @@ public class MinaAcceptance extends AbstractAcceptance {
          */
         @Override
         public void sessionClosed(IoSession session) throws Exception {
-            String key = (String) session.getAttribute(LOCAL_REMOTE_ADDRESS_KEY);
-            connectionMap.remove(key);
+            String connectionKey = (String) session.getAttribute(LOCAL_REMOTE_ADDRESS_KEY);
+            if (connectionKey != null) {
+                connectionMap.remove(connectionKey);
+            }
         }
 
         @Override
