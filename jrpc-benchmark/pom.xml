@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.dinstone.jrpc</groupId>
-		<artifactId>jrpc-parent</artifactId>
+		<artifactId>jrpc</artifactId>
 		<version>3.0.0</version>
 	</parent>
 	<artifactId>jrpc-benchmark</artifactId>

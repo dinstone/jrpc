@@ -80,7 +80,7 @@ public class Server implements ServiceExporter {
     public synchronized Server start() {
         acceptance.bind();
 
-        LOG.info("JRPC server is started", implementBinding.getServiceAddress());
+        LOG.info("JRPC server is started on {}", implementBinding.getServiceAddress());
 
         return this;
     }
@@ -88,7 +88,7 @@ public class Server implements ServiceExporter {
     public synchronized Server stop() {
         destroy();
 
-        LOG.info("JRPC server is stopped", implementBinding.getServiceAddress());
+        LOG.info("JRPC server is stopped on {}", implementBinding.getServiceAddress());
 
         return this;
     }
@@ -114,14 +114,14 @@ public class Server implements ServiceExporter {
 
     @Override
     public void destroy() {
-        if (acceptance != null) {
-            acceptance.destroy();
+        if (implementBinding != null) {
+            implementBinding.destroy();
         }
         if (serviceExporter != null) {
             serviceExporter.destroy();
         }
-        if (implementBinding != null) {
-            implementBinding.destroy();
+        if (acceptance != null) {
+            acceptance.destroy();
         }
     }
 
