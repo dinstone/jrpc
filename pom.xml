@@ -25,7 +25,7 @@
 	</scm>
 	<issueManagement>
 		<system>github</system>
-		<url>https://github.com/dinstone/com.dinstone.beanstalkc/issues</url>
+		<url>https://github.com/dinstone/jrpc/issues</url>
 	</issueManagement>
 	<developers>
 		<developer>

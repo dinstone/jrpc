@@ -53,13 +53,13 @@ public class Configuration {
     protected final Properties properties = new Properties();
 
     /**
-     * 
+     *
      */
     public Configuration() {
     }
 
     /**
-     * 
+     *
      */
     public Configuration(String configLocation) {
         if (configLocation == null) {
@@ -74,18 +74,12 @@ public class Configuration {
     }
 
     public Configuration(Configuration config) {
-        merge(config);
+        mergeConfiguration(config);
     }
 
-    public void merge(Configuration config) {
+    public void mergeConfiguration(Configuration config) {
         if (config != null) {
             this.properties.putAll(config.properties);
-        }
-    }
-
-    public void setProperties(Properties other) {
-        if (other != null) {
-            this.properties.putAll(other);
         }
     }
 
@@ -236,7 +230,7 @@ public class Configuration {
 
     /**
      * Resolve ${...} placeholders in the given text, replacing them with corresponding system property values.
-     * 
+     *
      * @param text
      *        the String to resolve
      * @return the resolved String
@@ -278,9 +272,21 @@ public class Configuration {
         return buf.toString();
     }
 
+    public Configuration setProperties(Properties other) {
+        if (other != null) {
+            this.properties.putAll(other);
+        }
+
+        return this;
+    }
+
+    public Properties getProperties() {
+        return new Properties(properties);
+    }
+
     /**
      * Get the value of the <code>name</code> property, <code>null</code> if no such property exists.
-     * 
+     *
      * @param name
      * @return
      */
@@ -290,7 +296,7 @@ public class Configuration {
 
     /**
      * Get the value of the <code>name</code> property, <code>defaultValue</code> if no such property exists.
-     * 
+     *
      * @param name
      * @param defaultValue
      * @return
@@ -302,20 +308,22 @@ public class Configuration {
 
     /**
      * Set the <code>value</code> of the <code>name</code> property.
-     * 
+     *
      * @param name
      *        property name.
      * @param value
      *        property value.
+     * @return
      */
-    public void set(String name, String value) {
+    public Configuration set(String name, String value) {
         properties.setProperty(name, value);
+        return this;
     }
 
     /**
      * Get the value of the <code>name</code> property as an <code>int</code>. If no such property exists, or if the
      * specified value is not a valid <code>int</code>, then <code>defaultValue</code> is returned.
-     * 
+     *
      * @param name
      * @param defaultValue
      * @return
@@ -338,20 +346,22 @@ public class Configuration {
 
     /**
      * Set the value of the <code>name</code> property to an <code>int</code>.
-     * 
+     *
      * @param name
      *        property name.
      * @param value
      *        <code>int</code> value of the property.
+     * @return
      */
-    public void setInt(String name, int value) {
+    public Configuration setInt(String name, int value) {
         set(name, Integer.toString(value));
+        return this;
     }
 
     /**
      * Get the value of the <code>name</code> property as a <code>long</code>. If no such property is specified, or if
      * the specified value is not a valid <code>long</code>, then <code>defaultValue</code> is returned.
-     * 
+     *
      * @param name
      *        property name.
      * @param defaultValue
@@ -376,14 +386,16 @@ public class Configuration {
 
     /**
      * Set the value of the <code>name</code> property to a <code>long</code>.
-     * 
+     *
      * @param name
      *        property name.
      * @param value
      *        <code>long</code> value of the property.
+     * @return
      */
-    public void setLong(String name, long value) {
+    public Configuration setLong(String name, long value) {
         set(name, Long.toString(value));
+        return this;
     }
 
     private String getHexDigits(String value) {
@@ -407,7 +419,7 @@ public class Configuration {
     /**
      * Get the value of the <code>name</code> property as a <code>float</code>. If no such property is specified, or if
      * the specified value is not a valid <code>float</code>, then <code>defaultValue</code> is returned.
-     * 
+     *
      * @param name
      *        property name.
      * @param defaultValue
@@ -428,20 +440,22 @@ public class Configuration {
 
     /**
      * Set the value of the <code>name</code> property to a <code>float</code>.
-     * 
+     *
      * @param name
      *        property name.
      * @param value
      *        property value.
+     * @return
      */
-    public void setFloat(String name, float value) {
+    public Configuration setFloat(String name, float value) {
         set(name, Float.toString(value));
+        return this;
     }
 
     /**
      * Get the value of the <code>name</code> property as a <code>boolean</code> . If no such property is specified, or
      * if the specified value is not a valid <code>boolean</code>, then <code>defaultValue</code> is returned.
-     * 
+     *
      * @param name
      *        property name.
      * @param defaultValue
@@ -457,6 +471,11 @@ public class Configuration {
         } else {
             return defaultValue;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Configuration=" + properties;
     }
 
 }
