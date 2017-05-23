@@ -16,10 +16,13 @@
 
 package com.dinstone.jrpc.transport;
 
+import java.util.Properties;
+
 import com.dinstone.jrpc.Configuration;
+import com.dinstone.jrpc.SchemaConfig;
 import com.dinstone.jrpc.serializer.SerializeType;
 
-public class TransportConfig extends Configuration {
+public class TransportConfig extends SchemaConfig {
 
     /** max size */
     private static final String MAX_SIZE = "rpc.max.size";
@@ -40,9 +43,6 @@ public class TransportConfig extends Configuration {
     private static final String NIO_PROCESSOR_COUNT = "nio.processor.count";
 
     private static final String MAX_CONNECTION_COUNT = "max.connection.count";
-
-    /** transport schema, default is 'mina' */
-    private String schema = "mina";
 
     public TransportConfig() {
     }
@@ -84,18 +84,6 @@ public class TransportConfig extends Configuration {
         setInt(CONNECT_TIMEOUT, timeout);
 
         return this;
-    }
-
-    public TransportConfig setSchema(String schema) {
-        if (schema != null && !schema.isEmpty()) {
-            this.schema = schema;
-        }
-
-        return this;
-    }
-
-    public String getSchema() {
-        return schema;
     }
 
     public int getHeartbeatIntervalSeconds() {
@@ -148,6 +136,19 @@ public class TransportConfig extends Configuration {
         if (count > 0) {
             setInt(MAX_CONNECTION_COUNT, count);
         }
+        return this;
+    }
+
+    @Override
+    public TransportConfig setProperties(Properties other) {
+        super.setProperties(other);
+
+        return this;
+    }
+
+    public TransportConfig setSchema(String schema) {
+        super.setSchema(schema);
+
         return this;
     }
 

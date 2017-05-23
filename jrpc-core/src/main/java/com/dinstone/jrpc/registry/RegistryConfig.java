@@ -16,11 +16,12 @@
 
 package com.dinstone.jrpc.registry;
 
+import java.util.Properties;
+
 import com.dinstone.jrpc.Configuration;
+import com.dinstone.jrpc.SchemaConfig;
 
-public class RegistryConfig extends Configuration {
-
-    private String schema;
+public class RegistryConfig extends SchemaConfig {
 
     public RegistryConfig() {
         super();
@@ -34,12 +35,17 @@ public class RegistryConfig extends Configuration {
         super(configLocation);
     }
 
-    public String getSchema() {
-        return this.schema;
+    @Override
+    public RegistryConfig setProperties(Properties other) {
+        super.setProperties(other);
+
+        return this;
     }
 
+    @Override
     public RegistryConfig setSchema(String schema) {
-        this.schema = schema;
+        super.setSchema(schema);
+
         return this;
     }
 

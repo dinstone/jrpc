@@ -22,6 +22,9 @@ import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.ClientBuilder;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
+import com.dinstone.jrpc.registry.RegistryConfig;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ClientFactoryBean extends AbstractFactoryBean<Client> {
 
@@ -80,16 +83,21 @@ public class ClientFactoryBean extends AbstractFactoryBean<Client> {
         ClientBuilder builder = new ClientBuilder().bind("localhost", 4444);
         builder.bind(transportBean.getAddress());
 
-        builder.transportConfig().setSchema(transportBean.getSchema());
-        builder.transportConfig().setProperties(transportBean.getProperties());
+        TransportConfig transportConfig = new TransportConfig();
+        transportConfig.setSchema(transportBean.getSchema());
+        transportConfig.setProperties(transportBean.getProperties());
+        builder.transportConfig(transportConfig);
 
         if (registryBean.getSchema() != null && !registryBean.getSchema().isEmpty()) {
-            builder.registryConfig().setSchema(registryBean.getSchema());
-            builder.registryConfig().setProperties(registryBean.getProperties());
+            RegistryConfig registryConfig = new RegistryConfig();
+            registryConfig.setSchema(registryBean.getSchema());
+            registryConfig.setProperties(registryBean.getProperties());
+            builder.registryConfig(registryConfig);
         }
 
-        builder.endpointConfig().setEndpointId(id);
-        builder.endpointConfig().setEndpointName(name);
+        EndpointConfig endpointConfig = new EndpointConfig();
+        endpointConfig.setEndpointId(id).setEndpointName(name);
+        builder.endpointConfig(endpointConfig);
 
         return builder.build();
     }

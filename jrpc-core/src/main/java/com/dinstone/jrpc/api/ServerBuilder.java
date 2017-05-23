@@ -39,18 +39,6 @@ public class ServerBuilder {
 
     private InetSocketAddress serviceAddress;
 
-    public EndpointConfig endpointConfig() {
-        return endpointConfig;
-    }
-
-    public RegistryConfig registryConfig() {
-        return registryConfig;
-    }
-
-    public TransportConfig transportConfig() {
-        return transportConfig;
-    }
-
     public Server build() {
         return new Server(endpointConfig, registryConfig, transportConfig, serviceAddress);
     }
@@ -79,6 +67,28 @@ public class ServerBuilder {
         }
 
         return bind(socketAddress);
+    }
+
+    public ServerBuilder endpointConfig(EndpointConfig endpointConfig) {
+        this.endpointConfig.mergeConfiguration(endpointConfig);
+
+        return this;
+    }
+
+    public ServerBuilder registryConfig(RegistryConfig registryConfig) {
+        this.registryConfig.mergeConfiguration(registryConfig);
+
+        return this;
+    }
+
+    public ServerBuilder transportConfig(TransportConfig transportConfig) {
+        this.transportConfig.mergeConfiguration(transportConfig);
+
+        return this;
+    }
+
+    public void setServiceAddress(InetSocketAddress serviceAddress) {
+        this.serviceAddress = serviceAddress;
     }
 
     private InetSocketAddress parseServiceAddress(String address) {

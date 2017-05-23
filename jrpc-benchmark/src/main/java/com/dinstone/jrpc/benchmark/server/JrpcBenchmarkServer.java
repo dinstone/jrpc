@@ -21,6 +21,7 @@ import java.io.IOException;
 import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.benchmark.BenchmarkService;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class JrpcBenchmarkServer {
 
@@ -42,10 +43,12 @@ public class JrpcBenchmarkServer {
         System.out.println("NioProcessorCount=" + nioCount + ",BusinessProcessorCount=" + businessCount
                 + ",TransportSchema=" + transportSchema);
 
+        TransportConfig transportConfig = new TransportConfig();
+        transportConfig.setSchema(transportSchema).setNioProcessorCount(nioCount);
+        transportConfig.setBusinessProcessorCount(businessCount);
+
         ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
-        builder.transportConfig().setSchema(transportSchema).setNioProcessorCount(nioCount)
-            .setBusinessProcessorCount(businessCount);
-        Server server = builder.build().start();
+        Server server = builder.transportConfig(transportConfig).build().start();
 
         MetricService metricService = new MetricService();
         server.exportService(BenchmarkService.class, new BenchmarkServiceImpl(metricService));

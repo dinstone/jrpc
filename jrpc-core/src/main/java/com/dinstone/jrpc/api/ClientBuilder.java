@@ -63,16 +63,22 @@ public class ClientBuilder {
         return new Client(endpointConfig, registryConfig, transportConfig, serviceAddresses);
     }
 
-    public EndpointConfig endpointConfig() {
-        return endpointConfig;
+    public ClientBuilder endpointConfig(EndpointConfig endpointConfig) {
+        this.endpointConfig.mergeConfiguration(endpointConfig);
+
+        return this;
     }
 
-    public RegistryConfig registryConfig() {
-        return registryConfig;
+    public ClientBuilder registryConfig(RegistryConfig registryConfig) {
+        this.registryConfig.mergeConfiguration(registryConfig);
+
+        return this;
     }
 
-    public TransportConfig transportConfig() {
-        return transportConfig;
+    public ClientBuilder transportConfig(TransportConfig transportConfig) {
+        this.transportConfig.mergeConfiguration(transportConfig);
+
+        return this;
     }
 
 }

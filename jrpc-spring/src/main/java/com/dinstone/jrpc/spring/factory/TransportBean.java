@@ -16,6 +16,7 @@
 
 package com.dinstone.jrpc.spring.factory;
 
+import com.dinstone.jrpc.SchemaConfig;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class TransportBean {
@@ -60,7 +61,7 @@ public class TransportBean {
         return config;
     }
 
-    public void setConfig(TransportConfig config) {
+    public void setConfig(SchemaConfig config) {
         if (config != null) {
             this.config = new TransportConfig(config);
         }

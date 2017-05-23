@@ -21,9 +21,12 @@ import java.util.Properties;
 
 import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServerBuilder;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.example.HelloService;
 import com.dinstone.jrpc.example.HelloServiceImpl;
 import com.dinstone.jrpc.example.MetricService;
+import com.dinstone.jrpc.registry.RegistryConfig;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ServiceProvider {
 
@@ -34,23 +37,24 @@ public class ServiceProvider {
 
         ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
         // setting endpoint config
-        builder.endpointConfig().setEndpointId("provider-1").setEndpointName("example-registry-provider");
+        EndpointConfig econfig = new EndpointConfig().setEndpointId("provider-1")
+            .setEndpointName("example-registry-provider");
 
         // setting registry config
         Properties props = new Properties();
         props.setProperty("zookeeper.node.list", "localhost:2181");
-        builder.registryConfig().setSchema("zookeeper").setProperties(props);
+        RegistryConfig rconfig = new RegistryConfig().setSchema("zookeeper").setProperties(props);
 
         // setting transport config
         props = new Properties();
         props.setProperty("rpc.handler.count", "2");
-        builder.transportConfig().setSchema("mina").setProperties(props);
+        TransportConfig tconfig = new TransportConfig().setSchema("mina").setProperties(props);
 
         Server server = null;
         MetricService metricService = new MetricService();
         try {
             // build server and start it
-            server = builder.build().start();
+            server = builder.endpointConfig(econfig).registryConfig(rconfig).transportConfig(tconfig).build().start();
 
             // export service
             server.exportService(HelloService.class, new HelloServiceImpl(metricService));

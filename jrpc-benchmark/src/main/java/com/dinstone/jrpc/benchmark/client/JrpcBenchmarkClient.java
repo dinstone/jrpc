@@ -23,6 +23,7 @@ import java.util.concurrent.CyclicBarrier;
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.ClientBuilder;
 import com.dinstone.jrpc.benchmark.BenchmarkService;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class JrpcBenchmarkClient extends AbstractBenchmarkClient {
 
@@ -36,10 +37,10 @@ public class JrpcBenchmarkClient extends AbstractBenchmarkClient {
 
     @Override
     protected void init() {
-        ClientBuilder builder = new ClientBuilder().bind("localhost", 4444);
-        builder.transportConfig().setSchema(caseConfig.transportSchema).setConnectPoolSize(caseConfig.connectPoolSize);
+        TransportConfig transportConfig = new TransportConfig();
+        transportConfig.setSchema(caseConfig.transportSchema).setConnectPoolSize(caseConfig.connectPoolSize);
 
-        client = builder.build();
+        client = new ClientBuilder().bind("localhost", 4444).transportConfig(transportConfig).build();
         benchmarkService = client.importService(BenchmarkService.class);
     }
 

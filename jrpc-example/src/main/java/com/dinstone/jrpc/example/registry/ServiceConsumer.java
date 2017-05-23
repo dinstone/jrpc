@@ -20,27 +20,35 @@ import java.util.Properties;
 
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.ClientBuilder;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.example.HelloService;
+import com.dinstone.jrpc.registry.RegistryConfig;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ServiceConsumer {
 
     public static void main(String[] args) {
         ClientBuilder builder = new ClientBuilder();
-        builder.endpointConfig().setEndpointId("consumer-1").setEndpointName("example-registry-consumer");
+        EndpointConfig endpointConfig = new EndpointConfig();
+        endpointConfig.setEndpointId("consumer-1").setEndpointName("example-registry-consumer");
+        builder.endpointConfig(endpointConfig);
 
+        RegistryConfig registryConfig = new RegistryConfig();
         Properties props = new Properties();
         props.setProperty("zookeeper.node.list", "localhost:2181");
-        builder.registryConfig().setSchema("zookeeper").setProperties(props);
+        registryConfig.setSchema("zookeeper").setProperties(props);
+        builder.registryConfig(registryConfig);
 
+        TransportConfig transportConfig = new TransportConfig();
         props = new Properties();
         props.setProperty("rpc.handler.count", "2");
-        builder.transportConfig().setSchema("mina").setProperties(props);
+        transportConfig.setSchema("mina").setProperties(props);
 
         Client client = builder.build();
 
         try {
             HelloService helloService = client.importService(HelloService.class);
-            
+
             testHot(helloService);
 
             testSend1k(helloService);

@@ -23,6 +23,7 @@ import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.example.HelloService;
 import com.dinstone.jrpc.example.HelloServiceImpl;
 import com.dinstone.jrpc.example.MetricService;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ServiceProvider {
 
@@ -32,9 +33,10 @@ public class ServiceProvider {
         // Server server = new Server("localhost", 4444);
         // server.getTransportConfig().setSchema("netty5");
 
-        ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
-        builder.transportConfig().setSchema("netty").setMaxConnectionCount(10);
-        Server server = builder.build().start();
+        TransportConfig transportConfig = new TransportConfig().setSchema("netty").setMaxConnectionCount(10);
+        Server server = new ServerBuilder().transportConfig(transportConfig).bind("localhost", 4444).build();
+        
+        server.start();
 
         MetricService metricService = new MetricService();
         server.exportService(HelloService.class, new HelloServiceImpl(metricService));
