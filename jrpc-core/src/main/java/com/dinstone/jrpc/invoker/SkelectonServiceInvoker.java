@@ -29,7 +29,7 @@ import com.dinstone.jrpc.proxy.ServiceProxy;
 public class SkelectonServiceInvoker implements ServiceInvoker {
 
     @Override
-    public Object invoke(ServiceProxy<?> serviceProxy, Method method, Object[] args) throws Exception {
+    public <T> Object invoke(ServiceProxy<T> serviceProxy, Method method, Object[] args) throws Exception {
         return method.invoke(serviceProxy.getInstance(), args);
     }
 

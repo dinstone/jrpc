@@ -20,7 +20,6 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 import com.dinstone.jrpc.SchemaFactoryLoader;
-import com.dinstone.jrpc.binding.DefaultReferenceBinding;
 import com.dinstone.jrpc.endpoint.DefaultServiceImporter;
 import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.endpoint.ServiceImporter;
@@ -32,8 +31,6 @@ import com.dinstone.jrpc.transport.TransportConfig;
 public class Client implements ServiceImporter {
 
     private ServiceImporter serviceImporter;
-
-    private DefaultReferenceBinding referenceBinding;
 
     Client(EndpointConfig endpointConfig, RegistryConfig registryConfig, TransportConfig transportConfig,
             List<InetSocketAddress> serviceAddresses) {
@@ -61,13 +58,12 @@ public class Client implements ServiceImporter {
         }
 
         // init
-        this.referenceBinding = new DefaultReferenceBinding(registryConfig, serviceAddresses);
-        this.serviceImporter = new DefaultServiceImporter(endpointConfig, transportConfig, referenceBinding);
+        this.serviceImporter = new DefaultServiceImporter(endpointConfig, transportConfig, registryConfig,
+            serviceAddresses);
     }
 
     public void destroy() {
         serviceImporter.destroy();
-        referenceBinding.destroy();
     }
 
     @Override

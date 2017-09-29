@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.invoker;
 
+package com.dinstone.jrpc.invoker;
 
 public interface InvocationHandler {
 
+    <T> Object handle(Invocation<T> invocation) throws Exception;
 }

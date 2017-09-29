@@ -31,6 +31,6 @@ public interface ServiceInvoker {
      * @return
      * @throws Exception
      */
-    Object invoke(ServiceProxy<?> serviceProxy, Method method, Object[] args) throws Exception;
+    <T> Object invoke(ServiceProxy<T> serviceProxy, Method method, Object[] args) throws Exception;
 
 }

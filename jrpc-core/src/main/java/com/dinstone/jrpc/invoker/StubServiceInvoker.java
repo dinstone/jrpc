@@ -17,12 +17,11 @@
 package com.dinstone.jrpc.invoker;
 
 import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
+import java.net.InetSocketAddress;
+import java.util.List;
 
-import com.dinstone.jrpc.binding.ReferenceBinding;
-import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.proxy.ServiceProxy;
-import com.dinstone.jrpc.transport.Connection;
+import com.dinstone.jrpc.registry.ServiceDiscovery;
 import com.dinstone.jrpc.transport.ConnectionManager;
 
 /**
@@ -33,17 +32,16 @@ import com.dinstone.jrpc.transport.ConnectionManager;
  */
 public class StubServiceInvoker implements ServiceInvoker {
 
-    private ReferenceBinding referenceBinding;
+    private InvocationHandler invocationHandler;
 
-    private ConnectionManager connectionManager;
-
-    public StubServiceInvoker(ConnectionManager connectionManager, ReferenceBinding referenceBinding) {
-        this.connectionManager = connectionManager;
-        this.referenceBinding = referenceBinding;
+    public StubServiceInvoker(ConnectionManager connectionManager, ServiceDiscovery serviceDiscovery,
+            List<InetSocketAddress> serviceAddresses) {
+        invocationHandler = new RemoteInvocationHandler(connectionManager);
+        invocationHandler = new LocationInvocationHandler(invocationHandler, serviceDiscovery, serviceAddresses);
     }
 
     @Override
-    public Object invoke(ServiceProxy<?> serviceProxy, Method method, Object[] args) throws Exception {
+    public <T> Object invoke(ServiceProxy<T> serviceProxy, Method method, Object[] args) throws Exception {
         String methodName = method.getName();
         Object instance = serviceProxy.getInstance();
         if (methodName.equals("hashCode")) {
@@ -56,14 +54,7 @@ public class StubServiceInvoker implements ServiceInvoker {
             return serviceProxy.getService();
         }
 
-        String group = serviceProxy.getGroup();
-        int timeout = serviceProxy.getTimeout();
-        Class<?> service = serviceProxy.getService();
-
-        Connection connection = connectionManager.getConnection(referenceBinding.getServiceAddress(service, group));
-
-        Call call = new Call(service.getName(), group, timeout, methodName, args, method.getParameterTypes());
-        return connection.call(call).get(timeout, TimeUnit.MILLISECONDS);
+        return invocationHandler.handle(new Invocation<T>(serviceProxy, method, args));
     }
 
 }

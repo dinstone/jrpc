@@ -17,12 +17,14 @@
 package com.dinstone.jrpc.mina;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.dinstone.jrpc.binding.DefaultReferenceBinding;
 import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.endpoint.DefaultServiceImporter;
 import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.endpoint.ServiceImporter;
+import com.dinstone.jrpc.registry.RegistryConfig;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 /**
@@ -41,8 +43,9 @@ public class MinaClient {
 
     public MinaClient(final String host, final int port, TransportConfig config) {
         config.setSchema("mina");
-        referenceBinding = new DefaultReferenceBinding(new InetSocketAddress(host, port));
-        serviceImporter = new DefaultServiceImporter(new EndpointConfig(), config, referenceBinding);
+        List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>();
+        addresses.add(new InetSocketAddress(host, port));
+        serviceImporter = new DefaultServiceImporter(new EndpointConfig(), config, new RegistryConfig(), addresses);
     }
 
     public <T> T getService(Class<T> sic) {
