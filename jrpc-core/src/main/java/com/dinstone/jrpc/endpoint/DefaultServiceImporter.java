@@ -16,11 +16,19 @@
 
 package com.dinstone.jrpc.endpoint;
 
+import java.net.InetSocketAddress;
+import java.util.List;
+
+import com.dinstone.jrpc.SchemaFactoryLoader;
+import com.dinstone.jrpc.binding.DefaultReferenceBinding;
 import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.invoker.StubServiceInvoker;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
 import com.dinstone.jrpc.proxy.StubProxyFactory;
+import com.dinstone.jrpc.registry.RegistryConfig;
+import com.dinstone.jrpc.registry.RegistryFactory;
+import com.dinstone.jrpc.registry.ServiceDiscovery;
 import com.dinstone.jrpc.transport.ConnectionManager;
 import com.dinstone.jrpc.transport.TransportConfig;
 
@@ -32,10 +40,12 @@ public class DefaultServiceImporter implements ServiceImporter {
 
     private final ConnectionManager connectionManager;
 
-    private final ServiceProxyFactory serviceStubFactory;
+    private final ServiceProxyFactory serviceProxyFactory;
+
+    private ServiceDiscovery serviceDiscovery;
 
     public DefaultServiceImporter(EndpointConfig endpointConfig, TransportConfig transportConfig,
-            ReferenceBinding referenceBinding) {
+            RegistryConfig registryConfig, List<InetSocketAddress> serviceAddresses) {
         if (endpointConfig == null) {
             throw new IllegalArgumentException("endpointConfig is null");
         }
@@ -46,13 +56,20 @@ public class DefaultServiceImporter implements ServiceImporter {
         }
         this.connectionManager = new ConnectionManager(transportConfig);
 
-        if (referenceBinding == null) {
-            throw new IllegalArgumentException("referenceBinding is null");
+        this.referenceBinding = new DefaultReferenceBinding(registryConfig, serviceAddresses);
+
+        String registrySchema = registryConfig.getSchema();
+        if (registrySchema != null && !registrySchema.isEmpty()) {
+            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
+            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
+            if (registryFactory != null) {
+                this.serviceDiscovery = registryFactory.createServiceDiscovery(registryConfig);
+            }
         }
-        this.referenceBinding = referenceBinding;
 
-        this.serviceStubFactory = new StubProxyFactory(new StubServiceInvoker(connectionManager, referenceBinding));
-
+        StubServiceInvoker serviceInvoker = new StubServiceInvoker(connectionManager, serviceDiscovery,
+            serviceAddresses);
+        this.serviceProxyFactory = new StubProxyFactory(serviceInvoker);
     }
 
     /**
@@ -83,7 +100,7 @@ public class DefaultServiceImporter implements ServiceImporter {
     @Override
     public <T> T importService(Class<T> sic, String group, int timeout) {
         try {
-            ServiceProxy<T> wrapper = serviceStubFactory.create(sic, group, timeout, null);
+            ServiceProxy<T> wrapper = serviceProxyFactory.create(sic, group, timeout, null);
             referenceBinding.bind(wrapper, endpointConfig);
             return wrapper.getInstance();
         } catch (Exception e) {
@@ -99,6 +116,11 @@ public class DefaultServiceImporter implements ServiceImporter {
     @Override
     public void destroy() {
         connectionManager.destroy();
+        referenceBinding.destroy();
+
+        if (serviceDiscovery != null) {
+            serviceDiscovery.destroy();
+        }
     }
 
 }

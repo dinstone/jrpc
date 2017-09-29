@@ -21,12 +21,13 @@ import java.util.concurrent.CountDownLatch;
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.ClientBuilder;
 import com.dinstone.jrpc.example.HelloService;
+import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ServiceConsumer {
 
     public static void main(String[] args) throws Exception {
         ClientBuilder builder = new ClientBuilder().bind("localhost", 4444);
-        // builder.transportConfig().setSchema("netty5").setConnectPoolSize(2);
+        builder.transportConfig(new TransportConfig().setSchema("netty").setConnectPoolSize(2));
 
         Client client = builder.build();
         HelloService helloService = client.importService(HelloService.class);
@@ -116,7 +117,7 @@ public class ServiceConsumer {
                         }
 
                         // long et = System.currentTimeMillis() - st;
-                        // System.out.println(et + " ms, " + dataLength + " B : " + (loopCount * 1000 / et) + "  tps");
+                        // System.out.println(et + " ms, " + dataLength + " B : " + (loopCount * 1000 / et) + " tps");
                     } finally {
                         endLatch.countDown();
                     }
