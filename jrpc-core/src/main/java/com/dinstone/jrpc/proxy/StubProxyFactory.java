@@ -45,7 +45,8 @@ public class StubProxyFactory implements ServiceProxyFactory {
 
         private ServiceProxy<T> serviceProxy;
 
-        public Object invoke(Object proxyObj, Method method, Object[] args) throws Throwable {
+        @Override
+		public Object invoke(Object proxyObj, Method method, Object[] args) throws Throwable {
             return serviceInvoker.invoke(serviceProxy, method, args);
         }
 

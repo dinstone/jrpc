@@ -37,7 +37,8 @@ public abstract class AbstractImplementBinding implements ImplementBinding {
 
     protected ServiceRegistry serviceRegistry;
 
-    public <T> void bind(ServiceProxy<T> serviceWrapper, EndpointConfig endpointConfig) {
+    @Override
+	public <T> void bind(ServiceProxy<T> serviceWrapper, EndpointConfig endpointConfig) {
         String serviceId = serviceWrapper.getService().getName() + "-" + serviceWrapper.getGroup();
         if (serviceProxyMap.get(serviceId) != null) {
             throw new RuntimeException("multiple object registed with the service interface " + serviceId);

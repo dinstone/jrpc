@@ -20,7 +20,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
@@ -31,119 +30,100 @@ import com.dinstone.jrpc.transport.NetworkAddressUtil;
 
 public abstract class AbstractReferenceBinding implements ReferenceBinding {
 
-    private final AtomicInteger index = new AtomicInteger(0);
+	protected InetSocketAddress consumerAddress;
 
-    protected InetSocketAddress consumerAddress;
+	protected ServiceDiscovery serviceDiscovery;
 
-    protected ServiceDiscovery serviceDiscovery;
+	protected EndpointConfig endpointConfig;
 
-    protected List<InetSocketAddress> backupServiceAddresses = new ArrayList<InetSocketAddress>();
+	public AbstractReferenceBinding(EndpointConfig endpointConfig, ServiceDiscovery serviceDiscovery) {
+		if (endpointConfig == null) {
+			throw new IllegalArgumentException("endpointConfig is null");
+		}
+		this.endpointConfig = endpointConfig;
+		this.serviceDiscovery = serviceDiscovery;
+		try {
+			InetAddress addr = NetworkAddressUtil.getPrivateInetInetAddress().get(0);
+			consumerAddress = new InetSocketAddress(addr, 0);
+		} catch (Exception e) {
+			throw new RuntimeException("can't init ReferenceBinding", e);
+		}
+	}
 
-    public AbstractReferenceBinding() {
-        try {
-            InetAddress addr = NetworkAddressUtil.getPrivateInetInetAddress().get(0);
-            consumerAddress = new InetSocketAddress(addr, 0);
-        } catch (Exception e) {
-            throw new RuntimeException("can't init ReferenceBinding", e);
-        }
-    }
+	@Override
+	public <T> void bind(ServiceProxy<T> wrapper) {
+		if (serviceDiscovery != null) {
+			try {
+				serviceDiscovery.listen(createServiceDescription(wrapper, endpointConfig));
+			} catch (Exception e) {
+				throw new RuntimeException("service reference bind error", e);
+			}
+		}
+	}
 
-    @Override
-    public <T> void bind(ServiceProxy<T> wrapper, EndpointConfig endpointConfig) {
-        if (serviceDiscovery != null) {
-            try {
-                ServiceDescription description = createServiceDescription(wrapper, endpointConfig);
-                serviceDiscovery.listen(description);
-            } catch (Exception e) {
-                throw new RuntimeException("service reference bind error", e);
-            }
-        }
-    }
+	protected <T> ServiceDescription createServiceDescription(ServiceProxy<T> wrapper, EndpointConfig endpointConfig) {
+		String group = wrapper.getGroup();
+		String host = consumerAddress.getAddress().getHostAddress();
+		int port = consumerAddress.getPort();
 
-    protected <T> ServiceDescription createServiceDescription(ServiceProxy<T> wrapper, EndpointConfig endpointConfig) {
-        String group = wrapper.getGroup();
-        String host = consumerAddress.getAddress().getHostAddress();
-        int port = consumerAddress.getPort();
+		StringBuilder id = new StringBuilder();
+		id.append(host).append(":").append(port).append("@");
+		id.append(endpointConfig.getEndpointName()).append("#").append(endpointConfig.getEndpointId()).append("@");
+		id.append("group=").append((group == null ? "" : group));
 
-        StringBuilder id = new StringBuilder();
-        id.append(host).append(":").append(port).append("@");
-        id.append(endpointConfig.getEndpointName()).append("#").append(endpointConfig.getEndpointId()).append("@");
-        id.append("group=").append((group == null ? "" : group));
+		ServiceDescription description = new ServiceDescription();
+		description.setId(id.toString());
+		description.setServiceName(wrapper.getService().getName());
+		description.setGroup(group);
+		description.setHost(host);
+		description.setPort(port);
 
-        ServiceDescription description = new ServiceDescription();
-        description.setId(id.toString());
-        description.setServiceName(wrapper.getService().getName());
-        description.setGroup(group);
-        description.setHost(host);
-        description.setPort(port);
+		ServiceAttribute serviceAttribute = new ServiceAttribute();
+		serviceAttribute.addAttribute("endpointId", endpointConfig.getEndpointId());
+		serviceAttribute.addAttribute("endpointName", endpointConfig.getEndpointName());
 
-        ServiceAttribute serviceAttribute = new ServiceAttribute();
-        serviceAttribute.addAttribute("endpointId", endpointConfig.getEndpointId());
-        serviceAttribute.addAttribute("endpointName", endpointConfig.getEndpointName());
+		description.setServiceAttribute(serviceAttribute);
 
-        description.setServiceAttribute(serviceAttribute);
+		return description;
+	}
 
-        return description;
-    }
+	@Override
+	public List<ServiceDescription> lookup(String serviceName, String group) {
+		try {
+			if (serviceDiscovery != null) {
+				return findServices(serviceName, group);
+			}
+			return null;
+		} catch (Exception e) {
+			throw new RuntimeException("service " + serviceName + "[" + group + "] discovery error", e);
+		}
+	}
 
-    @Override
-    public <T> InetSocketAddress getServiceAddress(Class<T> serviceInterface, String group) {
-        InetSocketAddress serviceAddress = null;
+	protected List<ServiceDescription> findServices(String serviceName, String group) throws Exception {
+		List<ServiceDescription> services = new ArrayList<ServiceDescription>();
+		List<ServiceDescription> serviceDescriptions = serviceDiscovery.discovery(serviceName);
+		if (serviceDescriptions != null && serviceDescriptions.size() > 0) {
+			for (ServiceDescription serviceDescription : serviceDescriptions) {
+				String target = serviceDescription.getGroup();
+				if (target == null && group == null) {
+					services.add(serviceDescription);
+					continue;
+				}
+				if (target != null && target.equals(group)) {
+					services.add(serviceDescription);
+					continue;
+				}
+			}
+		}
 
-        int next = Math.abs(index.getAndIncrement());
-        if (serviceDiscovery != null) {
-            serviceAddress = locateServiceAddress(serviceInterface.getName(), group, next);
-        }
+		return services;
+	}
 
-        if (serviceAddress == null && backupServiceAddresses.size() > 0) {
-            serviceAddress = backupServiceAddresses.get(next % backupServiceAddresses.size());
-        }
-
-        if (serviceAddress == null) {
-            throw new RuntimeException("service " + serviceInterface.getName() + "[" + group + "] is not ready");
-        }
-
-        return serviceAddress;
-    }
-
-    private InetSocketAddress locateServiceAddress(String serviceName, String group, int index) {
-        try {
-            List<ServiceDescription> serviceDescriptions = findServices(serviceName, group);
-            if (serviceDescriptions.size() == 0) {
-                return null;
-            }
-
-            return serviceDescriptions.get(index % serviceDescriptions.size()).getServiceAddress();
-        } catch (Exception e) {
-            throw new RuntimeException("service " + serviceName + "[" + group + "] discovery error", e);
-        }
-    }
-
-    protected List<ServiceDescription> findServices(String serviceName, String group) throws Exception {
-        List<ServiceDescription> services = new ArrayList<ServiceDescription>();
-        List<ServiceDescription> serviceDescriptions = serviceDiscovery.discovery(serviceName);
-        if (serviceDescriptions != null && serviceDescriptions.size() > 0) {
-            for (ServiceDescription serviceDescription : serviceDescriptions) {
-                String target = serviceDescription.getGroup();
-                if (target == null && group == null) {
-                    services.add(serviceDescription);
-                    continue;
-                }
-                if (target != null && target.equals(group)) {
-                    services.add(serviceDescription);
-                    continue;
-                }
-            }
-        }
-
-        return services;
-    }
-
-    @Override
-    public void destroy() {
-        if (serviceDiscovery != null) {
-            serviceDiscovery.destroy();
-        }
-    }
+	@Override
+	public void destroy() {
+		if (serviceDiscovery != null) {
+			serviceDiscovery.destroy();
+		}
+	}
 
 }

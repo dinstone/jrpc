@@ -6,85 +6,64 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.registry.ServiceDescription;
 import com.dinstone.jrpc.registry.ServiceDiscovery;
 
 public class LocationInvocationHandler implements InvocationHandler {
 
-    private final AtomicInteger index = new AtomicInteger(0);
+	private final AtomicInteger index = new AtomicInteger(0);
 
-    private InvocationHandler invocationHandler;
+	private InvocationHandler invocationHandler;
 
-    private ServiceDiscovery serviceDiscovery;
+	private ServiceDiscovery serviceDiscovery;
 
-    private List<InetSocketAddress> backupServiceAddresses = new ArrayList<InetSocketAddress>();
+	private ReferenceBinding referenceBinding;
 
-    public LocationInvocationHandler(InvocationHandler invocationHandler, ServiceDiscovery serviceDiscovery,
-            List<InetSocketAddress> serviceAddresses) {
-        this.invocationHandler = invocationHandler;
-        this.serviceDiscovery = serviceDiscovery;
+	private List<InetSocketAddress> backupServiceAddresses = new ArrayList<InetSocketAddress>();
 
-        if (serviceAddresses != null) {
-            backupServiceAddresses.addAll(serviceAddresses);
-        }
-    }
+	public LocationInvocationHandler(InvocationHandler invocationHandler, ReferenceBinding referenceBinding,
+			List<InetSocketAddress> serviceAddresses) {
+		this.invocationHandler = invocationHandler;
+		this.referenceBinding = referenceBinding;
 
-    @Override
-    public <T> Object handle(Invocation<T> invocation) throws Exception {
-        invocation.setServiceAddress(getServiceAddress(invocation.getService(), invocation.getGroup()));
-        return invocationHandler.handle(invocation);
-    }
+		if (serviceAddresses != null) {
+			backupServiceAddresses.addAll(serviceAddresses);
+		}
+	}
 
-    public <T> InetSocketAddress getServiceAddress(Class<T> serviceInterface, String group) {
-        InetSocketAddress serviceAddress = null;
+	@Override
+	public <T> Object handle(Invocation<T> invocation) throws Exception {
+		invocation.setServiceAddress(getServiceAddress(invocation.getService(), invocation.getGroup()));
+		return invocationHandler.handle(invocation);
+	}
 
-        int next = Math.abs(index.getAndIncrement());
-        if (serviceDiscovery != null) {
-            serviceAddress = locateServiceAddress(serviceInterface.getName(), group, next);
-        }
+	public <T> InetSocketAddress getServiceAddress(Class<T> serviceInterface, String group) {
+		InetSocketAddress serviceAddress = null;
 
-        if (serviceAddress == null && backupServiceAddresses.size() > 0) {
-            serviceAddress = backupServiceAddresses.get(next % backupServiceAddresses.size());
-        }
+		int next = Math.abs(index.getAndIncrement());
+		if (serviceDiscovery != null) {
+			serviceAddress = locateServiceAddress(serviceInterface.getName(), group, next);
+		}
 
-        if (serviceAddress == null) {
-            throw new RuntimeException("service " + serviceInterface.getName() + "[" + group + "] is not ready");
-        }
+		if (serviceAddress == null && backupServiceAddresses.size() > 0) {
+			serviceAddress = backupServiceAddresses.get(next % backupServiceAddresses.size());
+		}
 
-        return serviceAddress;
-    }
+		if (serviceAddress == null) {
+			throw new RuntimeException("service " + serviceInterface.getName() + "[" + group + "] is not ready");
+		}
 
-    private InetSocketAddress locateServiceAddress(String serviceName, String group, int index) {
-        try {
-            List<ServiceDescription> serviceDescriptions = findServices(serviceName, group);
-            if (serviceDescriptions.size() == 0) {
-                return null;
-            }
+		return serviceAddress;
+	}
 
-            return serviceDescriptions.get(index % serviceDescriptions.size()).getServiceAddress();
-        } catch (Exception e) {
-            throw new RuntimeException("service " + serviceName + "[" + group + "] discovery error", e);
-        }
-    }
+	private InetSocketAddress locateServiceAddress(String serviceName, String group, int index) {
+		List<ServiceDescription> serviceDescriptions = referenceBinding.lookup(serviceName, group);
+		if (serviceDescriptions == null || serviceDescriptions.size() == 0) {
+			return null;
+		}
 
-    protected List<ServiceDescription> findServices(String serviceName, String group) throws Exception {
-        List<ServiceDescription> services = new ArrayList<ServiceDescription>();
-        List<ServiceDescription> serviceDescriptions = serviceDiscovery.discovery(serviceName);
-        if (serviceDescriptions != null && serviceDescriptions.size() > 0) {
-            for (ServiceDescription serviceDescription : serviceDescriptions) {
-                String target = serviceDescription.getGroup();
-                if (target == null && group == null) {
-                    services.add(serviceDescription);
-                    continue;
-                }
-                if (target != null && target.equals(group)) {
-                    services.add(serviceDescription);
-                    continue;
-                }
-            }
-        }
-
-        return services;
-    }
+		return serviceDescriptions.get(index % serviceDescriptions.size()).getServiceAddress();
+	}
 
 }
