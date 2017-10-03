@@ -16,32 +16,13 @@
 
 package com.dinstone.jrpc.binding;
 
-import java.net.InetSocketAddress;
-import java.util.List;
-
-import com.dinstone.jrpc.SchemaFactoryLoader;
-import com.dinstone.jrpc.registry.RegistryConfig;
-import com.dinstone.jrpc.registry.RegistryFactory;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
+import com.dinstone.jrpc.registry.ServiceDiscovery;
 
 public class DefaultReferenceBinding extends AbstractReferenceBinding {
 
-    public DefaultReferenceBinding(InetSocketAddress serviceAddress) {
-        backupServiceAddresses.add(serviceAddress);
-    }
-
-    public DefaultReferenceBinding(RegistryConfig registryConfig, List<InetSocketAddress> serviceAddresses) {
-        String registrySchema = registryConfig.getSchema();
-        if (registrySchema != null && !registrySchema.isEmpty()) {
-            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
-            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
-            if (registryFactory != null) {
-                this.serviceDiscovery = registryFactory.createServiceDiscovery(registryConfig);
-            }
-        }
-
-        if (serviceAddresses != null) {
-            backupServiceAddresses.addAll(serviceAddresses);
-        }
-    }
+	public DefaultReferenceBinding(EndpointConfig endpointConfig, ServiceDiscovery serviceDiscovery) {
+		super(endpointConfig, serviceDiscovery);
+	}
 
 }

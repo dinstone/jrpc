@@ -20,8 +20,8 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.proxy.ServiceProxy;
-import com.dinstone.jrpc.registry.ServiceDiscovery;
 import com.dinstone.jrpc.transport.ConnectionManager;
 
 /**
@@ -34,10 +34,10 @@ public class StubServiceInvoker implements ServiceInvoker {
 
     private InvocationHandler invocationHandler;
 
-    public StubServiceInvoker(ConnectionManager connectionManager, ServiceDiscovery serviceDiscovery,
+    public StubServiceInvoker(ConnectionManager connectionManager, ReferenceBinding referenceBinding,
             List<InetSocketAddress> serviceAddresses) {
         invocationHandler = new RemoteInvocationHandler(connectionManager);
-        invocationHandler = new LocationInvocationHandler(invocationHandler, serviceDiscovery, serviceAddresses);
+        invocationHandler = new LocationInvocationHandler(invocationHandler, referenceBinding, serviceAddresses);
     }
 
     @Override

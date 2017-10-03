@@ -24,7 +24,6 @@ import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.endpoint.DefaultServiceImporter;
 import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.endpoint.ServiceImporter;
-import com.dinstone.jrpc.registry.RegistryConfig;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 /**
@@ -45,7 +44,7 @@ public class MinaClient {
         config.setSchema("mina");
         List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>();
         addresses.add(new InetSocketAddress(host, port));
-        serviceImporter = new DefaultServiceImporter(new EndpointConfig(), config, new RegistryConfig(), addresses);
+        serviceImporter = new DefaultServiceImporter(new EndpointConfig(), null, null);
     }
 
     public <T> T getService(Class<T> sic) {

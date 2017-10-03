@@ -40,11 +40,13 @@ public class JacksonSerializer implements Serializer {
         objectMapper.configure(Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
     }
 
-    public <T> byte[] serialize(T data) throws Exception {
+    @Override
+	public <T> byte[] serialize(T data) throws Exception {
         return objectMapper.writeValueAsBytes(data);
     }
 
-    public <T> T deserialize(byte[] bodyBytes, Class<T> clazz) throws Exception {
+    @Override
+	public <T> T deserialize(byte[] bodyBytes, Class<T> clazz) throws Exception {
         return objectMapper.readValue(bodyBytes, clazz);
     }
 

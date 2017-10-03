@@ -16,10 +16,10 @@
 
 package com.dinstone.jrpc.binding;
 
-import java.net.InetSocketAddress;
+import java.util.List;
 
-import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
+import com.dinstone.jrpc.registry.ServiceDescription;
 
 /**
  * service reference binding
@@ -29,15 +29,15 @@ import com.dinstone.jrpc.proxy.ServiceProxy;
  */
 public interface ReferenceBinding {
 
-    /**
-     * service reference bind
-     * 
-     * @param wrapper
-     */
-    public <T> void bind(ServiceProxy<T> wrapper, EndpointConfig endpointConfig);
+	/**
+	 * service reference bind
+	 * 
+	 * @param wrapper
+	 */
+	public <T> void bind(ServiceProxy<T> wrapper);
 
-    public <T> InetSocketAddress getServiceAddress(Class<T> serviceInterface, String group);
+	public List<ServiceDescription> lookup(String serviceName, String group);
 
-    public void destroy();
+	public void destroy();
 
 }

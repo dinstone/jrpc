@@ -16,111 +16,78 @@
 
 package com.dinstone.jrpc.endpoint;
 
-import java.net.InetSocketAddress;
-import java.util.List;
-
-import com.dinstone.jrpc.SchemaFactoryLoader;
-import com.dinstone.jrpc.binding.DefaultReferenceBinding;
 import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.invoker.StubServiceInvoker;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
 import com.dinstone.jrpc.proxy.StubProxyFactory;
-import com.dinstone.jrpc.registry.RegistryConfig;
-import com.dinstone.jrpc.registry.RegistryFactory;
-import com.dinstone.jrpc.registry.ServiceDiscovery;
-import com.dinstone.jrpc.transport.ConnectionManager;
-import com.dinstone.jrpc.transport.TransportConfig;
 
 public class DefaultServiceImporter implements ServiceImporter {
 
-    private final EndpointConfig endpointConfig;
+	private final EndpointConfig endpointConfig;
 
-    private final ReferenceBinding referenceBinding;
+	private final ReferenceBinding referenceBinding;
 
-    private final ConnectionManager connectionManager;
+	private final ServiceProxyFactory serviceProxyFactory;
 
-    private final ServiceProxyFactory serviceProxyFactory;
+	public DefaultServiceImporter(EndpointConfig endpointConfig, ReferenceBinding referenceBinding,
+			StubServiceInvoker serviceInvoker) {
+		if (endpointConfig == null) {
+			throw new IllegalArgumentException("endpointConfig is null");
+		}
+		this.endpointConfig = endpointConfig;
 
-    private ServiceDiscovery serviceDiscovery;
+		this.referenceBinding = referenceBinding;
 
-    public DefaultServiceImporter(EndpointConfig endpointConfig, TransportConfig transportConfig,
-            RegistryConfig registryConfig, List<InetSocketAddress> serviceAddresses) {
-        if (endpointConfig == null) {
-            throw new IllegalArgumentException("endpointConfig is null");
-        }
-        this.endpointConfig = endpointConfig;
+		this.serviceProxyFactory = new StubProxyFactory(serviceInvoker);
+	}
 
-        if (transportConfig == null) {
-            throw new IllegalArgumentException("transportConfig is null");
-        }
-        this.connectionManager = new ConnectionManager(transportConfig);
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class)
+	 */
+	@Override
+	public <T> T importService(Class<T> sic) {
+		return importService(sic, "");
+	}
 
-        this.referenceBinding = new DefaultReferenceBinding(registryConfig, serviceAddresses);
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class,
+	 *      java.lang.String)
+	 */
+	@Override
+	public <T> T importService(Class<T> sic, String group) {
+		return importService(sic, group, endpointConfig.getDefaultTimeout());
+	}
 
-        String registrySchema = registryConfig.getSchema();
-        if (registrySchema != null && !registrySchema.isEmpty()) {
-            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
-            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
-            if (registryFactory != null) {
-                this.serviceDiscovery = registryFactory.createServiceDiscovery(registryConfig);
-            }
-        }
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class,
+	 *      java.lang.String, int)
+	 */
+	@Override
+	public <T> T importService(Class<T> sic, String group, int timeout) {
+		try {
+			ServiceProxy<T> wrapper = serviceProxyFactory.create(sic, group, timeout, null);
+			referenceBinding.bind(wrapper);
+			return wrapper.getInstance();
+		} catch (Exception e) {
+			throw new RuntimeException("can't import service", e);
+		}
+	}
 
-        StubServiceInvoker serviceInvoker = new StubServiceInvoker(connectionManager, serviceDiscovery,
-            serviceAddresses);
-        this.serviceProxyFactory = new StubProxyFactory(serviceInvoker);
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class)
-     */
-    @Override
-    public <T> T importService(Class<T> sic) {
-        return importService(sic, "");
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class, java.lang.String)
-     */
-    @Override
-    public <T> T importService(Class<T> sic, String group) {
-        return importService(sic, group, endpointConfig.getDefaultTimeout());
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.endpoint.ServiceImporter#importService(java.lang.Class, java.lang.String, int)
-     */
-    @Override
-    public <T> T importService(Class<T> sic, String group, int timeout) {
-        try {
-            ServiceProxy<T> wrapper = serviceProxyFactory.create(sic, group, timeout, null);
-            referenceBinding.bind(wrapper, endpointConfig);
-            return wrapper.getInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("can't import service", e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.endpoint.ServiceImporter#destroy()
-     */
-    @Override
-    public void destroy() {
-        connectionManager.destroy();
-        referenceBinding.destroy();
-
-        if (serviceDiscovery != null) {
-            serviceDiscovery.destroy();
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see com.dinstone.jrpc.endpoint.ServiceImporter#destroy()
+	 */
+	@Override
+	public void destroy() {
+		referenceBinding.destroy();
+	}
 
 }

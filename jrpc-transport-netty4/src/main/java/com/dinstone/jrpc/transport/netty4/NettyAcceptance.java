@@ -106,7 +106,7 @@ public class NettyAcceptance extends AbstractAcceptance {
 
             int processorCount = transportConfig.getBusinessProcessorCount();
             if (processorCount > 0) {
-                NamedThreadFactory threadFactory = new NamedThreadFactory("Netty4-BusinssProcessor");
+                NamedThreadFactory threadFactory = new NamedThreadFactory("Netty4-BusinessProcessor");
                 executorService = Executors.newFixedThreadPool(processorCount, threadFactory);
             }
         } catch (Exception e) {

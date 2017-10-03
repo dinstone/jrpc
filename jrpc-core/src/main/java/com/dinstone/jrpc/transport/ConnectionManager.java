@@ -24,75 +24,84 @@ import com.dinstone.jrpc.SchemaFactoryLoader;
 
 public class ConnectionManager {
 
-    private final ConcurrentMap<InetSocketAddress, ConnectionPool> connectionPoolMap = new ConcurrentHashMap<>();
+	private final ConcurrentMap<InetSocketAddress, ConnectionPool> connectionPoolMap = new ConcurrentHashMap<>();
 
-    private final TransportConfig transportConfig;
+	private final TransportConfig transportConfig;
 
-    private final ConnectionFactory connectionFactory;
+	private final ConnectionFactory connectionFactory;
 
-    public ConnectionManager(TransportConfig transportConfig) {
-        if (transportConfig == null) {
-            throw new IllegalArgumentException("transportConfig is null");
-        }
-        this.transportConfig = transportConfig;
+	public ConnectionManager(TransportConfig transportConfig) {
+		if (transportConfig == null) {
+			throw new IllegalArgumentException("transportConfig is null");
+		}
+		this.transportConfig = transportConfig;
 
-        SchemaFactoryLoader<ConnectionFactory> cfLoader = SchemaFactoryLoader.getInstance(ConnectionFactory.class);
-        this.connectionFactory = cfLoader.getSchemaFactory(transportConfig.getSchema());
-    }
+		SchemaFactoryLoader<ConnectionFactory> cfLoader = SchemaFactoryLoader.getInstance(ConnectionFactory.class);
+		this.connectionFactory = cfLoader.getSchemaFactory(transportConfig.getSchema());
+	}
 
-    public Connection getConnection(InetSocketAddress socketAddress) {
-        ConnectionPool connectionPool = connectionPoolMap.get(socketAddress);
-        if (connectionPool == null) {
-            connectionPoolMap.putIfAbsent(socketAddress, new ConnectionPool(socketAddress));
-            connectionPool = connectionPoolMap.get(socketAddress);
-        }
-        return connectionPool.getConnection();
-    }
+	public ConnectionManager(TransportConfig transportConfig, ConnectionFactory connectionFactory) {
+		if (transportConfig == null) {
+			throw new IllegalArgumentException("transportConfig is null");
+		}
+		this.transportConfig = transportConfig;
 
-    public void destroy() {
-        for (ConnectionPool connectionPool : connectionPoolMap.values()) {
-            if (connectionPool != null) {
-                connectionPool.destroy();
-            }
-        }
-    }
+		this.connectionFactory = connectionFactory;
+	}
 
-    class ConnectionPool {
+	public Connection getConnection(InetSocketAddress socketAddress) {
+		ConnectionPool connectionPool = connectionPoolMap.get(socketAddress);
+		if (connectionPool == null) {
+			connectionPoolMap.putIfAbsent(socketAddress, new ConnectionPool(socketAddress));
+			connectionPool = connectionPoolMap.get(socketAddress);
+		}
+		return connectionPool.getConnection();
+	}
 
-        private final InetSocketAddress socketAddress;
+	public void destroy() {
+		for (ConnectionPool connectionPool : connectionPoolMap.values()) {
+			if (connectionPool != null) {
+				connectionPool.destroy();
+			}
+		}
+	}
 
-        private int count;
+	class ConnectionPool {
 
-        private Connection[] connections;
+		private final InetSocketAddress socketAddress;
 
-        public ConnectionPool(InetSocketAddress socketAddress) {
-            this.socketAddress = socketAddress;
+		private int count;
 
-            this.connections = new Connection[transportConfig.getConnectPoolSize()];
-        }
+		private Connection[] connections;
 
-        public synchronized Connection getConnection() {
-            int index = count++ % connections.length;
-            Connection connection = connections[index];
-            if (connection == null || !connection.isAlive()) {
-                if (connection != null) {
-                    connection.destroy();
-                }
+		public ConnectionPool(InetSocketAddress socketAddress) {
+			this.socketAddress = socketAddress;
 
-                connection = connectionFactory.create(transportConfig, socketAddress);
-                connections[index] = connection;
-            }
-            return connection;
-        }
+			this.connections = new Connection[transportConfig.getConnectPoolSize()];
+		}
 
-        public void destroy() {
-            for (Connection connection : connections) {
-                if (connection != null) {
-                    connection.destroy();
-                }
-            }
-        }
+		public synchronized Connection getConnection() {
+			int index = count++ % connections.length;
+			Connection connection = connections[index];
+			if (connection == null || !connection.isAlive()) {
+				if (connection != null) {
+					connection.destroy();
+				}
 
-    }
+				connection = connectionFactory.create(transportConfig, socketAddress);
+				connections[index] = connection;
+			}
+			return connection;
+		}
+
+		public void destroy() {
+			for (Connection connection : connections) {
+				if (connection != null) {
+					connection.destroy();
+				}
+			}
+		}
+
+	}
 
 }
