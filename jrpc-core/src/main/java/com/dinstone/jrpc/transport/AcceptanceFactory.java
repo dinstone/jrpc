@@ -16,11 +16,13 @@
 
 package com.dinstone.jrpc.transport;
 
+import java.net.InetSocketAddress;
+
 import com.dinstone.jrpc.SchemaFactory;
 import com.dinstone.jrpc.binding.ImplementBinding;
 
 public interface AcceptanceFactory extends SchemaFactory {
 
-    public abstract Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding);
+    public abstract Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding, InetSocketAddress serviceAddress);
 
 }

@@ -28,9 +28,15 @@ import com.dinstone.jrpc.proxy.ServiceProxy;
  */
 public class SkelectonServiceInvoker implements ServiceInvoker {
 
+    private InvocationHandler invocationHandler;
+
+    public SkelectonServiceInvoker() {
+        invocationHandler = new LocalInvocationHandler();
+    }
+
     @Override
     public <T> Object invoke(ServiceProxy<T> serviceProxy, Method method, Object[] args) throws Exception {
-        return method.invoke(serviceProxy.getInstance(), args);
+        return invocationHandler.handle(new Invocation<>(serviceProxy, method, args));
     }
 
 }

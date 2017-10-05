@@ -40,7 +40,7 @@ public class DefaultServiceExporter implements ServiceExporter {
         }
         this.implementBinding = implementBinding;
 
-        this.serviceProxyFactory = new SkelectonProxyFactory();
+        this.serviceProxyFactory = new SkelectonProxyFactory(null);
 
     }
 

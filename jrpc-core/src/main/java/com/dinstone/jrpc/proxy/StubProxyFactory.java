@@ -36,7 +36,8 @@ public class StubProxyFactory implements ServiceProxyFactory {
         ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<T>();
         T proxy = serviceInterface.cast(Proxy.newProxyInstance(serviceInterface.getClassLoader(),
             new Class[] { serviceInterface }, handler));
-        ServiceProxy<T> serviceProxy = new ServiceProxy<T>(serviceInterface, group, timeout, proxy);
+        ServiceProxy<T> serviceProxy = new ServiceProxy<T>(serviceInterface, group, timeout);
+        serviceProxy.setProxy(proxy);
         handler.serviceProxy = serviceProxy;
         return serviceProxy;
     }

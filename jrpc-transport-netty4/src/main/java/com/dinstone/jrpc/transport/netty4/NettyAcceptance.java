@@ -16,22 +16,6 @@
 
 package com.dinstone.jrpc.transport.netty4;
 
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.DefaultThreadFactory;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -52,16 +36,30 @@ import com.dinstone.jrpc.transport.Acceptance;
 import com.dinstone.jrpc.transport.NetworkAddressUtil;
 import com.dinstone.jrpc.transport.TransportConfig;
 
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.AttributeKey;
+import io.netty.util.concurrent.DefaultThreadFactory;
+
 public class NettyAcceptance extends AbstractAcceptance {
 
     private static final Logger LOG = LoggerFactory.getLogger(NettyAcceptance.class);
 
     private static final AttributeKey<String> LOCAL_REMOTE_ADDRESS_KEY = AttributeKey
-        .valueOf("local-remote-address-key");
+            .valueOf("local-remote-address-key");
 
     private final ConcurrentMap<String, Channel> connectionMap = new ConcurrentHashMap<>();
-
-    private TransportConfig transportConfig;
 
     private EventLoopGroup bossGroup;
 
@@ -69,9 +67,9 @@ public class NettyAcceptance extends AbstractAcceptance {
 
     private ExecutorService executorService;
 
-    public NettyAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding) {
-        super(implementBinding);
-        this.transportConfig = transportConfig;
+    public NettyAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding,
+            InetSocketAddress serviceAddress) {
+        super(transportConfig, implementBinding, serviceAddress);
     }
 
     @Override
@@ -98,9 +96,8 @@ public class NettyAcceptance extends AbstractAcceptance {
         });
         boot.option(ChannelOption.SO_REUSEADDR, true).option(ChannelOption.SO_BACKLOG, 128);
         boot.childOption(ChannelOption.SO_RCVBUF, 16 * 1024).childOption(ChannelOption.SO_SNDBUF, 16 * 1024)
-            .childOption(ChannelOption.TCP_NODELAY, true);
+                .childOption(ChannelOption.TCP_NODELAY, true);
 
-        InetSocketAddress serviceAddress = implementBinding.getServiceAddress();
         try {
             boot.bind(serviceAddress).sync();
 
@@ -156,7 +153,8 @@ public class NettyAcceptance extends AbstractAcceptance {
             int currentConnectioncount = connectionMap.size();
             if (currentConnectioncount >= maxConnectionCount) {
                 ctx.close();
-                LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount, currentConnectioncount);
+                LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount,
+                        currentConnectioncount);
             } else {
                 Channel channel = ctx.channel();
                 String addressLabel = NetworkAddressUtil.addressLabel(channel.remoteAddress(), channel.localAddress());

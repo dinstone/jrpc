@@ -16,6 +16,8 @@
 
 package com.dinstone.jrpc.transport.mina;
 
+import java.net.InetSocketAddress;
+
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.transport.Acceptance;
 import com.dinstone.jrpc.transport.AcceptanceFactory;
@@ -29,8 +31,9 @@ public class MinaAcceptanceFactory implements AcceptanceFactory {
     }
 
     @Override
-    public Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding) {
-        return new MinaAcceptance(transportConfig, implementBinding);
+    public Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding,
+            InetSocketAddress serviceAddress) {
+        return new MinaAcceptance(transportConfig, implementBinding, serviceAddress);
     }
 
 }

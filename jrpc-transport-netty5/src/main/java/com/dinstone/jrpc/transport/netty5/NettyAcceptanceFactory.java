@@ -16,6 +16,8 @@
 
 package com.dinstone.jrpc.transport.netty5;
 
+import java.net.InetSocketAddress;
+
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.transport.Acceptance;
 import com.dinstone.jrpc.transport.AcceptanceFactory;
@@ -24,8 +26,9 @@ import com.dinstone.jrpc.transport.TransportConfig;
 public class NettyAcceptanceFactory implements AcceptanceFactory {
 
     @Override
-    public Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding) {
-        return new NettyAcceptance(transportConfig, implementBinding);
+    public Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding,
+            InetSocketAddress serviceAddress) {
+        return new NettyAcceptance(transportConfig, implementBinding, serviceAddress);
     }
 
     @Override

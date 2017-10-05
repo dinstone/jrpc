@@ -16,7 +16,7 @@
 
 package com.dinstone.jrpc.example;
 
-import com.codahale.metrics.Counter;
+import com.codahale.metrics.Timer;
 
 /**
  * @author guojf
@@ -24,10 +24,10 @@ import com.codahale.metrics.Counter;
  */
 public class HelloServiceImpl implements HelloService {
 
-    private Counter counter;
+    private Timer counter;
 
     public HelloServiceImpl(MetricService metricService) {
-        counter = metricService.getCounter("sayHello");
+        counter = metricService.getTimer("sayHello");
     }
 
     /**
@@ -37,12 +37,11 @@ public class HelloServiceImpl implements HelloService {
      */
     public String sayHello(String name) {
         try {
-            counter.inc();
-        } catch (Exception e) {
-            e.printStackTrace();
+            return name;
+        } finally {
+            counter.time().stop();
         }
 
-        return name;
     }
 
     /**

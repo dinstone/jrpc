@@ -16,26 +16,52 @@
 
 package com.dinstone.jrpc.proxy;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+import com.dinstone.jrpc.invoker.ServiceInvoker;
+
 public class SkelectonProxyFactory implements ServiceProxyFactory {
 
-    public SkelectonProxyFactory() {
+    private ServiceInvoker serviceInvoker;
+
+    public SkelectonProxyFactory(ServiceInvoker serviceInvoker) {
+        this.serviceInvoker = serviceInvoker;
     }
 
     @Override
     public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceObject)
             throws Exception {
         if (!serviceInterface.isInterface()) {
-
-        }
-
-        if (!serviceInterface.isInterface()) {
             throw new IllegalArgumentException(serviceInterface.getName() + " is not interface");
         }
-        if (!serviceInterface.isInstance(serviceObject)) {
+        if (serviceObject != null && !serviceInterface.isInstance(serviceObject)) {
             throw new IllegalArgumentException(serviceObject + " is not an instance of " + serviceInterface.getName());
         }
 
-        return new ServiceProxy<T>(serviceInterface, group, timeout, serviceObject);
+        ServiceProxy<T> serviceProxy = new ServiceProxy<T>(serviceInterface, group, timeout);
+        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<T>(serviceProxy);
+        T proxy = serviceInterface.cast(
+                Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
+
+        serviceProxy.setProxy(proxy);
+        serviceProxy.setInstance(serviceObject);
+        return serviceProxy;
     }
 
+    private class ProxyInvocationHandler<T> implements InvocationHandler {
+
+        private ServiceProxy<T> serviceProxy;
+
+        public ProxyInvocationHandler(ServiceProxy<T> serviceProxy) {
+            this.serviceProxy = serviceProxy;
+        }
+
+        @Override
+        public Object invoke(Object proxyObj, Method method, Object[] args) throws Throwable {
+            return serviceInvoker.invoke(serviceProxy, method, args);
+        }
+
+    }
 }

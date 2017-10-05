@@ -18,10 +18,9 @@ package com.dinstone.jrpc.transport;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
 
 import com.dinstone.jrpc.binding.ImplementBinding;
-import com.dinstone.jrpc.invoker.ServiceInvoker;
-import com.dinstone.jrpc.invoker.SkelectonServiceInvoker;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
@@ -30,25 +29,20 @@ import com.dinstone.jrpc.proxy.ServiceProxy;
 
 public abstract class AbstractAcceptance implements Acceptance {
 
-    protected ServiceInvoker serviceInvoker;
+    protected TransportConfig transportConfig;
 
     protected ImplementBinding implementBinding;
 
-    public AbstractAcceptance(ImplementBinding implementBinding) {
-        this(implementBinding, null);
-    }
+    protected InetSocketAddress serviceAddress;
 
-    public AbstractAcceptance(ImplementBinding implementBinding, ServiceInvoker serviceInvoker) {
+    public AbstractAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding,
+            InetSocketAddress serviceAddress) {
+        this.transportConfig = transportConfig;
         if (implementBinding == null) {
             throw new IllegalArgumentException("implementBinding is null");
         }
         this.implementBinding = implementBinding;
-
-        if (serviceInvoker == null) {
-            this.serviceInvoker = new SkelectonServiceInvoker();
-        } else {
-            this.serviceInvoker = serviceInvoker;
-        }
+        this.serviceAddress = serviceAddress;
     }
 
     @Override
@@ -56,11 +50,12 @@ public abstract class AbstractAcceptance implements Acceptance {
         Result result = null;
         try {
             Call call = request.getCall();
-            ServiceProxy<?> wrapper = implementBinding.find(call.getService(), call.getGroup());
+            ServiceProxy<?> wrapper = implementBinding.lookup(call.getService(), call.getGroup());
             if (wrapper != null) {
                 Class<?>[] paramTypes = getParamTypes(call);
                 Method method = wrapper.getService().getDeclaredMethod(call.getMethod(), paramTypes);
-                Object resObj = serviceInvoker.invoke(wrapper, method, call.getParams());
+                // Object resObj = serviceInvoker.invoke(wrapper, method, call.getParams());
+                Object resObj = method.invoke(wrapper.getProxy(), call.getParams());
                 result = new Result(200, resObj);
             } else {
                 result = new Result(404, "unkown service");
