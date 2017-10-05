@@ -74,7 +74,7 @@ public class DefaultServiceImporter implements ServiceImporter {
 		try {
 			ServiceProxy<T> wrapper = serviceProxyFactory.create(sic, group, timeout, null);
 			referenceBinding.bind(wrapper);
-			return wrapper.getInstance();
+			return wrapper.getProxy();
 		} catch (Exception e) {
 			throw new RuntimeException("can't import service", e);
 		}

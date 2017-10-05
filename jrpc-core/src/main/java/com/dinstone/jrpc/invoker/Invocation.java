@@ -38,10 +38,6 @@ public class Invocation<T> {
         this.params = params;
     }
 
-    public ServiceProxy<T> getProxy() {
-        return proxy;
-    }
-
     public Method getMethod() {
         return method;
     }
@@ -56,6 +52,14 @@ public class Invocation<T> {
 
     public String getGroup() {
         return proxy.getGroup();
+    }
+
+    public int getTimeout() {
+        return proxy.getTimeout();
+    }
+
+    public T getInstance() {
+        return proxy.getInstance();
     }
 
     public InetSocketAddress getServiceAddress() {

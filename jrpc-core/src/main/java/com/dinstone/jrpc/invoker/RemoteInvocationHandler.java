@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 import com.dinstone.jrpc.protocol.Call;
-import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.transport.Connection;
 import com.dinstone.jrpc.transport.ConnectionManager;
 
@@ -21,10 +20,9 @@ public class RemoteInvocationHandler implements InvocationHandler {
     public <T> Object handle(Invocation<T> invocation) throws Exception {
         Connection connection = connectionManager.getConnection(invocation.getServiceAddress());
 
-        ServiceProxy<T> serviceProxy = invocation.getProxy();
-        String group = serviceProxy.getGroup();
-        int timeout = serviceProxy.getTimeout();
-        Class<?> service = serviceProxy.getService();
+        String group = invocation.getGroup();
+        int timeout = invocation.getTimeout();
+        Class<?> service = invocation.getService();
 
         Method method = invocation.getMethod();
         Object[] args = invocation.getParams();

@@ -43,7 +43,7 @@ public class StubServiceInvoker implements ServiceInvoker {
     @Override
     public <T> Object invoke(ServiceProxy<T> serviceProxy, Method method, Object[] args) throws Exception {
         String methodName = method.getName();
-        Object instance = serviceProxy.getInstance();
+        Object instance = serviceProxy.getProxy();
         if (methodName.equals("hashCode")) {
             return new Integer(System.identityHashCode(instance));
         } else if (methodName.equals("equals")) {

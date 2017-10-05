@@ -54,11 +54,9 @@ public class MinaAcceptance extends AbstractAcceptance {
 
     private ExecutorService executorService;
 
-    private TransportConfig transportConfig;
-
-    public MinaAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding) {
-        super(implementBinding);
-        this.transportConfig = transportConfig;
+    public MinaAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding,
+            InetSocketAddress serviceAddress) {
+        super(transportConfig, implementBinding, serviceAddress);
     }
 
     @Override
@@ -95,7 +93,6 @@ public class MinaAcceptance extends AbstractAcceptance {
         // add business handler
         acceptor.setHandler(new MinaIoHandler());
 
-        InetSocketAddress serviceAddress = implementBinding.getServiceAddress();
         try {
             acceptor.bind(serviceAddress);
 
@@ -126,7 +123,7 @@ public class MinaAcceptance extends AbstractAcceptance {
             }
         }
 
-        LOG.info("mina acceptance unbind on {}", implementBinding.getServiceAddress());
+        LOG.info("mina acceptance unbind on {}", serviceAddress);
     }
 
     private class MinaIoHandler extends IoHandlerAdapter {
@@ -142,10 +139,11 @@ public class MinaAcceptance extends AbstractAcceptance {
             int currentConnectioncount = connectionMap.size();
             if (currentConnectioncount >= maxConnectionCount) {
                 session.close(true);
-                LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount, currentConnectioncount);
+                LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount,
+                        currentConnectioncount);
             } else {
                 String addressLabel = NetworkAddressUtil.addressLabel(session.getRemoteAddress(),
-                    session.getLocalAddress());
+                        session.getLocalAddress());
                 session.setAttribute(LOCAL_REMOTE_ADDRESS_KEY, addressLabel);
                 connectionMap.put(addressLabel, session);
             }

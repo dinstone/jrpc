@@ -22,6 +22,7 @@ import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.ScheduledReporter;
 import com.codahale.metrics.Slf4jReporter;
+import com.codahale.metrics.Timer;
 
 public class MetricService {
 
@@ -38,6 +39,10 @@ public class MetricService {
 
     public Counter getCounter(String name) {
         return metricRegistry.counter(name);
+    }
+
+    public Timer getTimer(String name) {
+        return metricRegistry.timer(name);
     }
 
     public void destory() {
