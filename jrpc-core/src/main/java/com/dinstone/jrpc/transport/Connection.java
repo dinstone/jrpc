@@ -22,7 +22,7 @@ import com.dinstone.jrpc.protocol.Call;
 
 /**
  * connection abstract.
- * 
+ *
  * @author guojf
  * @version 1.0.0.2013-4-10
  */
@@ -30,7 +30,7 @@ public interface Connection {
 
     /**
      * asynchronous call.
-     * 
+     *
      * @param call
      * @return
      */

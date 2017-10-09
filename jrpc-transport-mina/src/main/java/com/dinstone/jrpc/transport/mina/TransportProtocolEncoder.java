@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.mina;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -25,7 +26,7 @@ import com.dinstone.jrpc.protocol.MessageCodec;
 
 /**
  * Transport Protocol Encoder.
- * 
+ *
  * @author guojinfei
  * @version 1.0.0.2014-6-20
  */
@@ -38,7 +39,7 @@ public class TransportProtocolEncoder extends ProtocolEncoderAdapter {
 
     /**
      * the maxObjectSize to get
-     * 
+     *
      * @return the maxObjectSize
      * @see TransportProtocolEncoder#maxObjectSize
      */
@@ -48,7 +49,7 @@ public class TransportProtocolEncoder extends ProtocolEncoderAdapter {
 
     /**
      * the maxObjectSize to set
-     * 
+     *
      * @param maxObjectSize
      * @see TransportProtocolEncoder#maxObjectSize
      */
@@ -60,6 +61,7 @@ public class TransportProtocolEncoder extends ProtocolEncoderAdapter {
         this.maxObjectSize = maxObjectSize;
     }
 
+    @Override
     public void encode(IoSession session, Object message, ProtocolEncoderOutput out) throws Exception {
         if (message instanceof Message<?>) {
             byte[] rpcBytes = MessageCodec.encodeMessage((Message<?>) message);
@@ -70,8 +72,8 @@ public class TransportProtocolEncoder extends ProtocolEncoderAdapter {
     private void writeFrame(ProtocolEncoderOutput out, byte[] rpcBytes) {
         int objectSize = rpcBytes.length;
         if (objectSize > maxObjectSize) {
-            throw new IllegalArgumentException("The encoded object is too big: " + objectSize + " (> " + maxObjectSize
-                    + ')');
+            throw new IllegalArgumentException(
+                "The encoded object is too big: " + objectSize + " (> " + maxObjectSize + ')');
         }
 
         // FrameLen = PrefixLen + RpcObjectSize

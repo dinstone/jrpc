@@ -35,7 +35,7 @@ public class ServiceProvider {
 
         TransportConfig transportConfig = new TransportConfig().setSchema("netty").setMaxConnectionCount(10);
         Server server = new ServerBuilder().transportConfig(transportConfig).bind("localhost", 4444).build();
-        
+
         server.start();
 
         MetricService metricService = new MetricService();

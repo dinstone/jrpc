@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 /**
  * The Call is the abstract of invoking method, RPC protocol body part.
- * 
+ *
  * @author guojinfei
  * @version 1.0.0.2014-6-23
  */
@@ -58,7 +58,7 @@ public class Call implements Serializable {
 
     /**
      * the method to get
-     * 
+     *
      * @return the method
      * @see Call#method
      */
@@ -68,7 +68,7 @@ public class Call implements Serializable {
 
     /**
      * the method to set
-     * 
+     *
      * @param method
      * @see Call#method
      */
@@ -78,7 +78,7 @@ public class Call implements Serializable {
 
     /**
      * the params to get
-     * 
+     *
      * @return the params
      * @see Call#params
      */
@@ -88,7 +88,7 @@ public class Call implements Serializable {
 
     /**
      * the params to set
-     * 
+     *
      * @param params
      * @see Call#params
      */

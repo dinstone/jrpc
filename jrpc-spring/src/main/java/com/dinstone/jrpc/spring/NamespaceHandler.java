@@ -25,6 +25,7 @@ import com.dinstone.jrpc.spring.factory.ServerFactoryBean;
 
 public class NamespaceHandler extends NamespaceHandlerSupport {
 
+    @Override
     public void init() {
         registerBeanDefinitionParser("server", new EndpointBeanDefinitionParser(ServerFactoryBean.class, Server.class));
         registerBeanDefinitionParser("service", new ServiceBeanDefinitionParser());

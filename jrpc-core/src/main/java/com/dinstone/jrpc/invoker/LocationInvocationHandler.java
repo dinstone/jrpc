@@ -12,58 +12,58 @@ import com.dinstone.jrpc.registry.ServiceDiscovery;
 
 public class LocationInvocationHandler implements InvocationHandler {
 
-	private final AtomicInteger index = new AtomicInteger(0);
+    private final AtomicInteger index = new AtomicInteger(0);
 
-	private InvocationHandler invocationHandler;
+    private InvocationHandler invocationHandler;
 
-	private ServiceDiscovery serviceDiscovery;
+    private ServiceDiscovery serviceDiscovery;
 
-	private ReferenceBinding referenceBinding;
+    private ReferenceBinding referenceBinding;
 
-	private List<InetSocketAddress> backupServiceAddresses = new ArrayList<InetSocketAddress>();
+    private List<InetSocketAddress> backupServiceAddresses = new ArrayList<>();
 
-	public LocationInvocationHandler(InvocationHandler invocationHandler, ReferenceBinding referenceBinding,
-			List<InetSocketAddress> serviceAddresses) {
-		this.invocationHandler = invocationHandler;
-		this.referenceBinding = referenceBinding;
+    public LocationInvocationHandler(InvocationHandler invocationHandler, ReferenceBinding referenceBinding,
+            List<InetSocketAddress> serviceAddresses) {
+        this.invocationHandler = invocationHandler;
+        this.referenceBinding = referenceBinding;
 
-		if (serviceAddresses != null) {
-			backupServiceAddresses.addAll(serviceAddresses);
-		}
-	}
+        if (serviceAddresses != null) {
+            backupServiceAddresses.addAll(serviceAddresses);
+        }
+    }
 
-	@Override
-	public <T> Object handle(Invocation<T> invocation) throws Exception {
-		invocation.setServiceAddress(getServiceAddress(invocation.getService(), invocation.getGroup()));
-		return invocationHandler.handle(invocation);
-	}
+    @Override
+    public <T> Object handle(Invocation<T> invocation) throws Exception {
+        invocation.setServiceAddress(getServiceAddress(invocation.getService(), invocation.getGroup()));
+        return invocationHandler.handle(invocation);
+    }
 
-	public <T> InetSocketAddress getServiceAddress(Class<T> serviceInterface, String group) {
-		InetSocketAddress serviceAddress = null;
+    public <T> InetSocketAddress getServiceAddress(Class<T> serviceInterface, String group) {
+        InetSocketAddress serviceAddress = null;
 
-		int next = Math.abs(index.getAndIncrement());
-		if (serviceDiscovery != null) {
-			serviceAddress = locateServiceAddress(serviceInterface.getName(), group, next);
-		}
+        int next = Math.abs(index.getAndIncrement());
+        if (serviceDiscovery != null) {
+            serviceAddress = locateServiceAddress(serviceInterface.getName(), group, next);
+        }
 
-		if (serviceAddress == null && backupServiceAddresses.size() > 0) {
-			serviceAddress = backupServiceAddresses.get(next % backupServiceAddresses.size());
-		}
+        if (serviceAddress == null && backupServiceAddresses.size() > 0) {
+            serviceAddress = backupServiceAddresses.get(next % backupServiceAddresses.size());
+        }
 
-		if (serviceAddress == null) {
-			throw new RuntimeException("service " + serviceInterface.getName() + "[" + group + "] is not ready");
-		}
+        if (serviceAddress == null) {
+            throw new RuntimeException("service " + serviceInterface.getName() + "[" + group + "] is not ready");
+        }
 
-		return serviceAddress;
-	}
+        return serviceAddress;
+    }
 
-	private InetSocketAddress locateServiceAddress(String serviceName, String group, int index) {
-		List<ServiceDescription> serviceDescriptions = referenceBinding.lookup(serviceName, group);
-		if (serviceDescriptions == null || serviceDescriptions.size() == 0) {
-			return null;
-		}
+    private InetSocketAddress locateServiceAddress(String serviceName, String group, int index) {
+        List<ServiceDescription> serviceDescriptions = referenceBinding.lookup(serviceName, group);
+        if (serviceDescriptions == null || serviceDescriptions.size() == 0) {
+            return null;
+        }
 
-		return serviceDescriptions.get(index % serviceDescriptions.size()).getServiceAddress();
-	}
+        return serviceDescriptions.get(index % serviceDescriptions.size()).getServiceAddress();
+    }
 
 }

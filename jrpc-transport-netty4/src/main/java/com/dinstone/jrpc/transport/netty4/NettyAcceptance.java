@@ -57,7 +57,7 @@ public class NettyAcceptance extends AbstractAcceptance {
     private static final Logger LOG = LoggerFactory.getLogger(NettyAcceptance.class);
 
     private static final AttributeKey<String> LOCAL_REMOTE_ADDRESS_KEY = AttributeKey
-            .valueOf("local-remote-address-key");
+        .valueOf("local-remote-address-key");
 
     private final ConcurrentMap<String, Channel> connectionMap = new ConcurrentHashMap<>();
 
@@ -96,7 +96,7 @@ public class NettyAcceptance extends AbstractAcceptance {
         });
         boot.option(ChannelOption.SO_REUSEADDR, true).option(ChannelOption.SO_BACKLOG, 128);
         boot.childOption(ChannelOption.SO_RCVBUF, 16 * 1024).childOption(ChannelOption.SO_SNDBUF, 16 * 1024)
-                .childOption(ChannelOption.TCP_NODELAY, true);
+            .childOption(ChannelOption.TCP_NODELAY, true);
 
         try {
             boot.bind(serviceAddress).sync();
@@ -154,7 +154,7 @@ public class NettyAcceptance extends AbstractAcceptance {
             if (currentConnectioncount >= maxConnectionCount) {
                 ctx.close();
                 LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount,
-                        currentConnectioncount);
+                    currentConnectioncount);
             } else {
                 Channel channel = ctx.channel();
                 String addressLabel = NetworkAddressUtil.addressLabel(channel.remoteAddress(), channel.localAddress());

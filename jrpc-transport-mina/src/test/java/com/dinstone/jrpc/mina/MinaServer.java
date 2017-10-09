@@ -44,13 +44,13 @@ public class MinaServer {
             EndpointConfig endpointConfig) {
         transportConfig.setSchema("mina");
         server = new ServerBuilder().bind(providerAddress).endpointConfig(endpointConfig).registryConfig(registryConfig)
-                .transportConfig(transportConfig).build();
+            .transportConfig(transportConfig).build();
 
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see com.dinstone.jrpc.api.Server#start()
      */
     public void start() {
@@ -59,7 +59,7 @@ public class MinaServer {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see com.dinstone.jrpc.api.Server#stop()
      */
     public void stop() {

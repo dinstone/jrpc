@@ -24,7 +24,7 @@ public interface ServiceInvoker {
 
     /**
      * client/server side {@link Invocation} invoke.
-     * 
+     *
      * @param serviceProxy
      * @param method
      * @param args

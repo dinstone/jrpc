@@ -21,7 +21,7 @@ import com.dinstone.jrpc.proxy.ServiceProxy;
 
 /**
  * service implement binding
- * 
+ *
  * @author dinstone
  * @version 1.0.0
  */
@@ -29,7 +29,7 @@ public interface ImplementBinding {
 
     /**
      * binding service implement
-     * 
+     *
      * @param wrapper
      */
     public <T> void bind(ServiceProxy<T> wrapper, EndpointConfig endpointConfig);

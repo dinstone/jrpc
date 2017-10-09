@@ -13,26 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.ut.faststub;
 
 import com.dinstone.ut.faststub.internal.ProxyFactory;
 
 /**
- * The stub factory to generate Stub instance.The stub type either Interface
- * type or Class type.
- * 
+ * The stub factory to generate Stub instance.The stub type either Interface type or Class type.
+ *
  * @author dinstone
- * 
  */
 public class FastStub {
 
     /**
      * Creating stub instance.
-     * 
+     *
      * @param <T>
-     *            stub type, Interface or non final Class
+     *        stub type, Interface or non final Class
      * @param toStub
-     *            required stub class
+     *        required stub class
      * @return stub instance
      */
     public static <T> T createStub(final Class<T> toStub) {
@@ -41,13 +40,13 @@ public class FastStub {
 
     /**
      * Creating stub instance, specify a custom method interceptor.
-     * 
+     *
      * @param <T>
-     *            stub type, Interface or non final Class
+     *        stub type, Interface or non final Class
      * @param toStub
-     *            required stub class
+     *        required stub class
      * @param interceptor
-     *            method interceptor to intercept the target method invocation
+     *        method interceptor to intercept the target method invocation
      * @return stub instance
      */
     public static <T> T createStub(final Class<T> toStub, MethodInterceptor interceptor) {

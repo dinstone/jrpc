@@ -16,15 +16,15 @@
 
 package com.dinstone.jrpc.transport.netty4;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.ByteToMessageDecoder;
-
 import java.io.Serializable;
 import java.util.List;
 
 import com.dinstone.jrpc.protocol.Message;
 import com.dinstone.jrpc.protocol.MessageCodec;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ByteToMessageDecoder;
 
 public class TransportProtocolDecoder extends ByteToMessageDecoder {
 
@@ -36,7 +36,7 @@ public class TransportProtocolDecoder extends ByteToMessageDecoder {
 
     /**
      * the maxObjectSize to get
-     * 
+     *
      * @return the maxObjectSize
      * @see TransportProtocolEncoder#maxObjectSize
      */
@@ -46,7 +46,7 @@ public class TransportProtocolDecoder extends ByteToMessageDecoder {
 
     /**
      * the maxObjectSize to set
-     * 
+     *
      * @param maxObjectSize
      * @see TransportProtocolEncoder#maxObjectSize
      */

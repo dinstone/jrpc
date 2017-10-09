@@ -26,7 +26,7 @@ import com.dinstone.jrpc.transport.ConnectionManager;
 
 /**
  * client-side service invoker.
- * 
+ *
  * @author dinstone
  * @version 1.0.0
  */
@@ -54,7 +54,7 @@ public class StubServiceInvoker implements ServiceInvoker {
             return serviceProxy.getService();
         }
 
-        return invocationHandler.handle(new Invocation<T>(serviceProxy, method, args));
+        return invocationHandler.handle(new Invocation<>(serviceProxy, method, args));
     }
 
 }

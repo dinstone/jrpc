@@ -22,7 +22,7 @@ import com.dinstone.jrpc.SchemaFactory;
 
 /**
  * connetcion factory.
- * 
+ *
  * @author guojinfei
  * @version 2.0.0.2015-11-3
  */

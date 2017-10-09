@@ -57,7 +57,7 @@ public class NettyAcceptance extends AbstractAcceptance {
     private static final Logger LOG = LoggerFactory.getLogger(NettyAcceptance.class);
 
     private static final AttributeKey<String> LOCAL_REMOTE_ADDRESS_KEY = AttributeKey
-            .valueOf("local-remote-address-key");
+        .valueOf("local-remote-address-key");
 
     private final ConcurrentMap<String, Channel> connectionMap = new ConcurrentHashMap<>();
 
@@ -76,29 +76,29 @@ public class NettyAcceptance extends AbstractAcceptance {
     public Acceptance bind() {
         bossGroup = new NioEventLoopGroup(1, new DefaultExecutorServiceFactory("N5A-Boss"));
         workGroup = new NioEventLoopGroup(transportConfig.getNioProcessorCount(),
-                new DefaultExecutorServiceFactory("N5A-Work"));
+            new DefaultExecutorServiceFactory("N5A-Work"));
 
         ServerBootstrap boot = new ServerBootstrap();
         boot.group(bossGroup, workGroup).channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
+            .childHandler(new ChannelInitializer<SocketChannel>() {
 
-                    @Override
-                    public void initChannel(SocketChannel ch) throws Exception {
-                        TransportProtocolDecoder decoder = new TransportProtocolDecoder();
-                        decoder.setMaxObjectSize(transportConfig.getMaxSize());
-                        TransportProtocolEncoder encoder = new TransportProtocolEncoder();
-                        encoder.setMaxObjectSize(transportConfig.getMaxSize());
-                        ch.pipeline().addLast("TransportProtocolDecoder", decoder);
-                        ch.pipeline().addLast("TransportProtocolEncoder", encoder);
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
+                    TransportProtocolDecoder decoder = new TransportProtocolDecoder();
+                    decoder.setMaxObjectSize(transportConfig.getMaxSize());
+                    TransportProtocolEncoder encoder = new TransportProtocolEncoder();
+                    encoder.setMaxObjectSize(transportConfig.getMaxSize());
+                    ch.pipeline().addLast("TransportProtocolDecoder", decoder);
+                    ch.pipeline().addLast("TransportProtocolEncoder", encoder);
 
-                        int intervalSeconds = transportConfig.getHeartbeatIntervalSeconds();
-                        ch.pipeline().addLast("IdleStateHandler", new IdleStateHandler(intervalSeconds * 2, 0, 0));
-                        ch.pipeline().addLast("NettyServerHandler", new NettyServerHandler());
-                    }
-                });
+                    int intervalSeconds = transportConfig.getHeartbeatIntervalSeconds();
+                    ch.pipeline().addLast("IdleStateHandler", new IdleStateHandler(intervalSeconds * 2, 0, 0));
+                    ch.pipeline().addLast("NettyServerHandler", new NettyServerHandler());
+                }
+            });
         boot.option(ChannelOption.SO_REUSEADDR, true).option(ChannelOption.SO_BACKLOG, 128);
         boot.childOption(ChannelOption.SO_RCVBUF, 16 * 1024).childOption(ChannelOption.SO_SNDBUF, 16 * 1024)
-                .childOption(ChannelOption.TCP_NODELAY, true);
+            .childOption(ChannelOption.TCP_NODELAY, true);
 
         try {
             boot.bind(serviceAddress).sync();
@@ -156,7 +156,7 @@ public class NettyAcceptance extends AbstractAcceptance {
             if (currentConnectioncount >= maxConnectionCount) {
                 ctx.close();
                 LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount,
-                        currentConnectioncount);
+                    currentConnectioncount);
             } else {
                 Channel channel = ctx.channel();
                 String addressLabel = NetworkAddressUtil.addressLabel(channel.remoteAddress(), channel.localAddress());

@@ -24,7 +24,7 @@ import com.dinstone.jrpc.serializer.SerializerRegister;
 
 /**
  * RPC message codec.
- * 
+ *
  * @author guojinfei
  * @version 1.0.0.2014-6-23
  */
@@ -37,7 +37,7 @@ public class MessageCodec {
 
     /**
      * encode RPC Message.
-     * 
+     *
      * @param message
      *        RpcMessage
      * @return
@@ -60,7 +60,7 @@ public class MessageCodec {
 
     /**
      * decode RPC Message.
-     * 
+     *
      * @param rpcBytes
      *        RpcMessage bytes
      * @return

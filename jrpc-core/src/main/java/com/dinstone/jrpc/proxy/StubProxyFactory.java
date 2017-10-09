@@ -33,10 +33,10 @@ public class StubProxyFactory implements ServiceProxyFactory {
     @Override
     public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceObject)
             throws Exception {
-        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<T>();
-        T proxy = serviceInterface.cast(Proxy.newProxyInstance(serviceInterface.getClassLoader(),
-            new Class[] { serviceInterface }, handler));
-        ServiceProxy<T> serviceProxy = new ServiceProxy<T>(serviceInterface, group, timeout);
+        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>();
+        T proxy = serviceInterface
+            .cast(Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
+        ServiceProxy<T> serviceProxy = new ServiceProxy<>(serviceInterface, group, timeout);
         serviceProxy.setProxy(proxy);
         handler.serviceProxy = serviceProxy;
         return serviceProxy;
@@ -47,7 +47,7 @@ public class StubProxyFactory implements ServiceProxyFactory {
         private ServiceProxy<T> serviceProxy;
 
         @Override
-		public Object invoke(Object proxyObj, Method method, Object[] args) throws Throwable {
+        public Object invoke(Object proxyObj, Method method, Object[] args) throws Throwable {
             return serviceInvoker.invoke(serviceProxy, method, args);
         }
 

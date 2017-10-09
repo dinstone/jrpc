@@ -27,7 +27,7 @@ public class ConcurrentHashSet<E> extends AbstractSet<E> implements Serializable
 
     private static final long serialVersionUID = -8347878570391674042L;
 
-    protected final Map<E, Boolean> map = new ConcurrentHashMap<E, Boolean>();
+    protected final Map<E, Boolean> map = new ConcurrentHashMap<>();
 
     public ConcurrentHashSet() {
     }

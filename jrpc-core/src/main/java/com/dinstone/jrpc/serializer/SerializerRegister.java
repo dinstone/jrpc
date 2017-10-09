@@ -23,7 +23,7 @@ public class SerializerRegister {
 
     private static SerializerRegister INSTANCE = new SerializerRegister();
 
-    private Map<SerializeType, Serializer> serializerMap = new EnumMap<SerializeType, Serializer>(SerializeType.class);
+    private Map<SerializeType, Serializer> serializerMap = new EnumMap<>(SerializeType.class);
 
     public static SerializerRegister getInstance() {
         return INSTANCE;

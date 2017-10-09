@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.transport.netty5;
 
-import io.netty.channel.Channel;
-import io.netty.util.AttributeKey;
+package com.dinstone.jrpc.transport.netty5;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.jrpc.transport.ResultFuture;
 
+import io.netty.channel.Channel;
+import io.netty.util.AttributeKey;
+
 public class SessionUtil {
 
-    private static final AttributeKey<Object> RESULT_FUTURE_KEY = AttributeKey.valueOf(ConcurrentHashMap.class
-        .getName());
+    private static final AttributeKey<Object> RESULT_FUTURE_KEY = AttributeKey
+        .valueOf(ConcurrentHashMap.class.getName());
 
     @SuppressWarnings("unchecked")
     public static Map<Integer, ResultFuture> getResultFutureMap(Channel session) {

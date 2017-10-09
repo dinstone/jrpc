@@ -85,8 +85,8 @@ public class DefaultConnectionTest {
     public void testCall() {
         long st = System.currentTimeMillis();
 
-        ResultFuture cf = connect.call(new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello",
-            new Object[] { "dddd" }, null));
+        ResultFuture cf = connect.call(
+            new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello", new Object[] { "dddd" }, null));
         try {
             cf.get();
         } catch (InterruptedException e) {
@@ -110,6 +110,7 @@ public class DefaultConnectionTest {
         final Semaphore s = new Semaphore(0);
         ResultFutureListener listener = new ResultFutureListener() {
 
+            @Override
             public void complete(ResultFuture future) {
                 s.release();
             }
@@ -117,8 +118,8 @@ public class DefaultConnectionTest {
 
         int count = 10000;
         for (int i = 0; i < count; i++) {
-            ResultFuture f = connect.call(new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello",
-                new Object[] { name }, null));
+            ResultFuture f = connect.call(
+                new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello", new Object[] { name }, null));
             f.addListener(listener);
         }
 

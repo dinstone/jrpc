@@ -36,7 +36,9 @@ import com.dinstone.jrpc.transport.TransportConfig;
 public class Client implements ServiceImporter {
 
     private ServiceImporter serviceImporter;
+
     private ServiceDiscovery serviceDiscovery;
+
     private ConnectionManager connectionManager;
 
     Client(EndpointConfig endpointConfig, RegistryConfig registryConfig, TransportConfig transportConfig,
@@ -70,7 +72,7 @@ public class Client implements ServiceImporter {
 
         ReferenceBinding referenceBinding = new DefaultReferenceBinding(endpointConfig, serviceDiscovery);
         StubServiceInvoker serviceInvoker = new StubServiceInvoker(connectionManager, referenceBinding,
-                serviceAddresses);
+            serviceAddresses);
         this.serviceImporter = new DefaultServiceImporter(endpointConfig, referenceBinding, serviceInvoker);
     }
 

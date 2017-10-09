@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.registry;
 
 import java.io.Serializable;
@@ -24,7 +25,7 @@ public class ServiceAttribute implements Serializable {
     /**  */
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Object> attributes = new HashMap<String, Object>();
+    private Map<String, Object> attributes = new HashMap<>();
 
     public ServiceAttribute() {
         super();

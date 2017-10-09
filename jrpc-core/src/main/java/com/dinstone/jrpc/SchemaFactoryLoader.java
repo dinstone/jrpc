@@ -40,7 +40,7 @@ public class SchemaFactoryLoader<T> {
 
         SchemaFactoryLoader<T> loader = (SchemaFactoryLoader<T>) loaderMap.get(type);
         if (loader == null) {
-            loaderMap.putIfAbsent(type, new SchemaFactoryLoader<T>(type));
+            loaderMap.putIfAbsent(type, new SchemaFactoryLoader<>(type));
             loader = (SchemaFactoryLoader<T>) loaderMap.get(type);
         }
 

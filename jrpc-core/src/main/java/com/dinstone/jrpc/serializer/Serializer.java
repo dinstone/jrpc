@@ -18,7 +18,7 @@ package com.dinstone.jrpc.serializer;
 
 /**
  * Serialize java object to byte array and Deserialize byte array to java object.
- * 
+ *
  * @author guojinfei
  * @version 1.0.0.2014-7-29
  */

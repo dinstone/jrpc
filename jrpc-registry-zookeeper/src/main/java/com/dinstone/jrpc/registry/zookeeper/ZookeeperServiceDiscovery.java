@@ -173,9 +173,9 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
 
     public class ServiceCache implements PathChildrenCacheListener {
 
-        private final ConcurrentHashMap<String, ServiceDescription> providers = new ConcurrentHashMap<String, ServiceDescription>();
+        private final ConcurrentHashMap<String, ServiceDescription> providers = new ConcurrentHashMap<>();
 
-        private final ConcurrentHashMap<String, ServiceDescription> consumers = new ConcurrentHashMap<String, ServiceDescription>();
+        private final ConcurrentHashMap<String, ServiceDescription> consumers = new ConcurrentHashMap<>();
 
         private PathChildrenCache cache;
 
@@ -185,7 +185,7 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
         }
 
         public List<ServiceDescription> getProviders() {
-            ArrayList<ServiceDescription> pl = new ArrayList<ServiceDescription>(providers.size());
+            ArrayList<ServiceDescription> pl = new ArrayList<>(providers.size());
             pl.addAll(providers.values());
             return pl;
         }

@@ -31,7 +31,7 @@ import com.dinstone.jrpc.registry.ServiceRegistry;
 
 public class DefaultImplementBinding implements ImplementBinding {
 
-    protected Map<String, ServiceProxy<?>> serviceProxyMap = new ConcurrentHashMap<String, ServiceProxy<?>>();
+    protected Map<String, ServiceProxy<?>> serviceProxyMap = new ConcurrentHashMap<>();
 
     protected InetSocketAddress providerAddress;
 
@@ -78,7 +78,7 @@ public class DefaultImplementBinding implements ImplementBinding {
         description.setRegistryTime(System.currentTimeMillis());
 
         ServiceAttribute serviceAttribute = new ServiceAttribute();
-        List<String> methodDescList = new ArrayList<String>();
+        List<String> methodDescList = new ArrayList<>();
         for (Method method : wrapper.getService().getDeclaredMethods()) {
             methodDescList.add(description(method));
         }

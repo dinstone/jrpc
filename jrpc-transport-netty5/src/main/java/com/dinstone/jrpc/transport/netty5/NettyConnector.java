@@ -16,20 +16,6 @@
 
 package com.dinstone.jrpc.transport.netty5;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerAdapter;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.timeout.IdleState;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.util.concurrent.DefaultExecutorServiceFactory;
-
 import java.net.InetSocketAddress;
 import java.util.Map;
 
@@ -43,6 +29,20 @@ import com.dinstone.jrpc.protocol.Tick;
 import com.dinstone.jrpc.serializer.SerializeType;
 import com.dinstone.jrpc.transport.ResultFuture;
 import com.dinstone.jrpc.transport.TransportConfig;
+
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerAdapter;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultExecutorServiceFactory;
 
 public class NettyConnector {
 
@@ -134,7 +134,7 @@ public class NettyConnector {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see io.netty.channel.ChannelInboundHandlerAdapter#channelInactive(io.netty.channel.ChannelHandlerContext)
          */
         @Override

@@ -68,7 +68,7 @@ public class AbstractAcceptanceTest {
     @Test
     public void testHandle() {
         Request request = new Request(1234, SerializeType.JACKSON, new Call(DemoService.class.getName(), "", 3000,
-                "hello", new Object[] { "dinstone" }, new Class<?>[] { String.class }));
+            "hello", new Object[] { "dinstone" }, new Class<?>[] { String.class }));
         Response response = acceptance.handle(request);
 
         System.out.println(response);
@@ -77,7 +77,7 @@ public class AbstractAcceptanceTest {
     @Test
     public void testHandle1() {
         Request request = new Request(12345, SerializeType.JACKSON, new Call(DemoService.class.getName(), "", 3000,
-                "hello", new Object[] { "guojinfei", 34 }, new Class<?>[] { String.class, int.class }));
+            "hello", new Object[] { "guojinfei", 34 }, new Class<?>[] { String.class, int.class }));
         Response response = acceptance.handle(request);
 
         System.out.println(response);
@@ -86,7 +86,7 @@ public class AbstractAcceptanceTest {
     @Test
     public void testHandle2() {
         Request request = new Request(12345, SerializeType.JACKSON,
-                new Call(DemoService.class.getName(), "", 3000, "hello", new Object[] { "guojinfei", (int) 34 }, null));
+            new Call(DemoService.class.getName(), "", 3000, "hello", new Object[] { "guojinfei", (int) 34 }, null));
         Response response = acceptance.handle(request);
 
         System.out.println(response);
@@ -95,7 +95,7 @@ public class AbstractAcceptanceTest {
     @Test
     public void testHandle3() {
         Request request = new Request(12345, SerializeType.JACKSON,
-                new Call(DemoService.class.getName(), "", 3000, "hello", null, null));
+            new Call(DemoService.class.getName(), "", 3000, "hello", null, null));
         Response response = acceptance.handle(request);
 
         System.out.println(response);

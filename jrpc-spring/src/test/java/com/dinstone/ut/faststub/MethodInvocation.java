@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.ut.faststub;
 
 import java.lang.reflect.Method;
 
 /**
  * The abstract for method calls.
- * 
+ *
  * @author dinstone
- * 
  */
 public interface MethodInvocation {
 
     /**
      * Call the target method.
-     * 
+     *
      * @param method
      * @param args
      * @return

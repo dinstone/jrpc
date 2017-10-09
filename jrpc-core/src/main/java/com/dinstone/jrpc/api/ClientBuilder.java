@@ -32,7 +32,7 @@ public class ClientBuilder {
 
     private TransportConfig transportConfig = new TransportConfig();
 
-    private List<InetSocketAddress> serviceAddresses = new ArrayList<InetSocketAddress>();
+    private List<InetSocketAddress> serviceAddresses = new ArrayList<>();
 
     public ClientBuilder bind(String addresses) {
         if (addresses == null || addresses.length() == 0) {

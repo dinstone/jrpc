@@ -22,7 +22,7 @@ import com.dinstone.jrpc.proxy.ServiceProxy;
 
 /**
  * server-side service invoker.
- * 
+ *
  * @author guojinfei
  * @version 1.0.0.2014-7-29
  */

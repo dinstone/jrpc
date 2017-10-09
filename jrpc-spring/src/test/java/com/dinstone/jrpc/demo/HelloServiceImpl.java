@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.demo;
 
 /**
@@ -23,9 +24,10 @@ public class HelloServiceImpl implements HelloService {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see com.dinstone.jrpc.cases.HelloService#sayHello(java.lang.String)
      */
+    @Override
     public String sayHello(String name) {
         try {
             // System.out.println(name.length());
@@ -38,10 +40,10 @@ public class HelloServiceImpl implements HelloService {
 
     /**
      * {@inheritDoc}
-     * 
-     * @see com.dinstone.jrpc.cases.SuperInterface#sayHello(java.lang.String,
-     *      int)
+     *
+     * @see com.dinstone.jrpc.cases.SuperInterface#sayHello(java.lang.String, int)
      */
+    @Override
     public String sayHello(String name, int age) {
         if (age < 3) {
             return "hi, baby " + name;
