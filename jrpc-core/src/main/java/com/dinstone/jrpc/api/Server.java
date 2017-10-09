@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ * Copyright (C) 2014~2017 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.dinstone.jrpc.api;
 
 import java.net.InetSocketAddress;
@@ -29,7 +28,7 @@ import com.dinstone.jrpc.endpoint.ServiceExporter;
 import com.dinstone.jrpc.invoker.SkelectonServiceInvoker;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
-import com.dinstone.jrpc.proxy.SkelectonProxyFactory;
+import com.dinstone.jrpc.proxy.StubServiceProxyFactory;
 import com.dinstone.jrpc.registry.RegistryConfig;
 import com.dinstone.jrpc.registry.RegistryFactory;
 import com.dinstone.jrpc.registry.ServiceRegistry;
@@ -41,17 +40,17 @@ public class Server implements ServiceExporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(Server.class);
 
-    private ImplementBinding implementBinding;
-
     private Acceptance acceptance;
 
     private EndpointConfig endpointConfig;
 
-    private ServiceProxyFactory serviceProxyFactory;
-
     private InetSocketAddress serviceAddress;
 
     private ServiceRegistry serviceRegistry;
+
+    private ImplementBinding implementBinding;
+
+    private ServiceProxyFactory serviceProxyFactory;
 
     Server(EndpointConfig endpointConfig, RegistryConfig registryConfig, TransportConfig transportConfig,
             InetSocketAddress serviceAddress) {
@@ -90,7 +89,7 @@ public class Server implements ServiceExporter {
             }
         }
 
-        this.serviceProxyFactory = new SkelectonProxyFactory(new SkelectonServiceInvoker());
+        this.serviceProxyFactory = new StubServiceProxyFactory(new SkelectonServiceInvoker());
         this.implementBinding = new DefaultImplementBinding(endpointConfig, serviceRegistry, serviceAddress);
         this.acceptance = acceptanceFactory.create(transportConfig, implementBinding, serviceAddress);
     }

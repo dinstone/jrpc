@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ * Copyright (C) 2014~2017 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.dinstone.jrpc.transport;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetSocketAddress;
 
 import com.dinstone.jrpc.binding.ImplementBinding;
@@ -48,32 +48,48 @@ public abstract class AbstractAcceptance implements Acceptance {
     @Override
     public Response handle(Request request) {
         Result result = null;
+        Call call = request.getCall();
         try {
-            Call call = request.getCall();
             ServiceProxy<?> wrapper = implementBinding.lookup(call.getService(), call.getGroup());
             if (wrapper != null) {
                 Class<?>[] paramTypes = getParamTypes(call);
                 Method method = wrapper.getService().getDeclaredMethod(call.getMethod(), paramTypes);
-                // Object resObj = serviceInvoker.invoke(wrapper, method, call.getParams());
                 Object resObj = method.invoke(wrapper.getProxy(), call.getParams());
                 result = new Result(200, resObj);
             } else {
-                result = new Result(404, "unkown service");
+                result = new Result(404, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
             }
         } catch (NoSuchMethodException e) {
-            result = new Result(405, "unkown method", e);
-        } catch (IllegalArgumentException e) {
-            result = new Result(600, e.getMessage(), e);
-        } catch (IllegalAccessException e) {
-            result = new Result(601, e.getMessage(), e);
+            result = new Result(405,
+                "unkown method: " + call.getService() + "[" + call.getGroup() + "]." + call.getMethod());
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            String message = "illegal access: " + call.getService() + "[" + call.getGroup() + "]." + call.getMethod()
+                    + "(): " + e.getMessage();
+            result = new Result(502, message);
         } catch (InvocationTargetException e) {
-            Throwable t = e.getTargetException();
-            result = new Result(500, t.getMessage(), t);
-        } catch (Exception e) {
-            result = new Result(509, "unkown exception", e);
+            Throwable t = getTargetException(e);
+            String message = "service exception: " + call.getService() + "[" + call.getGroup() + "]." + call.getMethod()
+                    + "(): " + t.getMessage();
+            result = new Result(500, message);
+        } catch (Throwable e) {
+            String message = "service exception: " + call.getService() + "[" + call.getGroup() + "]." + call.getMethod()
+                    + "(): " + e.getMessage();
+            result = new Result(509, message);
         }
 
         return new Response(request.getMessageId(), request.getSerializeType(), result);
+    }
+
+    private Throwable getTargetException(InvocationTargetException e) {
+        Throwable t = e.getTargetException();
+        if (t instanceof UndeclaredThrowableException) {
+            UndeclaredThrowableException ut = (UndeclaredThrowableException) t;
+            t = ut.getCause();
+            if (t instanceof InvocationTargetException) {
+                return getTargetException((InvocationTargetException) t);
+            }
+        }
+        return t;
     }
 
     protected Class<?>[] getParamTypes(Call call) {

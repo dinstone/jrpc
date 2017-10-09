@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ * Copyright (C) 2014~2017 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.dinstone.jrpc.transport;
 
 import java.net.InetSocketAddress;
@@ -30,7 +29,8 @@ import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.proxy.ServiceProxy;
-import com.dinstone.jrpc.proxy.SkelectonProxyFactory;
+import com.dinstone.jrpc.proxy.ServiceProxyFactory;
+import com.dinstone.jrpc.proxy.StubServiceProxyFactory;
 import com.dinstone.jrpc.serializer.SerializeType;
 
 public class AbstractAcceptanceTest {
@@ -39,7 +39,7 @@ public class AbstractAcceptanceTest {
 
     @Before
     public void setUp() throws Exception {
-        SkelectonProxyFactory factory = new SkelectonProxyFactory(null);
+        ServiceProxyFactory factory = new StubServiceProxyFactory(null);
         ServiceProxy<DemoService> wrapper = factory.create(DemoService.class, "", 3000, new DemoServiceImpl());
 
         ImplementBinding iBinding = new DefaultImplementBinding(null, null, new InetSocketAddress("localhost", 0));

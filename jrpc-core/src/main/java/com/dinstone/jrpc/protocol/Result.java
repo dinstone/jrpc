@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ * Copyright (C) 2014~2017 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.dinstone.jrpc.protocol;
 
 import java.io.Serializable;
@@ -48,13 +47,6 @@ public class Result implements Serializable {
     public Result(int code, Object data) {
         super();
         this.code = code;
-        this.data = data;
-    }
-
-    public Result(int code, String message, Object data) {
-        super();
-        this.code = code;
-        this.message = message;
         this.data = data;
     }
 
