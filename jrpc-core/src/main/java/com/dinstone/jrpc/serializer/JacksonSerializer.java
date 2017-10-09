@@ -41,12 +41,12 @@ public class JacksonSerializer implements Serializer {
     }
 
     @Override
-	public <T> byte[] serialize(T data) throws Exception {
+    public <T> byte[] serialize(T data) throws Exception {
         return objectMapper.writeValueAsBytes(data);
     }
 
     @Override
-	public <T> T deserialize(byte[] bodyBytes, Class<T> clazz) throws Exception {
+    public <T> T deserialize(byte[] bodyBytes, Class<T> clazz) throws Exception {
         return objectMapper.readValue(bodyBytes, clazz);
     }
 

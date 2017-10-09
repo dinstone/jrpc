@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.ut.faststub.internal;
 
 import java.lang.reflect.Array;
@@ -30,7 +31,6 @@ import com.dinstone.ut.faststub.MethodInvocation;
 
 /**
  * @author dinstone
- * 
  */
 class StubMethodInvocation implements MethodInvocation {
 
@@ -51,8 +51,8 @@ class StubMethodInvocation implements MethodInvocation {
 
     /**
      * {@inheritDoc}
-     * 
      */
+    @Override
     public Object invoke(Method method, Object[] args) throws Throwable {
         ApplicationContext stubContext = getStubContext(method);
         Object retObj = stubContext.getBean(method.getName());
@@ -84,7 +84,7 @@ class StubMethodInvocation implements MethodInvocation {
         StackTraceElement callTrace = findCaller();
         String testCase = callTrace.getMethodName();
         if (!testCase.equals(currentCase)) {
-            stubContextCachedMap = new HashMap<String, ApplicationContext>();
+            stubContextCachedMap = new HashMap<>();
             currentCase = testCase;
         }
 
@@ -115,7 +115,7 @@ class StubMethodInvocation implements MethodInvocation {
         }
 
         throw new RuntimeException(
-                "Test class name must be 'Test' as a suffix, the test method must start with 'test' prefix.");
+            "Test class name must be 'Test' as a suffix, the test method must start with 'test' prefix.");
     }
 
 }

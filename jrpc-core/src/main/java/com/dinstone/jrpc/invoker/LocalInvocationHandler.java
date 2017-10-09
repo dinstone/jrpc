@@ -1,3 +1,4 @@
+
 package com.dinstone.jrpc.invoker;
 
 public class LocalInvocationHandler implements InvocationHandler {

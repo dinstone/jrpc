@@ -147,7 +147,7 @@ public class TransportConfig extends SchemaConfig {
     }
 
     @Override
-	public TransportConfig setSchema(String schema) {
+    public TransportConfig setSchema(String schema) {
         super.setSchema(schema);
 
         return this;

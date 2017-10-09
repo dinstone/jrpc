@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.ut.faststub.internal;
 
 import java.lang.reflect.Method;
@@ -22,14 +23,13 @@ import com.dinstone.ut.faststub.MethodInvocation;
 
 /**
  * @author dinstone
- * 
  */
 class DefaultMethodInterceptor implements MethodInterceptor {
 
     /**
      * {@inheritDoc}
-     * 
      */
+    @Override
     public Object invoke(MethodInvocation invocation, Method method, Object[] args) throws Throwable {
         return invocation.invoke(method, args);
     }

@@ -109,7 +109,7 @@ public class DefaultReferenceBinding implements ReferenceBinding {
     }
 
     protected List<ServiceDescription> findServices(String serviceName, String group) throws Exception {
-        List<ServiceDescription> services = new ArrayList<ServiceDescription>();
+        List<ServiceDescription> services = new ArrayList<>();
         List<ServiceDescription> serviceDescriptions = serviceDiscovery.discovery(serviceName);
         if (serviceDescriptions != null && serviceDescriptions.size() > 0) {
             for (ServiceDescription serviceDescription : serviceDescriptions) {

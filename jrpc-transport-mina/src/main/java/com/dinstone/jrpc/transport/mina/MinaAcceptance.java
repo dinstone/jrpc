@@ -140,10 +140,10 @@ public class MinaAcceptance extends AbstractAcceptance {
             if (currentConnectioncount >= maxConnectionCount) {
                 session.close(true);
                 LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount,
-                        currentConnectioncount);
+                    currentConnectioncount);
             } else {
                 String addressLabel = NetworkAddressUtil.addressLabel(session.getRemoteAddress(),
-                        session.getLocalAddress());
+                    session.getLocalAddress());
                 session.setAttribute(LOCAL_REMOTE_ADDRESS_KEY, addressLabel);
                 connectionMap.put(addressLabel, session);
             }
@@ -174,7 +174,7 @@ public class MinaAcceptance extends AbstractAcceptance {
 
         /**
          * {@inheritDoc}
-         * 
+         *
          * @see org.apache.mina.core.service.IoHandlerAdapter#sessionClosed(org.apache.mina.core.session.IoSession)
          */
         @Override
@@ -201,14 +201,17 @@ public class MinaAcceptance extends AbstractAcceptance {
 
     private final class PassiveKeepAliveMessageFactory implements KeepAliveMessageFactory {
 
+        @Override
         public boolean isResponse(IoSession session, Object message) {
             return false;
         }
 
+        @Override
         public Object getRequest(IoSession session) {
             return null;
         }
 
+        @Override
         public boolean isRequest(IoSession session, Object message) {
             if (message instanceof Heartbeat) {
                 return true;
@@ -216,6 +219,7 @@ public class MinaAcceptance extends AbstractAcceptance {
             return false;
         }
 
+        @Override
         public Object getResponse(IoSession session, Object request) {
             Heartbeat heartbeat = (Heartbeat) request;
             heartbeat.getContent().increase();

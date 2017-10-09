@@ -31,7 +31,8 @@ public class ServiceWithSpring {
     }
 
     protected static void case03() {
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("jrpc-example-case3.xml");
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
+            "jrpc-example-case3.xml");
 
         HelloService rhsv1 = (HelloService) applicationContext.getBean("rhsv1");
 
@@ -56,7 +57,8 @@ public class ServiceWithSpring {
     }
 
     private static void case02() {
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("jrpc-example-case2.xml");
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
+            "jrpc-example-case2.xml");
 
         HelloService rhsv1Netty = (HelloService) applicationContext.getBean("rhsv1-netty");
         System.out.println("rhsv1Netty");
@@ -93,7 +95,8 @@ public class ServiceWithSpring {
     }
 
     protected static void case01() {
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("jrpc-example-case1.xml");
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(
+            "jrpc-example-case1.xml");
 
         HelloService rhsv1 = (HelloService) applicationContext.getBean("rhsv1");
 

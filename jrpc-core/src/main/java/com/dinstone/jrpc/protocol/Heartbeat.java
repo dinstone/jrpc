@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.protocol;
 
 import java.io.Serializable;
@@ -21,7 +22,7 @@ import com.dinstone.jrpc.serializer.SerializeType;
 
 /**
  * Heartbeat message.
- * 
+ *
  * @author guojinfei
  * @version 1.0.0.2014-8-27
  */

@@ -97,7 +97,7 @@ public class ServiceConsumer {
 
                 /**
                  * {@inheritDoc}
-                 * 
+                 *
                  * @see java.lang.Thread#run()
                  */
                 @Override

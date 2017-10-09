@@ -23,21 +23,21 @@ import com.dinstone.jrpc.registry.ServiceDescription;
 
 /**
  * service reference binding
- * 
+ *
  * @author dinstone
  * @version 1.0.0
  */
 public interface ReferenceBinding {
 
-	/**
-	 * service reference bind
-	 * 
-	 * @param wrapper
-	 */
-	public <T> void bind(ServiceProxy<T> wrapper);
+    /**
+     * service reference bind
+     * 
+     * @param wrapper
+     */
+    public <T> void bind(ServiceProxy<T> wrapper);
 
-	public List<ServiceDescription> lookup(String serviceName, String group);
+    public List<ServiceDescription> lookup(String serviceName, String group);
 
-	public void destroy();
+    public void destroy();
 
 }

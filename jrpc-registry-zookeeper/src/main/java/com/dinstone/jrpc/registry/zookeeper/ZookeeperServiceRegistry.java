@@ -37,7 +37,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperServiceRegistry.class);
 
-    private final Map<String, ServiceDescription> services = new ConcurrentHashMap<String, ServiceDescription>();
+    private final Map<String, ServiceDescription> services = new ConcurrentHashMap<>();
 
     private final ServiceDescriptionSerializer serializer = new ServiceDescriptionSerializer();
 
@@ -106,6 +106,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
         services.remove(service.getId());
     }
 
+    @Override
     public void destroy() {
         if (connectionState == ConnectionState.CONNECTED) {
             for (ServiceDescription service : services.values()) {

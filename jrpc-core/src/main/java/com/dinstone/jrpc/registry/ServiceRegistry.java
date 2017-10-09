@@ -18,7 +18,7 @@ package com.dinstone.jrpc.registry;
 
 /**
  * Service Registry
- * 
+ *
  * @author dinstone
  * @version 1.0.0
  */
@@ -26,7 +26,7 @@ public interface ServiceRegistry {
 
     /**
      * Register / Re-register a service instance
-     * 
+     *
      * @param service
      *        the service instance description
      * @throws Exception
@@ -36,7 +36,7 @@ public interface ServiceRegistry {
 
     /**
      * Unregister / Remove a service instance
-     * 
+     *
      * @param service
      *        the service instance description
      * @throws Exception

@@ -27,7 +27,7 @@ public enum SerializeType {
 
     /**
      * the value to get
-     * 
+     *
      * @return the value
      * @see SerializeType#value
      */

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class ResultFuture {
     private List<ResultFutureListener> listeners;
 
     /**
-     * 
+     *
      */
     public ResultFuture() {
         super();
@@ -140,7 +141,7 @@ public class ResultFuture {
                 notifyNow = true;
             } else {
                 if (listeners == null) {
-                    listeners = new ArrayList<ResultFutureListener>(1);
+                    listeners = new ArrayList<>(1);
                 }
                 listeners.add(listener);
             }

@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.ut.faststub;
 
 import java.lang.reflect.Method;
 
 /**
  * Method interceptor to intercept method calls.
- * 
+ *
  * @author dinstone
- * 
  */
 public interface MethodInterceptor {
 
     /**
      * Intercept the target method call, add some custom actions.
-     * 
+     *
      * @param invocation
      * @param method
      * @param args

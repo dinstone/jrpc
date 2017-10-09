@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.ut.faststub.internal;
 
 import java.lang.reflect.InvocationHandler;
@@ -25,7 +26,6 @@ import com.dinstone.ut.faststub.MethodInterceptor;
 
 /**
  * @author dinstone
- * 
  */
 class ProxyInvocationHandler implements InvocationHandler {
 
@@ -50,10 +50,10 @@ class ProxyInvocationHandler implements InvocationHandler {
 
     /**
      * {@inheritDoc}
-     * 
-     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object,
-     *      java.lang.reflect.Method, java.lang.Object[])
+     *
+     * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
      */
+    @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         LOG.debug("the interceptor[{}] will be inoked", interceptor.getClass());
         return interceptor.invoke(methodInvocation, method, args);

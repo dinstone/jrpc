@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc;
 
 /**
  * RPC runtime exception.
- * 
+ *
  * @author guojf
  * @version 1.0.0.2013-10-28
  */
@@ -46,7 +47,7 @@ public class RpcException extends RuntimeException {
 
     /**
      * the code to get
-     * 
+     *
      * @return the code
      * @see RpcException#code
      */

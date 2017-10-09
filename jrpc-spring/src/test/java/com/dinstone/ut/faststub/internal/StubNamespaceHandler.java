@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.ut.faststub.internal;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -27,16 +28,17 @@ import com.dinstone.ut.faststub.NullFactoryBean;
 
 /**
  * @author dinstone
- *
  */
 public class StubNamespaceHandler extends NamespaceHandlerSupport {
 
+    @Override
     public void init() {
         registerBeanDefinitionParser("null", new NullBeanDefinitionParser());
         registerBeanDefinitionParser("date", new DateBeanDefinitionParser());
     }
 
     private static class DateBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
         @Override
         protected Class<?> getBeanClass(Element element) {
             return DateFactoryBean.class;
@@ -59,6 +61,7 @@ public class StubNamespaceHandler extends NamespaceHandlerSupport {
     }
 
     private static class NullBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
+
         @Override
         protected Class<?> getBeanClass(Element element) {
             return NullFactoryBean.class;

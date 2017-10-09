@@ -28,7 +28,7 @@ import com.dinstone.jrpc.protocol.MessageCodec;
 
 /**
  * Transport Protocol Decoder.
- * 
+ *
  * @author guojinfei
  * @version 1.0.0.2014-6-19
  */
@@ -42,7 +42,7 @@ public class TransportProtocolDecoder extends CumulativeProtocolDecoder {
 
     /**
      * the maxObjectSize to get
-     * 
+     *
      * @return the maxObjectSize
      * @see TransportProtocolEncoder#maxObjectSize
      */
@@ -52,7 +52,7 @@ public class TransportProtocolDecoder extends CumulativeProtocolDecoder {
 
     /**
      * the maxObjectSize to set
-     * 
+     *
      * @param maxObjectSize
      * @see TransportProtocolEncoder#maxObjectSize
      */

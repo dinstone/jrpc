@@ -40,10 +40,10 @@ public class SkelectonProxyFactory implements ServiceProxyFactory {
             throw new IllegalArgumentException(serviceObject + " is not an instance of " + serviceInterface.getName());
         }
 
-        ServiceProxy<T> serviceProxy = new ServiceProxy<T>(serviceInterface, group, timeout);
-        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<T>(serviceProxy);
-        T proxy = serviceInterface.cast(
-                Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
+        ServiceProxy<T> serviceProxy = new ServiceProxy<>(serviceInterface, group, timeout);
+        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>(serviceProxy);
+        T proxy = serviceInterface
+            .cast(Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
 
         serviceProxy.setProxy(proxy);
         serviceProxy.setInstance(serviceObject);

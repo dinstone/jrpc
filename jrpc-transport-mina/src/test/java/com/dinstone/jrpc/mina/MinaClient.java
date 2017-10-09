@@ -42,7 +42,7 @@ public class MinaClient {
 
     public MinaClient(final String host, final int port, TransportConfig config) {
         config.setSchema("mina");
-        List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>();
+        List<InetSocketAddress> addresses = new ArrayList<>();
         addresses.add(new InetSocketAddress(host, port));
         serviceImporter = new DefaultServiceImporter(new EndpointConfig(), null, null);
     }

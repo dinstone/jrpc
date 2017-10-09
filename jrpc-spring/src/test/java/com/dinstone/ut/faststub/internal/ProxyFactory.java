@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.ut.faststub.internal;
 
 import java.lang.reflect.Proxy;
@@ -41,7 +42,7 @@ public class ProxyFactory {
 
     @SuppressWarnings("unchecked")
     private <T> T cglibProxy(final Class<T> toStub, MethodInterceptor interceptor) {
-        final ProxyInvocationHandler pih = new ProxyInvocationHandler(toStub, interceptor);
+        new ProxyInvocationHandler(toStub, interceptor);
         // return (T) Enhancer.create(toStub, new InvocationHandler() {
         //
         // public Object invoke(Object o, Method method, Object[] objects) throws Throwable {

@@ -23,6 +23,7 @@ import com.dinstone.jrpc.binding.ImplementBinding;
 
 public interface AcceptanceFactory extends SchemaFactory {
 
-    public abstract Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding, InetSocketAddress serviceAddress);
+    public abstract Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding,
+            InetSocketAddress serviceAddress);
 
 }

@@ -30,7 +30,7 @@ import java.util.List;
 public class NetworkAddressUtil {
 
     public static final List<InetAddress> getPrivateInetInetAddress() throws SocketException {
-        List<InetAddress> inetAddresses = new LinkedList<InetAddress>();
+        List<InetAddress> inetAddresses = new LinkedList<>();
         for (Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces(); e.hasMoreElements();) {
             NetworkInterface netInterface = e.nextElement();
             if (netInterface.isLoopback() || netInterface.isVirtual() || !netInterface.isUp()) {
@@ -50,7 +50,7 @@ public class NetworkAddressUtil {
     }
 
     public static final List<InetAddress> getPublicInetInetAddress() throws SocketException {
-        List<InetAddress> inetAddresses = new LinkedList<InetAddress>();
+        List<InetAddress> inetAddresses = new LinkedList<>();
         for (Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces(); e.hasMoreElements();) {
             NetworkInterface netInterface = e.nextElement();
             if (netInterface.isLoopback() || netInterface.isVirtual() || !netInterface.isUp()) {

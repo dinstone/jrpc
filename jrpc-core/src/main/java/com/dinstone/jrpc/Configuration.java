@@ -146,8 +146,8 @@ public class Configuration {
         return classLoader.getResourceAsStream(resource);
     }
 
-    private static Properties loadResource(InputStream in) throws IOException, ParserConfigurationException,
-            SAXException {
+    private static Properties loadResource(InputStream in)
+            throws IOException, ParserConfigurationException, SAXException {
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         // ignore all comments inside the xml file
         builderFactory.setIgnoringComments(true);

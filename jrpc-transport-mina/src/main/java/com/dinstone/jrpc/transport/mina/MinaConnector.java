@@ -53,6 +53,7 @@ public class MinaConnector {
             this.serializeType = serializeType;
         }
 
+        @Override
         public boolean isResponse(IoSession session, Object message) {
             if (message instanceof Heartbeat) {
                 return true;
@@ -60,14 +61,17 @@ public class MinaConnector {
             return false;
         }
 
+        @Override
         public Object getRequest(IoSession session) {
             return new Heartbeat(0, serializeType, new Tick());
         }
 
+        @Override
         public boolean isRequest(IoSession session, Object message) {
             return false;
         }
 
+        @Override
         public Object getResponse(IoSession session, Object request) {
             // HeartbeatPing ping = (HeartbeatPing) request;
             // return new HeartbeatPong(ping.getMessageId(), ping.getSerializeType(), new Pong());

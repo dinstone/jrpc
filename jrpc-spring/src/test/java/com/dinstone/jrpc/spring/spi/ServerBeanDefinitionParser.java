@@ -65,7 +65,7 @@ public class ServerBeanDefinitionParser extends AbstractSingleBeanDefinitionPars
     }
 
     private List<BeanDefinition> getServiceBeanDefinition(Element element, ParserContext parserContext) {
-        List<BeanDefinition> sblist = new ManagedList<BeanDefinition>();
+        List<BeanDefinition> sblist = new ManagedList<>();
 
         Element services = getChildElement(element, "services");
         if (services != null) {

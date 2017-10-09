@@ -207,7 +207,7 @@ public class ClientTest {
 
                 /**
                  * {@inheritDoc}
-                 * 
+                 *
                  * @see java.lang.Thread#run()
                  */
                 @Override
@@ -264,7 +264,7 @@ public class ClientTest {
 
                 /**
                  * {@inheritDoc}
-                 * 
+                 *
                  * @see java.lang.Thread#run()
                  */
                 @Override
@@ -321,7 +321,7 @@ public class ClientTest {
 
                 /**
                  * {@inheritDoc}
-                 * 
+                 *
                  * @see java.lang.Thread#run()
                  */
                 @Override

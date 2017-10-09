@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.protocol;
 
 /**
  * message type.
- * 
+ *
  * @author guojinfei
  * @version 1.0.0.2014-6-23
  */
@@ -32,7 +33,7 @@ public enum MessageType {
 
     /**
      * the value to get
-     * 
+     *
      * @return the value
      * @see MessageType#value
      */

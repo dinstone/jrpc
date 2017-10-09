@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.protocol;
 
 import java.io.Serializable;
 
 /**
  * Method call results, RPC protocol payload part.
- * 
+ *
  * @author guojinfei
  * @version 1.0.0.2014-6-23
  */
@@ -59,7 +60,7 @@ public class Result implements Serializable {
 
     /**
      * the code to get
-     * 
+     *
      * @return the code
      * @see Result#code
      */
@@ -69,7 +70,7 @@ public class Result implements Serializable {
 
     /**
      * the code to set
-     * 
+     *
      * @param code
      * @see Result#code
      */
@@ -79,7 +80,7 @@ public class Result implements Serializable {
 
     /**
      * the message to get
-     * 
+     *
      * @return the message
      * @see Result#message
      */
@@ -89,7 +90,7 @@ public class Result implements Serializable {
 
     /**
      * the message to set
-     * 
+     *
      * @param message
      * @see Result#message
      */
@@ -99,7 +100,7 @@ public class Result implements Serializable {
 
     /**
      * the data to get
-     * 
+     *
      * @return the data
      * @see Result#data
      */
@@ -109,7 +110,7 @@ public class Result implements Serializable {
 
     /**
      * the data to set
-     * 
+     *
      * @param data
      * @see Result#data
      */
@@ -119,7 +120,7 @@ public class Result implements Serializable {
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override

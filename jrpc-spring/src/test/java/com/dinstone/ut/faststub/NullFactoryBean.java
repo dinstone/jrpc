@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.ut.faststub;
 
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 /**
  * The factory bean that create a null object.
- * 
+ *
  * @author dinstone
- * 
  */
 public class NullFactoryBean extends AbstractFactoryBean {
 

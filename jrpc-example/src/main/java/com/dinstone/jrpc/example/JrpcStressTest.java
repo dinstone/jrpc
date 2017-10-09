@@ -128,7 +128,7 @@ public class JrpcStressTest {
 
                 /**
                  * {@inheritDoc}
-                 * 
+                 *
                  * @see java.lang.Thread#run()
                  */
                 @Override

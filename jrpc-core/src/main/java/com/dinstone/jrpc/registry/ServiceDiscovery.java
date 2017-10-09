@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * Service Discovery
- * 
+ *
  * @author dinstone
  * @version 1.0.0
  */

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.benchmark.client;
 
 import java.util.concurrent.BrokenBarrierException;
@@ -107,7 +108,7 @@ public abstract class AbstractCaseRunnable implements CaseRunnable {
     }
 
     private void collectResponseTimeDistribution(long time) {
-        double responseTime = (double) (time / 1000L);
+        double responseTime = time / 1000L;
         if (responseTime >= 0 && responseTime <= 1) {
             statistics.above0sum++;
         } else if (responseTime > 1 && responseTime <= 5) {
