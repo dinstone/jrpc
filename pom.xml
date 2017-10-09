@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.dinstone.jrpc</groupId>
 	<artifactId>jrpc</artifactId>
-	<version>3.0.0</version>
+	<version>3.1.0</version>
 	<packaging>pom</packaging>
 	<description>A lightweight Java implementation RPC framework</description>
 	<licenses>
@@ -17,7 +17,7 @@
 	</organization>
 	<name>jrpc</name>
 	<url>https://github.com/dinstone/jrpc.git</url>
-	<inceptionYear>2014~2016</inceptionYear>
+	<inceptionYear>2014~2017</inceptionYear>
 	<scm>
 		<url>https://github.com/dinstone/jrpc.git</url>
 		<connection>scm:git:https://github.com/dinstone/jrpc.git</connection>

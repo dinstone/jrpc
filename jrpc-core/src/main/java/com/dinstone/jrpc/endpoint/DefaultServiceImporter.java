@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ * Copyright (C) 2014~2017 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.dinstone.jrpc.endpoint;
 
 import com.dinstone.jrpc.binding.ReferenceBinding;
 import com.dinstone.jrpc.invoker.StubServiceInvoker;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
-import com.dinstone.jrpc.proxy.StubProxyFactory;
+import com.dinstone.jrpc.proxy.StubServiceProxyFactory;
 
 public class DefaultServiceImporter implements ServiceImporter {
 
@@ -39,7 +38,7 @@ public class DefaultServiceImporter implements ServiceImporter {
 
         this.referenceBinding = referenceBinding;
 
-        this.serviceProxyFactory = new StubProxyFactory(serviceInvoker);
+        this.serviceProxyFactory = new StubServiceProxyFactory(serviceInvoker);
     }
 
     /**

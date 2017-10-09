@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ * Copyright (C) 2014~2017 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.dinstone.jrpc.proxy;
 
 import java.lang.reflect.InvocationHandler;
@@ -22,23 +21,31 @@ import java.lang.reflect.Proxy;
 
 import com.dinstone.jrpc.invoker.ServiceInvoker;
 
-public class StubProxyFactory implements ServiceProxyFactory {
+public class StubServiceProxyFactory implements ServiceProxyFactory {
 
     private ServiceInvoker serviceInvoker;
 
-    public StubProxyFactory(ServiceInvoker serviceInvoker) {
+    public StubServiceProxyFactory(ServiceInvoker serviceInvoker) {
         this.serviceInvoker = serviceInvoker;
     }
 
     @Override
     public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceObject)
             throws Exception {
-        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>();
+        if (!serviceInterface.isInterface()) {
+            throw new IllegalArgumentException(serviceInterface.getName() + " is not interface");
+        }
+        if (serviceObject != null && !serviceInterface.isInstance(serviceObject)) {
+            throw new IllegalArgumentException(serviceObject + " is not an instance of " + serviceInterface.getName());
+        }
+
+        ServiceProxy<T> serviceProxy = new ServiceProxy<>(serviceInterface, group, timeout);
+        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>(serviceProxy);
         T proxy = serviceInterface
             .cast(Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
-        ServiceProxy<T> serviceProxy = new ServiceProxy<>(serviceInterface, group, timeout);
+
         serviceProxy.setProxy(proxy);
-        handler.serviceProxy = serviceProxy;
+        serviceProxy.setInstance(serviceObject);
         return serviceProxy;
     }
 
@@ -46,11 +53,14 @@ public class StubProxyFactory implements ServiceProxyFactory {
 
         private ServiceProxy<T> serviceProxy;
 
+        public ProxyInvocationHandler(ServiceProxy<T> serviceProxy) {
+            this.serviceProxy = serviceProxy;
+        }
+
         @Override
         public Object invoke(Object proxyObj, Method method, Object[] args) throws Throwable {
             return serviceInvoker.invoke(serviceProxy, method, args);
         }
 
     }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ * Copyright (C) 2014~2017 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.dinstone.jrpc.example.spring;
 
 import java.io.IOException;
@@ -25,9 +24,9 @@ import com.dinstone.jrpc.example.HelloService;
 public class ServiceWithSpring {
 
     public static void main(String[] args) {
-        // case01();
+        case01();
         // case02();
-        case03();
+        // case03();
     }
 
     protected static void case03() {
@@ -113,6 +112,7 @@ public class ServiceWithSpring {
         }
 
         try {
+            System.out.println("please press any key to continue");
             System.in.read();
         } catch (IOException e) {
         }

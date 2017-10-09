@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014~2016 dinstone<dinstone@163.com>
+ * Copyright (C) 2014~2017 dinstone<dinstone@163.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.dinstone.jrpc.example.registry;
 
 import java.util.Properties;
@@ -42,7 +41,8 @@ public class ServiceConsumer {
         TransportConfig transportConfig = new TransportConfig();
         props = new Properties();
         props.setProperty("rpc.handler.count", "2");
-        transportConfig.setSchema("mina").setProperties(props);
+        transportConfig.setSchema("netty").setProperties(props);
+        builder.transportConfig(transportConfig);
 
         Client client = builder.build();
 
