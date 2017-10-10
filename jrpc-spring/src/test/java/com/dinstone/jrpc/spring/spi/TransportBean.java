@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.spring.factory;
+
+package com.dinstone.jrpc.spring.spi;
 
 import com.dinstone.jrpc.SchemaConfig;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class TransportBean {
 
-    private static final String DEFAULT_TRANSPORT = "mina";
+    private static final String DEFAULT_TRANSPORT = "netty";
 
     private String type = DEFAULT_TRANSPORT;
 
@@ -60,7 +61,7 @@ public class TransportBean {
         return config;
     }
 
-    public void setConfig(SchemaConfig config) {
+    public void setConfig(SchemaConfig<?> config) {
         if (config != null) {
             this.config = new TransportConfig(config);
         }

@@ -1,5 +1,12 @@
 # What
-**JRPC** is a lightweight Java RPC framework. it supports service registry and discovery by the zookeeper framework.
+**JRPC** is a lightweight Java RPC framework. It enables quick and easy development of RPC applications. It greatly simplifies RPC programming.
+
+# Features
+## Design
+* Unified API for client and server
+* Support a variety of serialization protocol at the same time - Jackson and Protobuf
+Scalable architecture, including the transport layer and serialization layer
+Extensible custom RPC protocol
 
 # Quick Start
 ## step 1:

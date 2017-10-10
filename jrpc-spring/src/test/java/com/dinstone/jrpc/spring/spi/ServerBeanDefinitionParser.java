@@ -28,9 +28,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.dinstone.jrpc.api.Server;
-import com.dinstone.jrpc.spring.factory.RegistryBean;
 import com.dinstone.jrpc.spring.factory.ServerFactoryBean;
-import com.dinstone.jrpc.spring.factory.TransportBean;
 
 public class ServerBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
