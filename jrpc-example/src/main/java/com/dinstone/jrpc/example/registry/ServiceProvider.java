@@ -13,50 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.example.registry;
 
 import java.io.IOException;
-import java.util.Properties;
 
 import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.example.HelloService;
 import com.dinstone.jrpc.example.HelloServiceImpl;
-import com.dinstone.jrpc.example.MetricService;
 import com.dinstone.jrpc.registry.RegistryConfig;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ServiceProvider {
 
     public static void main(String[] args) throws IOException {
-        // Server server = new Server("-:4444");
-        // Server server = new Server("-", 4444);
-        // Server server = new Server("localhost", 4444);
-
-        ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
         // setting endpoint config
-        EndpointConfig econfig = new EndpointConfig().setEndpointId("provider-1")
-            .setEndpointName("example-registry-provider");
+        EndpointConfig econfig = new EndpointConfig().setEndpointName("example-service-provider");
 
         // setting registry config
-        Properties props = new Properties();
-        props.setProperty("zookeeper.node.list", "localhost:2181");
-        RegistryConfig rconfig = new RegistryConfig().setSchema("zookeeper").setProperties(props);
+        RegistryConfig rconfig = new RegistryConfig().setSchema("zookeeper").addProperty("zookeeper.node.list",
+            "localhost:2181");
 
         // setting transport config
-        props = new Properties();
-        props.setProperty("rpc.handler.count", "2");
-        TransportConfig tconfig = new TransportConfig().setSchema("mina").setProperties(props);
+        TransportConfig tconfig = new TransportConfig().setSchema("mina").addProperty("rpc.handler.count", "2");
 
         Server server = null;
-        MetricService metricService = new MetricService();
         try {
+            ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
             // build server and start it
             server = builder.endpointConfig(econfig).registryConfig(rconfig).transportConfig(tconfig).build().start();
 
             // export service
-            server.exportService(HelloService.class, new HelloServiceImpl(metricService));
+            server.exportService(HelloService.class, new HelloServiceImpl());
 
             System.in.read();
         } finally {
@@ -64,8 +54,6 @@ public class ServiceProvider {
                 server.stop();
             }
         }
-
-        metricService.destory();
     }
 
 }

@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.example.registry;
 
-import java.util.Properties;
+package com.dinstone.jrpc.example.registry;
 
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.ClientBuilder;
@@ -27,24 +26,16 @@ import com.dinstone.jrpc.transport.TransportConfig;
 public class ServiceConsumer {
 
     public static void main(String[] args) {
-        ClientBuilder builder = new ClientBuilder();
-        EndpointConfig endpointConfig = new EndpointConfig();
-        endpointConfig.setEndpointId("consumer-1").setEndpointName("example-registry-consumer");
-        builder.endpointConfig(endpointConfig);
+        EndpointConfig endpointConfig = new EndpointConfig().setEndpointId("consumer-1")
+            .setEndpointName("example-service-consumer");
 
-        RegistryConfig registryConfig = new RegistryConfig();
-        Properties props = new Properties();
-        props.setProperty("zookeeper.node.list", "localhost:2181");
-        registryConfig.setSchema("zookeeper").setProperties(props);
-        builder.registryConfig(registryConfig);
+        RegistryConfig registryConfig = new RegistryConfig().setSchema("zookeeper").addProperty("zookeeper.node.list",
+            "localhost:2181");
 
-        TransportConfig transportConfig = new TransportConfig();
-        props = new Properties();
-        props.setProperty("rpc.handler.count", "2");
-        transportConfig.setSchema("netty").setProperties(props);
-        builder.transportConfig(transportConfig);
+        TransportConfig transportConfig = new TransportConfig().setSchema("netty").setConnectPoolSize(2);
 
-        Client client = builder.build();
+        Client client = new ClientBuilder().endpointConfig(endpointConfig).registryConfig(registryConfig)
+            .transportConfig(transportConfig).build();
 
         try {
             HelloService helloService = client.importService(HelloService.class);

@@ -4,9 +4,18 @@
 # Features
 ## Design
 * Unified API for client and server
-* Support a variety of serialization protocol at the same time - Jackson and Protobuf
-Scalable architecture, including the transport layer and serialization layer
-Extensible custom RPC protocol
+* Support a variety of serialization protocol at the same time - Jackson and Protobuff
+* Layered architecture, including API layer, Proxy layer, Invoke layer, Protocol layer, Transport layer
+* Pluggable service discovery - registry with Zookeeper
+* The transport layer of the extensible implementation - mina, netty4, netty5
+
+## Ease of use
+* Out of the box client-side and server-side API
+* Spring integration friendly
+
+## Performance
+* Efficient custom RPC protocol
+* High-performance NIO socket frame support - mina and netty
 
 # Quick Start
 ## step 1:
@@ -57,25 +66,21 @@ For more details, please refer to the example project : [jrpc-example](https://g
 ## java programming by API
 ### export service:
 ```java
-
-        ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
         // setting endpoint config
-        builder.endpointConfig().setEndpointId("provider-1").setEndpointName("example-registry-provider");
+        EndpointConfig econfig = new EndpointConfig().setEndpointName("example-service-provider");
 
         // setting registry config
-        Properties props = new Properties();
-        props.setProperty("zookeeper.node.list", "localhost:2181");
-        builder.registryConfig().setSchema("zookeeper").setProperties(props);
+        RegistryConfig rconfig = new RegistryConfig().setSchema("zookeeper").addProperty("zookeeper.node.list",
+            "localhost:2181");
 
         // setting transport config
-        props = new Properties();
-        props.setProperty("rpc.handler.count", "2");
-        builder.transportConfig().setSchema("mina").setProperties(props);
+        TransportConfig tconfig = new TransportConfig().setSchema("mina").addProperty("rpc.handler.count", "2");
 
         Server server = null;
         try {
+            ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
             // build server and start it
-            server = builder.build().start();
+            server = builder.endpointConfig(econfig).registryConfig(rconfig).transportConfig(tconfig).build().start();
 
             // export service
             server.exportService(HelloService.class, new HelloServiceImpl());
@@ -90,19 +95,16 @@ For more details, please refer to the example project : [jrpc-example](https://g
 
 ### import service:
 ```java
+        EndpointConfig endpointConfig = new EndpointConfig().setEndpointId("consumer-1")
+            .setEndpointName("example-service-consumer");
 
-        ClientBuilder builder = new ClientBuilder();
-        builder.endpointConfig().setEndpointId("consumer-1").setEndpointName("example-registry-consumer");
+        RegistryConfig registryConfig = new RegistryConfig().setSchema("zookeeper").addProperty("zookeeper.node.list",
+            "localhost:2181");
 
-        Properties props = new Properties();
-        props.setProperty("zookeeper.node.list", "localhost:2181");
-        builder.registryConfig().setSchema("zookeeper").setProperties(props);
+        TransportConfig transportConfig = new TransportConfig().setSchema("netty").setConnectPoolSize(2);
 
-        props = new Properties();
-        props.setProperty("rpc.handler.count", "2");
-        builder.transportConfig().setSchema("mina").setProperties(props);
-
-        Client client = builder.build();
+        Client client = new ClientBuilder().endpointConfig(endpointConfig).registryConfig(registryConfig)
+            .transportConfig(transportConfig).build();
         
         HelloService helloService = client.importService(HelloService.class);
         helloService.sayHello("dinstone");
