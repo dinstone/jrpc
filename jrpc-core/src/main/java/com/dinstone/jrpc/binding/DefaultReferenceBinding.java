@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.binding;
 
 import java.net.InetAddress;
@@ -22,7 +23,6 @@ import java.util.List;
 
 import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
-import com.dinstone.jrpc.registry.ServiceAttribute;
 import com.dinstone.jrpc.registry.ServiceDescription;
 import com.dinstone.jrpc.registry.ServiceDiscovery;
 import com.dinstone.jrpc.transport.NetworkAddressUtil;
@@ -81,16 +81,13 @@ public class DefaultReferenceBinding implements ReferenceBinding {
 
         ServiceDescription description = new ServiceDescription();
         description.setId(id.toString());
-        description.setServiceName(wrapper.getService().getName());
+        description.setName(wrapper.getService().getName());
         description.setGroup(group);
         description.setHost(host);
         description.setPort(port);
 
-        ServiceAttribute serviceAttribute = new ServiceAttribute();
-        serviceAttribute.addAttribute("endpointId", endpointConfig.getEndpointId());
-        serviceAttribute.addAttribute("endpointName", endpointConfig.getEndpointName());
-
-        description.setServiceAttribute(serviceAttribute);
+        description.addAttribute("endpointId", endpointConfig.getEndpointId());
+        description.addAttribute("endpointName", endpointConfig.getEndpointName());
 
         return description;
     }

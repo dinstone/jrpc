@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.benchmark.client;
 
 import java.text.SimpleDateFormat;
@@ -93,7 +94,8 @@ public abstract class AbstractBenchmarkClient {
         calendar.add(Calendar.SECOND, caseConfig.runTimeSeconds);
         Date finishTime = calendar.getTime();
 
-        System.out.println("-----------Benchmark CaseInfo----------------");
+        System.out.println("----------------------Benchmark Test----------------------");
+        System.out.println("Case Info  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         System.out.println("Transport : " + caseConfig.transportSchema);
         System.out.println("Connection: " + caseConfig.connectPoolSize);
         System.out.println("ClassName : " + caseConfig.caseClassName);
@@ -102,21 +104,21 @@ public abstract class AbstractBenchmarkClient {
         System.out.println("Runtime(second): " + caseConfig.runTimeSeconds);
         System.out.println("StartTime : " + dateFormat.format(startTime));
         System.out.println("FinishTime: " + dateFormat.format(finishTime));
-        System.out.println("--------------------------------------------");
-
+        // System.out.println("--------------------------------------------");
     }
 
     protected void printStatistics() {
-        System.out.println("----------Benchmark Statistics--------------");
-        System.out.println("ClassName: " + caseConfig.caseClassName);
-        System.out.println("Runtime(second): " + caseConfig.runTimeSeconds);
-        System.out.println("Concurrent: " + caseConfig.concurrents);
-        System.out.println("DataLength: " + caseConfig.dataLength);
-        System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        System.out.println("Statistics >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+        // System.out.println("----------Benchmark Statistics--------------");
+        // System.out.println("ClassName: " + caseConfig.caseClassName);
+        // System.out.println("Runtime(second): " + caseConfig.runTimeSeconds);
+        // System.out.println("Concurrent: " + caseConfig.concurrents);
+        // System.out.println("DataLength: " + caseConfig.dataLength);
+        // System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 
         statistics.printStatistics();
 
-        System.out.println("--------------------------------------------");
+        System.out.println("----------------------------------------------------------");
     }
 
     protected abstract void destory();

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.binding;
 
 import java.lang.reflect.Method;
@@ -24,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
-import com.dinstone.jrpc.registry.ServiceAttribute;
 import com.dinstone.jrpc.registry.ServiceDescription;
 import com.dinstone.jrpc.registry.ServiceRegistry;
 
@@ -72,22 +72,20 @@ public class DefaultImplementBinding implements ImplementBinding {
         description.setId(id.toString());
         description.setHost(host);
         description.setPort(port);
-        description.setServiceName(wrapper.getService().getName());
+        description.setName(wrapper.getService().getName());
         description.setGroup(group);
-        description.setRegistryTime(System.currentTimeMillis());
+        description.setOpTime(System.currentTimeMillis());
 
-        ServiceAttribute serviceAttribute = new ServiceAttribute();
         List<String> methodDescList = new ArrayList<>();
         for (Method method : wrapper.getService().getDeclaredMethods()) {
             methodDescList.add(description(method));
         }
-        serviceAttribute.addAttribute("timeout", wrapper.getTimeout());
-        serviceAttribute.addAttribute("methods", methodDescList);
+        description.addAttribute("methods", methodDescList);
+        description.addAttribute("timeout", wrapper.getTimeout());
 
-        serviceAttribute.addAttribute("endpointId", endpointConfig.getEndpointId());
-        serviceAttribute.addAttribute("endpointName", endpointConfig.getEndpointName());
+        description.addAttribute("endpointId", endpointConfig.getEndpointId());
+        description.addAttribute("endpointName", endpointConfig.getEndpointName());
 
-        description.setServiceAttribute(serviceAttribute);
         try {
             serviceRegistry.register(description);
         } catch (Exception e) {

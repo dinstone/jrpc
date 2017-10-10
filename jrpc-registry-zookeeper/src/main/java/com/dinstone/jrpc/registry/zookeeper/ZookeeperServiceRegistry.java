@@ -96,7 +96,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
 
     @Override
     public void unregister(ServiceDescription service) throws Exception {
-        String path = pathForProvider(service.getServiceName(), service.getId());
+        String path = pathForProvider(service.getName(), service.getId());
         try {
             client.delete().forPath(path);
         } catch (KeeperException.NoNodeException ignore) {
@@ -109,7 +109,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
     public void destroy() {
         if (connectionState == ConnectionState.CONNECTED) {
             for (ServiceDescription service : services.values()) {
-                String path = pathForProvider(service.getServiceName(), service.getId());
+                String path = pathForProvider(service.getName(), service.getId());
                 try {
                     client.delete().forPath(path);
                 } catch (Exception ignore) {
@@ -131,7 +131,7 @@ public class ZookeeperServiceRegistry implements ServiceRegistry {
 
     protected void internalRegister(ServiceDescription service) throws Exception {
         byte[] bytes = serializer.serialize(service);
-        String path = pathForProvider(service.getServiceName(), service.getId());
+        String path = pathForProvider(service.getName(), service.getId());
 
         final int MAX_TRIES = 2;
         boolean isDone = false;

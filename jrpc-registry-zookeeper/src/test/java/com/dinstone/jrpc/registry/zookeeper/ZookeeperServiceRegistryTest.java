@@ -22,7 +22,7 @@ public class ZookeeperServiceRegistryTest {
     public static void main(String[] args) {
         ServiceDescription description = new ServiceDescription();
         String serviceName = "TestService";
-        description.setServiceName(serviceName);
+        description.setName(serviceName);
         description.setId("service-provider-1");
         description.setHost("localhost");
         description.setPort(80);

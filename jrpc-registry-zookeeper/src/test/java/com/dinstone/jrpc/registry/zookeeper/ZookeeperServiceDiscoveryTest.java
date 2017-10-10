@@ -28,7 +28,7 @@ public class ZookeeperServiceDiscoveryTest {
         ZookeeperServiceDiscovery discovery = new ZookeeperServiceDiscovery(config);
         ServiceDescription description = new ServiceDescription();
         String serviceName = "TestService";
-        description.setServiceName(serviceName);
+        description.setName(serviceName);
         description.setId("service-consumer-1");
         description.setHost("localhost");
         description.setPort(0);

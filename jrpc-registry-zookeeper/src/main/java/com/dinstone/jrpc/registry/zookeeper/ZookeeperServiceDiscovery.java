@@ -117,10 +117,10 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
 
     @Override
     public void cancel(ServiceDescription description) {
-        ServiceCache serviceCache = serviceCacheMap.get(description.getServiceName());
+        ServiceCache serviceCache = serviceCacheMap.get(description.getName());
         if (serviceCache != null) {
             serviceCache.destroy();
-            serviceCacheMap.remove(description.getServiceName());
+            serviceCacheMap.remove(description.getName());
         }
     }
 
@@ -137,12 +137,12 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
         ServiceCache serviceCache = null;
 
         synchronized (serviceCacheMap) {
-            serviceCache = serviceCacheMap.get(description.getServiceName());
+            serviceCache = serviceCacheMap.get(description.getName());
             if (serviceCache == null) {
-                String providerPath = pathForProviders(description.getServiceName());
+                String providerPath = pathForProviders(description.getName());
                 ThreadFactory threadFactory = ThreadUtils.newThreadFactory("ServiceDiscovery");
                 serviceCache = new ServiceCache(client, providerPath, threadFactory).build();
-                serviceCacheMap.put(description.getServiceName(), serviceCache);
+                serviceCacheMap.put(description.getName(), serviceCache);
             }
         }
 
@@ -206,7 +206,7 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
                 }
 
                 byte[] bytes = serializer.serialize(service);
-                String path = pathForConsumer(service.getServiceName(), service.getId());
+                String path = pathForConsumer(service.getName(), service.getId());
 
                 final int MAX_TRIES = 2;
                 boolean isDone = false;
@@ -256,7 +256,7 @@ public class ZookeeperServiceDiscovery implements com.dinstone.jrpc.registry.Ser
         public void destroy() {
             if (connectionState == ConnectionState.CONNECTED) {
                 for (ServiceDescription consumer : consumers.values()) {
-                    String path = pathForConsumer(consumer.getServiceName(), consumer.getId());
+                    String path = pathForConsumer(consumer.getName(), consumer.getId());
                     try {
                         client.delete().forPath(path);
                     } catch (Exception e) {
