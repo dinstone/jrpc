@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.example.common;
 
 import java.io.IOException;
@@ -27,12 +28,9 @@ import com.dinstone.jrpc.transport.TransportConfig;
 public class ServiceProvider {
 
     public static void main(String[] args) throws IOException {
-        // Server server = new Server("-:4444");
-        // Server server = new Server("-", 4444);
-        // Server server = new Server("localhost", 4444);
-        // server.getTransportConfig().setSchema("netty5");
 
-        TransportConfig transportConfig = new TransportConfig().setSchema("netty").setMaxConnectionCount(10).setBusinessProcessorCount(5);
+        TransportConfig transportConfig = new TransportConfig().setSchema("netty").setMaxConnectionCount(10)
+            .setBusinessProcessorCount(5);
         Server server = new ServerBuilder().transportConfig(transportConfig).bind("localhost", 4444).build();
 
         server.start();
