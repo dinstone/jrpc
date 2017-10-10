@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.dinstone.jrpc.registry;
 
-import java.util.Properties;
+package com.dinstone.jrpc.registry;
 
 import com.dinstone.jrpc.Configuration;
 import com.dinstone.jrpc.SchemaConfig;
 
-public class RegistryConfig extends SchemaConfig {
+public class RegistryConfig extends SchemaConfig<RegistryConfig> {
 
     public RegistryConfig() {
         super();
@@ -32,20 +31,6 @@ public class RegistryConfig extends SchemaConfig {
 
     public RegistryConfig(String configLocation) {
         super(configLocation);
-    }
-
-    @Override
-    public RegistryConfig setProperties(Properties other) {
-        super.setProperties(other);
-
-        return this;
-    }
-
-    @Override
-    public RegistryConfig setSchema(String schema) {
-        super.setSchema(schema);
-
-        return this;
     }
 
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import java.util.Properties;
@@ -21,7 +22,7 @@ import com.dinstone.jrpc.Configuration;
 import com.dinstone.jrpc.SchemaConfig;
 import com.dinstone.jrpc.serializer.SerializeType;
 
-public class TransportConfig extends SchemaConfig {
+public class TransportConfig extends SchemaConfig<TransportConfig> {
 
     /** max size */
     private static final String MAX_SIZE = "rpc.max.size";

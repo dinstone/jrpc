@@ -16,7 +16,9 @@
 
 package com.dinstone.jrpc;
 
-public class SchemaConfig extends Configuration {
+import java.util.Properties;
+
+public class SchemaConfig<T extends SchemaConfig<T>> extends Configuration {
 
     private static final String CONFIG_SCHEMA_KEY = "config.schema";
 
@@ -32,15 +34,31 @@ public class SchemaConfig extends Configuration {
         super(config);
     }
 
-    public SchemaConfig setSchema(String schema) {
+    @SuppressWarnings("unchecked")
+    public T setSchema(String schema) {
         if (schema != null && !schema.isEmpty()) {
             this.set(CONFIG_SCHEMA_KEY, schema);
         }
 
-        return this;
+        return (T) this;
     }
 
     public String getSchema() {
         return this.get(CONFIG_SCHEMA_KEY);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T setProperties(Properties other) {
+        super.setProperties(other);
+
+        return (T) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T addProperty(String name, String value) {
+        super.set(name, value);
+
+        return (T) this;
     }
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.spring;
 
 import java.lang.management.ManagementFactory;
@@ -29,7 +30,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.dinstone.jrpc.spring.factory.ConfigBean;
-import com.dinstone.jrpc.spring.factory.TransportBean;
 
 public class EndpointBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
@@ -93,31 +93,6 @@ public class EndpointBeanDefinitionParser extends AbstractSingleBeanDefinitionPa
                 }
             }
             sbd.addPropertyValue("properties", properties);
-        }
-
-        return sbd.getBeanDefinition();
-    }
-
-    protected BeanDefinition getTransportBeanDefinition(Element element, ParserContext parserContext) {
-        BeanDefinitionBuilder sbd = BeanDefinitionBuilder.genericBeanDefinition(TransportBean.class);
-        String address = element.getAttribute("address");
-        if (StringUtils.hasText(address)) {
-            sbd.addPropertyValue("address", address);
-        }
-
-        String host = element.getAttribute("host");
-        if (StringUtils.hasText(host)) {
-            sbd.addPropertyValue("host", host);
-        }
-
-        String port = element.getAttribute("port");
-        if (StringUtils.hasText(port)) {
-            sbd.addPropertyValue("port", port);
-        }
-
-        String transport = element.getAttribute("transport");
-        if (StringUtils.hasText(transport)) {
-            sbd.addPropertyValue("type", transport);
         }
 
         return sbd.getBeanDefinition();

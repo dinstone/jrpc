@@ -26,8 +26,6 @@ import org.w3c.dom.NodeList;
 
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.spring.factory.ClientFactoryBean;
-import com.dinstone.jrpc.spring.factory.RegistryBean;
-import com.dinstone.jrpc.spring.factory.TransportBean;
 
 public class ClientBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
