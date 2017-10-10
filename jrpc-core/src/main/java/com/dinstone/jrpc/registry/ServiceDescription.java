@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.registry;
 
 import java.io.Serializable;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * service description
@@ -31,7 +34,7 @@ public class ServiceDescription implements Serializable {
 
     private String id;
 
-    private String serviceName;
+    private String name;
 
     private String group;
 
@@ -41,9 +44,9 @@ public class ServiceDescription implements Serializable {
 
     private String uri;
 
-    private long registryTime;
+    private long opTime;
 
-    private ServiceAttribute serviceAttribute;
+    private Map<String, Object> attributes = new HashMap<String, Object>();
 
     private volatile InetSocketAddress address;
 
@@ -55,12 +58,12 @@ public class ServiceDescription implements Serializable {
         this.id = id;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public String getName() {
+        return name;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setName(String serviceName) {
+        this.name = serviceName;
     }
 
     public String getGroup() {
@@ -95,20 +98,32 @@ public class ServiceDescription implements Serializable {
         this.uri = uri;
     }
 
-    public long getRegistryTime() {
-        return registryTime;
+    public long getOpTime() {
+        return opTime;
     }
 
-    public void setRegistryTime(long registryTime) {
-        this.registryTime = registryTime;
+    public void setOpTime(long opTime) {
+        this.opTime = opTime;
     }
 
-    public ServiceAttribute getServiceAttribute() {
-        return serviceAttribute;
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 
-    public void setServiceAttribute(ServiceAttribute serviceAttribute) {
-        this.serviceAttribute = serviceAttribute;
+    public void setAttributes(Map<String, Object> attributes) {
+        if (attributes != null) {
+            this.attributes.putAll(attributes);
+        }
+    }
+
+    public ServiceDescription addAttribute(String att, Object value) {
+        this.attributes.put(att, value);
+        return this;
+    }
+
+    public ServiceDescription removeAttribute(String att) {
+        this.attributes.remove(att);
+        return this;
     }
 
     public InetSocketAddress getServiceAddress() {
@@ -121,9 +136,8 @@ public class ServiceDescription implements Serializable {
 
     @Override
     public String toString() {
-        return "ServiceDescription [id=" + id + ", name=" + serviceName + ", group=" + group + ", host=" + host
-                + ", port=" + port + ", uri=" + uri + ", registryTime=" + registryTime + ", serviceAttribute="
-                + serviceAttribute + "]";
+        return "ServiceDescription [id=" + id + ", name=" + name + ", group=" + group + ", host=" + host + ", port="
+                + port + ", uri=" + uri + ", opTime=" + opTime + ", attributes=" + attributes + "]";
     }
 
 }

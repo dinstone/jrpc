@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.serializer;
 
-import org.codehaus.jackson.JsonParser.Feature;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class JacksonSerializer implements Serializer {
 
@@ -29,14 +30,14 @@ public class JacksonSerializer implements Serializer {
         objectMapper.enableDefaultTyping();
 
         // JSON configuration not to serialize null field
-        objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+        objectMapper.setSerializationInclusion(Include.NON_NULL);
 
         // JSON configuration not to throw exception on empty bean class
-        objectMapper.disable(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS);
+        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
         // JSON configuration for compatibility
-        objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-        objectMapper.configure(Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
+        objectMapper.enable(Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+        objectMapper.enable(Feature.ALLOW_UNQUOTED_CONTROL_CHARS);
     }
 
     @Override

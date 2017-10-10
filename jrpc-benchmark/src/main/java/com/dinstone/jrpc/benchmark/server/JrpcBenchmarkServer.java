@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.benchmark.server;
 
 import java.io.IOException;
@@ -28,9 +29,9 @@ public class JrpcBenchmarkServer {
         System.out.println("Usage:[TransportSchema]");
         System.out.println("Usage:[TransportSchema] [NioProcessorCount] [BusinessProcessorCount]");
 
-        String transportSchema = "netty";
         int businessCount = 0;
         int nioCount = Runtime.getRuntime().availableProcessors();
+        String transportSchema = "netty";
         if (args.length == 1) {
             transportSchema = args[0];
         } else if (args.length == 3) {
@@ -52,6 +53,7 @@ public class JrpcBenchmarkServer {
         MetricService metricService = new MetricService();
         server.exportService(BenchmarkService.class, new BenchmarkServiceImpl(metricService));
 
+        System.out.println("please press any key to continue");
         System.in.read();
 
         server.stop();
