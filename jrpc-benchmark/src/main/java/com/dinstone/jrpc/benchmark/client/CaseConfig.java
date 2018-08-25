@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.benchmark.client;
 
 public class CaseConfig {
 
     public int concurrents = 10;
 
-    public int runTimeSeconds = 90;
-
-    public String caseClassName = StringCaseRunnable.class.getName();
+    public int runTimeSeconds = 60;
 
     public int dataLength = 1024;
 
     public String transportSchema = "netty";
 
-    public int connectPoolSize = 10;
+    public String caseClassName = StringCaseRunnable.class.getName();
+
+    public int connectPoolSize = Runtime.getRuntime().availableProcessors();
 }

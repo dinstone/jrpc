@@ -30,7 +30,7 @@ public class JrpcBenchmarkServer {
         System.out.println("Usage:[TransportSchema] [NioProcessorCount] [BusinessProcessorCount]");
 
         int businessCount = 0;
-        int nioCount = Runtime.getRuntime().availableProcessors();
+        int nioCount = 2 * Runtime.getRuntime().availableProcessors();
         String transportSchema = "netty";
         if (args.length == 1) {
             transportSchema = args[0];
