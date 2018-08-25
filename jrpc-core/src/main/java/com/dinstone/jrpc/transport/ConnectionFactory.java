@@ -28,4 +28,6 @@ import com.dinstone.jrpc.SchemaFactory;
 public interface ConnectionFactory extends SchemaFactory {
 
     public abstract Connection create(TransportConfig transportConfig, InetSocketAddress sa);
+
+    public abstract void destroy();
 }

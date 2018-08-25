@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import java.net.InetSocketAddress;
@@ -23,11 +24,11 @@ import com.dinstone.jrpc.SchemaFactoryLoader;
 
 public class ConnectionManager {
 
-    private final ConcurrentMap<InetSocketAddress, ConnectionPool> connectionPoolMap = new ConcurrentHashMap<>();
-
     private final TransportConfig transportConfig;
 
     private final ConnectionFactory connectionFactory;
+
+    private final ConcurrentMap<InetSocketAddress, ConnectionPool> connectionPoolMap;
 
     public ConnectionManager(TransportConfig transportConfig) {
         if (transportConfig == null) {
@@ -36,16 +37,13 @@ public class ConnectionManager {
         this.transportConfig = transportConfig;
 
         SchemaFactoryLoader<ConnectionFactory> cfLoader = SchemaFactoryLoader.getInstance(ConnectionFactory.class);
-        this.connectionFactory = cfLoader.getSchemaFactory(transportConfig.getSchema());
-    }
-
-    public ConnectionManager(TransportConfig transportConfig, ConnectionFactory connectionFactory) {
-        if (transportConfig == null) {
-            throw new IllegalArgumentException("transportConfig is null");
+        ConnectionFactory connectionFactory = cfLoader.getSchemaFactory(transportConfig.getSchema());
+        if (connectionFactory == null) {
+            throw new RuntimeException("can't find transport provider for schema : " + transportConfig.getSchema());
         }
-        this.transportConfig = transportConfig;
+        this.connectionFactory = cfLoader.getSchemaFactory(transportConfig.getSchema());
 
-        this.connectionFactory = connectionFactory;
+        this.connectionPoolMap = new ConcurrentHashMap<InetSocketAddress, ConnectionPool>();
     }
 
     public Connection getConnection(InetSocketAddress socketAddress) {
@@ -63,6 +61,8 @@ public class ConnectionManager {
                 connectionPool.destroy();
             }
         }
+        connectionPoolMap.clear();
+        connectionFactory.destroy();
     }
 
     class ConnectionPool {

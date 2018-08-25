@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.netty4;
 
 import java.net.InetSocketAddress;
@@ -23,6 +24,8 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 public class NettyConnectionFactory implements ConnectionFactory {
 
+    private NettyConnector connector;
+
     @Override
     public String getSchema() {
         return "netty";
@@ -30,7 +33,18 @@ public class NettyConnectionFactory implements ConnectionFactory {
 
     @Override
     public Connection create(TransportConfig transportConfig, InetSocketAddress sa) {
-        return new NettyConnection(sa, transportConfig);
+        if (connector == null) {
+            connector = new NettyConnector(transportConfig);
+        }
+        return new NettyConnection(connector.createSession(sa), transportConfig);
+    }
+
+    @Override
+    public void destroy() {
+        if (connector != null) {
+            connector.dispose();
+            connector = null;
+        }
     }
 
 }

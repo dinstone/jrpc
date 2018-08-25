@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.mina;
 
 import java.net.InetSocketAddress;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.future.IoFutureListener;
@@ -41,30 +41,18 @@ public class MinaConnection implements Connection {
 
     private SerializeType serializeType;
 
-    public MinaConnection(String host, int port, TransportConfig config) {
-        this(new InetSocketAddress(host, port), config);
-    }
+    public MinaConnection(IoSession ioSession, TransportConfig config) {
+        this.ioSession = ioSession;
+        SessionUtil.setResultFutureMap(ioSession);
 
-    public MinaConnection(InetSocketAddress isa, TransportConfig config) {
-        serializeType = config.getSerializeType();
-
-        try {
-            connector = new MinaConnector(isa, config);
-            ioSession = connector.createSession();
-            SessionUtil.setResultFutureMap(ioSession);
-        } catch (RuntimeException e) {
-            destroy();
-
-            throw e;
-        }
+        this.serializeType = config.getSerializeType();
     }
 
     @Override
     public ResultFuture call(Call call) {
         final int id = ID_GENERATOR.incrementAndGet();
-        Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(ioSession);
         final ResultFuture resultFuture = new ResultFuture();
-        futureMap.put(id, resultFuture);
+        SessionUtil.getResultFutureMap(ioSession).put(id, resultFuture);
 
         WriteFuture wf = ioSession.write(new Request(id, serializeType, call));
         wf.addListener(new IoFutureListener<WriteFuture>() {
@@ -73,6 +61,7 @@ public class MinaConnection implements Connection {
             public void operationComplete(WriteFuture future) {
                 if (!future.isWritten()) {
                     resultFuture.setResult(new Result(500, "can't write request"));
+                    SessionUtil.getResultFutureMap(ioSession).remove(id);
                 }
             }
 

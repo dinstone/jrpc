@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.netty4;
 
 import java.net.InetSocketAddress;
@@ -47,15 +48,15 @@ public class NettyConnector {
 
     private static final Logger LOG = LoggerFactory.getLogger(NettyConnector.class);
 
-    private NioEventLoopGroup workerGroup;
+    private NioEventLoopGroup workGroup;
 
     private Bootstrap clientBoot;
 
     private int refCount;
 
-    public NettyConnector(InetSocketAddress isa, final TransportConfig transportConfig) {
-        workerGroup = new NioEventLoopGroup(1, new DefaultThreadFactory("N4C-Work"));
-        clientBoot = new Bootstrap().group(workerGroup).channel(NioSocketChannel.class);
+    public NettyConnector(final TransportConfig transportConfig) {
+        workGroup = new NioEventLoopGroup(transportConfig.getConnectPoolSize(), new DefaultThreadFactory("N4C-Work"));
+        clientBoot = new Bootstrap().group(workGroup).channel(NioSocketChannel.class);
         clientBoot.option(ChannelOption.TCP_NODELAY, true);
         clientBoot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
         clientBoot.option(ChannelOption.SO_RCVBUF, 8 * 1024).option(ChannelOption.SO_SNDBUF, 8 * 1024);
@@ -75,8 +76,6 @@ public class NettyConnector {
                 ch.pipeline().addLast("NettyClientHandler", new NettyClientHandler());
             }
         });
-
-        clientBoot.remoteAddress(isa);
     }
 
     /**
@@ -103,13 +102,13 @@ public class NettyConnector {
     }
 
     public void dispose() {
-        if (workerGroup != null) {
-            workerGroup.shutdownGracefully();
+        if (workGroup != null) {
+            workGroup.shutdownGracefully();
         }
     }
 
-    public Channel createSession() {
-        Channel channel = clientBoot.connect().awaitUninterruptibly().channel();
+    public Channel createSession(InetSocketAddress sa) {
+        Channel channel = clientBoot.connect(sa).awaitUninterruptibly().channel();
         LOG.debug("session connect {} to {}", channel.localAddress(), channel.remoteAddress());
         return channel;
     }

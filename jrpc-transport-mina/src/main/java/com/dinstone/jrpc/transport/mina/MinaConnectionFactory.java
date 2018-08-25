@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.mina;
 
 import java.net.InetSocketAddress;
@@ -23,14 +24,27 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaConnectionFactory implements ConnectionFactory {
 
+    private MinaConnector connector;
+
     @Override
     public String getSchema() {
-        return "mina";
+        return "netty5";
     }
 
     @Override
     public Connection create(TransportConfig transportConfig, InetSocketAddress sa) {
-        return new MinaConnection(sa, transportConfig);
+        if (connector == null) {
+            connector = new MinaConnector(transportConfig);
+        }
+        return new MinaConnection(connector.createSession(sa), transportConfig);
+    }
+
+    @Override
+    public void destroy() {
+        if (connector != null) {
+            connector.dispose();
+            connector = null;
+        }
     }
 
 }

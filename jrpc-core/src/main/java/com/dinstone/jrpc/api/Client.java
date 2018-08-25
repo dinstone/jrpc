@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.api;
 
 import java.net.InetSocketAddress;
@@ -59,14 +60,7 @@ public class Client implements ServiceImporter {
         this.endpointConfig = endpointConfig;
 
         // check transport provider
-        String transportSchema = transportConfig.getSchema();
-        SchemaFactoryLoader<ConnectionFactory> cfLoader = SchemaFactoryLoader.getInstance(ConnectionFactory.class);
-        ConnectionFactory connectionFactory = cfLoader.getSchemaFactory(transportSchema);
-        if (connectionFactory == null) {
-            throw new RuntimeException("can't find transport provider for schema : " + transportSchema);
-        } else {
-            this.connectionManager = new ConnectionManager(transportConfig, connectionFactory);
-        }
+        this.connectionManager = new ConnectionManager(transportConfig);
 
         // check registry provider
         String registrySchema = registryConfig.getSchema();

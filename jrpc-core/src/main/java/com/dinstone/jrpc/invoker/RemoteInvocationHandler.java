@@ -33,8 +33,6 @@ public class RemoteInvocationHandler implements InvocationHandler {
 
     @Override
     public <T> Object handle(Invocation<T> invocation) throws Throwable {
-        Connection connection = connectionManager.getConnection(invocation.getServiceAddress());
-
         String group = invocation.getGroup();
         int timeout = invocation.getTimeout();
         Class<?> service = invocation.getService();
@@ -43,6 +41,7 @@ public class RemoteInvocationHandler implements InvocationHandler {
         Object[] args = invocation.getParams();
 
         Call call = new Call(service.getName(), group, timeout, method.getName(), args, method.getParameterTypes());
+        Connection connection = connectionManager.getConnection(invocation.getServiceAddress());
         return connection.call(call).get(timeout, TimeUnit.MILLISECONDS);
     }
 

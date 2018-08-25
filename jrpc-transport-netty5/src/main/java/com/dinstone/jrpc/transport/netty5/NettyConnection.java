@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.netty5;
 
 import java.net.InetSocketAddress;
@@ -39,33 +40,23 @@ public class NettyConnection implements Connection {
 
     private NettyConnector connector;
 
-    private Channel ioSession;
+    private Channel channel;
 
-    public NettyConnection(String host, int port, TransportConfig config) {
-        this(new InetSocketAddress(host, port), config);
-    }
+    public NettyConnection(Channel channel, TransportConfig transportConfig) {
+        this.channel = channel;
+        SessionUtil.setResultFutureMap(channel);
 
-    public NettyConnection(InetSocketAddress isa, TransportConfig config) {
-        serializeType = config.getSerializeType();
-        try {
-            connector = new NettyConnector(isa, config);
-            ioSession = connector.createSession();
-            SessionUtil.setResultFutureMap(ioSession);
-        } catch (RuntimeException e) {
-            destroy();
-
-            throw e;
-        }
+        this.serializeType = transportConfig.getSerializeType();
     }
 
     @Override
     public ResultFuture call(Call call) {
         final int id = ID_GENERATOR.incrementAndGet();
-        Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(ioSession);
+        Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(channel);
         final ResultFuture resultFuture = new ResultFuture();
         futureMap.put(id, resultFuture);
 
-        ChannelFuture wf = ioSession.writeAndFlush(new Request(id, serializeType, call));
+        ChannelFuture wf = channel.writeAndFlush(new Request(id, serializeType, call));
         wf.addListener(new ChannelFutureListener() {
 
             @Override
@@ -82,23 +73,23 @@ public class NettyConnection implements Connection {
 
     @Override
     public InetSocketAddress getRemoteAddress() {
-        return (InetSocketAddress) ioSession.remoteAddress();
+        return (InetSocketAddress) channel.remoteAddress();
     }
 
     @Override
     public InetSocketAddress getLocalAddress() {
-        return (InetSocketAddress) ioSession.localAddress();
+        return (InetSocketAddress) channel.localAddress();
     }
 
     @Override
     public boolean isAlive() {
-        return ioSession.isActive();
+        return channel.isActive();
     }
 
     @Override
     public void destroy() {
-        if (ioSession != null) {
-            ioSession.close();
+        if (channel != null) {
+            channel.close();
         }
 
         if (connector != null) {

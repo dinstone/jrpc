@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.mina;
 
 import java.net.InetSocketAddress;
@@ -82,11 +83,11 @@ public class MinaConnector {
 
     private NioSocketConnector ioConnector;
 
-    public MinaConnector(InetSocketAddress isa, TransportConfig config) {
-        initConnector(isa, config);
+    public MinaConnector(TransportConfig config) {
+        initConnector(config);
     }
 
-    private void initConnector(InetSocketAddress isa, TransportConfig config) {
+    private void initConnector(TransportConfig config) {
         // create connector
         ioConnector = new NioSocketConnector(1);
         ioConnector.setConnectTimeoutMillis(config.getConnectTimeout());
@@ -115,17 +116,17 @@ public class MinaConnector {
         // set handler
         ioConnector.setHandler(new MinaIoHandler());
 
-        ioConnector.setDefaultRemoteAddress(isa);
     }
 
     /**
+     * @param sa
      * @return
      */
-    public IoSession createSession() {
+    public IoSession createSession(InetSocketAddress sa) {
         // create session
         // LOG.debug("create session to {} ", ioConnector.getDefaultRemoteAddress());
         // long s = System.currentTimeMillis();
-        IoSession session = ioConnector.connect().awaitUninterruptibly().getSession();
+        IoSession session = ioConnector.connect(sa).awaitUninterruptibly().getSession();
         // long t = System.currentTimeMillis() - s;
         LOG.debug("session connect {} to {}", session.getLocalAddress(), session.getRemoteAddress());
         return session;
