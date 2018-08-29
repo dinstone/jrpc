@@ -26,9 +26,9 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
-public class NetworkAddressUtil {
+public class NetworkInterfaceUtil {
 
-    public static final List<InetAddress> getPrivateInetInetAddress() throws SocketException {
+    public static final List<InetAddress> getPrivateAddresses() throws SocketException {
         List<InetAddress> inetAddresses = new LinkedList<>();
         for (Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces(); e.hasMoreElements();) {
             NetworkInterface netInterface = e.nextElement();
@@ -48,7 +48,7 @@ public class NetworkAddressUtil {
         return inetAddresses;
     }
 
-    public static final List<InetAddress> getPublicInetInetAddress() throws SocketException {
+    public static final List<InetAddress> getPublicAddresses() throws SocketException {
         List<InetAddress> inetAddresses = new LinkedList<>();
         for (Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces(); e.hasMoreElements();) {
             NetworkInterface netInterface = e.nextElement();

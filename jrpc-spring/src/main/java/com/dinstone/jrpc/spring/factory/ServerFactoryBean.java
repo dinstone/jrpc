@@ -25,7 +25,7 @@ import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.registry.RegistryConfig;
-import com.dinstone.jrpc.transport.NetworkAddressUtil;
+import com.dinstone.jrpc.transport.NetworkInterfaceUtil;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ServerFactoryBean extends AbstractFactoryBean<Server> {
@@ -116,9 +116,9 @@ public class ServerFactoryBean extends AbstractFactoryBean<Server> {
                 String host = hpParts[0];
                 int port = Integer.parseInt(hpParts[1]);
                 if (host == null || "-".equals(host)) {
-                    host = NetworkAddressUtil.getPrivateInetInetAddress().get(0).getHostAddress();
+                    host = NetworkInterfaceUtil.getPrivateAddresses().get(0).getHostAddress();
                 } else if ("+".equals(host)) {
-                    host = NetworkAddressUtil.getPublicInetInetAddress().get(0).getHostAddress();
+                    host = NetworkInterfaceUtil.getPublicAddresses().get(0).getHostAddress();
                 } else if ("*".equals(host)) {
                     host = "0.0.0.0";
                 }

@@ -32,7 +32,7 @@ import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.transport.AbstractAcceptance;
 import com.dinstone.jrpc.transport.Acceptance;
-import com.dinstone.jrpc.transport.NetworkAddressUtil;
+import com.dinstone.jrpc.transport.NetworkInterfaceUtil;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -158,7 +158,7 @@ public class NettyAcceptance extends AbstractAcceptance {
                     currentConnectioncount);
             } else {
                 Channel channel = ctx.channel();
-                String addressLabel = NetworkAddressUtil.addressLabel(channel.remoteAddress(), channel.localAddress());
+                String addressLabel = NetworkInterfaceUtil.addressLabel(channel.remoteAddress(), channel.localAddress());
                 channel.attr(LOCAL_REMOTE_ADDRESS_KEY).set(addressLabel);
                 connectionMap.put(addressLabel, channel);
 

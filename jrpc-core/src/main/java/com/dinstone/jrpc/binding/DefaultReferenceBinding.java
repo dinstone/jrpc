@@ -25,7 +25,7 @@ import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.registry.ServiceDescription;
 import com.dinstone.jrpc.registry.ServiceDiscovery;
-import com.dinstone.jrpc.transport.NetworkAddressUtil;
+import com.dinstone.jrpc.transport.NetworkInterfaceUtil;
 
 public class DefaultReferenceBinding implements ReferenceBinding {
 
@@ -49,7 +49,7 @@ public class DefaultReferenceBinding implements ReferenceBinding {
 
         if (consumerAddress == null) {
             try {
-                InetAddress addr = NetworkAddressUtil.getPrivateInetInetAddress().get(0);
+                InetAddress addr = NetworkInterfaceUtil.getPrivateAddresses().get(0);
                 consumerAddress = new InetSocketAddress(addr, 0);
             } catch (Exception e) {
                 throw new RuntimeException("can't init ReferenceBinding", e);

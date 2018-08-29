@@ -42,7 +42,7 @@ import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.transport.AbstractAcceptance;
-import com.dinstone.jrpc.transport.NetworkAddressUtil;
+import com.dinstone.jrpc.transport.NetworkInterfaceUtil;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaAcceptance extends AbstractAcceptance {
@@ -141,7 +141,7 @@ public class MinaAcceptance extends AbstractAcceptance {
                 LOG.warn("connection count is too big: limit={},current={}", maxConnectionCount,
                     currentConnectioncount);
             } else {
-                String addressLabel = NetworkAddressUtil.addressLabel(session.getRemoteAddress(),
+                String addressLabel = NetworkInterfaceUtil.addressLabel(session.getRemoteAddress(),
                     session.getLocalAddress());
                 session.setAttribute(LOCAL_REMOTE_ADDRESS_KEY, addressLabel);
                 connectionMap.put(addressLabel, session);
