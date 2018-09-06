@@ -57,51 +57,51 @@ For more details, please refer to the example project : [jrpc-example](https://g
 ## java programming by API
 ### export service:
 ```java
-	// setting endpoint config
-	EndpointConfig econfig = new EndpointConfig().setEndpointName("example-service-provider");
-	
-	// setting registry config
-	RegistryConfig rconfig = new RegistryConfig().setSchema("zookeeper").addProperty("zookeeper.node.list",
-	    "localhost:2181");
-	
-	// setting transport config
-	TransportConfig tconfig = new TransportConfig().setSchema("mina").addProperty("rpc.handler.count", "2");
-	
-	Server server = null;
-	try {
-	    ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
-	    // build server and start it
-	    server = builder.endpointConfig(econfig).registryConfig(rconfig).transportConfig(tconfig).build();
-	   server.start();
-	   
-	    // export service
-	    server.exportService(HelloService.class, new HelloServiceImpl());
-	
-	    System.in.read();
-	} finally {
-	    if (server != null) {
-	        server.stop();
-	    }
-	}
+// setting endpoint config
+EndpointConfig econfig = new EndpointConfig().setEndpointName("example-service-provider");
+
+// setting registry config
+RegistryConfig rconfig = new RegistryConfig().setSchema("zookeeper").addProperty("zookeeper.node.list",
+    "localhost:2181");
+
+// setting transport config
+TransportConfig tconfig = new TransportConfig().setSchema("mina").addProperty("rpc.handler.count", "2");
+
+Server server = null;
+try {
+    ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
+    // build server and start it
+    server = builder.endpointConfig(econfig).registryConfig(rconfig).transportConfig(tconfig).build();
+   server.start();
+   
+    // export service
+    server.exportService(HelloService.class, new HelloServiceImpl());
+
+    System.in.read();
+} finally {
+    if (server != null) {
+        server.stop();
+    }
+}
 ```
 
 ### import service:
 ```java
-    EndpointConfig endpointConfig = new EndpointConfig().setEndpointId("consumer-1")
-        .setEndpointName("example-service-consumer");
+EndpointConfig endpointConfig = new EndpointConfig().setEndpointId("consumer-1")
+    .setEndpointName("example-service-consumer");
 
-    RegistryConfig registryConfig = new RegistryConfig().setSchema("zookeeper").addProperty("zookeeper.node.list",
-        "localhost:2181");
+RegistryConfig registryConfig = new RegistryConfig().setSchema("zookeeper").addProperty("zookeeper.node.list",
+    "localhost:2181");
 
-    TransportConfig transportConfig = new TransportConfig().setSchema("netty").setConnectPoolSize(2);
+TransportConfig transportConfig = new TransportConfig().setSchema("netty").setConnectPoolSize(2);
 
-    Client client = new ClientBuilder().endpointConfig(endpointConfig).registryConfig(registryConfig)
-        .transportConfig(transportConfig).build();
-    
-    HelloService helloService = client.importService(HelloService.class);
-    helloService.sayHello("dinstone");
+Client client = new ClientBuilder().endpointConfig(endpointConfig).registryConfig(registryConfig)
+    .transportConfig(transportConfig).build();
 
-   client.destroy();
+HelloService helloService = client.importService(HelloService.class);
+helloService.sayHello("dinstone");
+
+client.destroy();
 ```
 
 ## declarative programming by Spring
