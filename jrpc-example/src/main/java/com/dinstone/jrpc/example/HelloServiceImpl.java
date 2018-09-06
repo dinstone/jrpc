@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.example;
 
 import com.codahale.metrics.Timer;
@@ -33,11 +34,6 @@ public class HelloServiceImpl implements HelloService {
         counter = metricService.getTimer("sayHello");
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see com.dinstone.jrpc.cases.HelloService#sayHello(java.lang.String)
-     */
     @Override
     public String sayHello(String name) {
         try {
@@ -48,11 +44,6 @@ public class HelloServiceImpl implements HelloService {
 
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see com.dinstone.jrpc.cases.SuperInterface#sayHello(java.lang.String, int)
-     */
     @Override
     public String sayHello(String name, int age) {
         if (age < 3) {
