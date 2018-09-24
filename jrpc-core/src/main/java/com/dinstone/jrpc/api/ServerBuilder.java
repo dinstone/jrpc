@@ -123,6 +123,8 @@ public class ServerBuilder {
 			}
 		} else if ("*".equals(host)) {
 			addresses.add(new InetSocketAddress("0.0.0.0", port));
+		} else {
+			addresses.add(new InetSocketAddress(host, port));
 		}
 		return addresses;
 	}
