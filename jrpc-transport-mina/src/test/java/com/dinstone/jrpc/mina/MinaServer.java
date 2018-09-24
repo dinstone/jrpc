@@ -41,8 +41,8 @@ public class MinaServer {
 
 	public MinaServer(InetSocketAddress providerAddress, TransportConfig transportConfig, RegistryConfig registryConfig,
 			EndpointConfig endpointConfig) {
-		endpointConfig.setRegistryConfig(registryConfig).setTransportConfig(transportConfig.setSchema("mina"));
-		server = new ServerBuilder().bind(providerAddress).endpointConfig(endpointConfig).build();
+		server = new ServerBuilder().bind(providerAddress).endpointConfig(endpointConfig).registryConfig(registryConfig)
+				.transportConfig(transportConfig.setSchema("mina")).build();
 
 	}
 

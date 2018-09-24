@@ -40,93 +40,93 @@ import com.dinstone.jrpc.transport.mina.MinaConnectionFactory;
  */
 public class DefaultConnectionTest {
 
-    private static MinaServer server;
+	private static MinaServer server;
 
-    private Connection connect;
+	private Connection connect;
 
-    @BeforeClass
-    public static void startServer() {
-        server = new MinaServer("localhost", 1234);
-        server.regist(HelloService.class, new HelloServiceImpl());
-        server.start();
-    }
+	@BeforeClass
+	public static void startServer() {
+		server = new MinaServer("localhost", 1234);
+		server.regist(HelloService.class, new HelloServiceImpl());
+		server.start();
+	}
 
-    @AfterClass
-    public static void stopServer() {
-        if (server != null) {
-            server.stop();
-        }
-    }
+	@AfterClass
+	public static void stopServer() {
+		if (server != null) {
+			server.stop();
+		}
+	}
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-        MinaConnectionFactory connectionFactory = new MinaConnectionFactory();
-        connect = connectionFactory.create(new TransportConfig(), new InetSocketAddress("localhost", 1234));
-    }
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@Before
+	public void setUp() throws Exception {
+		MinaConnectionFactory connectionFactory = new MinaConnectionFactory();
+		connect = connectionFactory.create(new TransportConfig(), new InetSocketAddress("localhost", 1234));
+	}
 
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
-        connect.destroy();
-    }
+	/**
+	 * @throws java.lang.Exception
+	 */
+	@After
+	public void tearDown() throws Exception {
+		connect.destroy();
+	}
 
-    /**
-     * Test method for
-     * {@link com.dinstone.jrpc.mina.transport.rpc.mina.client.MinaConnection#call(java.lang.String, java.lang.Object[], java.lang.Class)}
-     * .
-     */
-    @Test
-    public void testCall() {
-        long st = System.currentTimeMillis();
+	/**
+	 * Test method for
+	 * {@link com.dinstone.jrpc.mina.transport.rpc.mina.client.MinaConnection#call(java.lang.String, java.lang.Object[], java.lang.Class)}
+	 * .
+	 */
+	@Test
+	public void testCall() {
+		long st = System.currentTimeMillis();
 
-        ResultFuture cf = connect.call(
-            new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello", new Object[] { "dddd" }, null));
-        try {
-            cf.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+		ResultFuture cf = connect.call(
+				new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello", new Object[] { "dddd" }, null));
+		try {
+			cf.get();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
-        long et = System.currentTimeMillis() - st;
-        System.out.println("it takes " + et + "ms, " + (1 * 1000 / et) + " tps");
-    }
+		long et = System.currentTimeMillis() - st + 1;
+		System.out.println("it takes " + et + "ms, " + (1 * 1000 / et) + " tps");
+	}
 
-    @Test
-    public void testCall01() throws InterruptedException {
-        byte[] mb = new byte[1 * 1024];
-        for (int i = 0; i < mb.length; i++) {
-            mb[i] = 65;
-        }
-        String name = new String(mb);
+	@Test
+	public void testCall01() throws InterruptedException {
+		byte[] mb = new byte[1 * 1024];
+		for (int i = 0; i < mb.length; i++) {
+			mb[i] = 65;
+		}
+		String name = new String(mb);
 
-        long st = System.currentTimeMillis();
+		long st = System.currentTimeMillis();
 
-        final Semaphore s = new Semaphore(0);
-        ResultFutureListener listener = new ResultFutureListener() {
+		final Semaphore s = new Semaphore(0);
+		ResultFutureListener listener = new ResultFutureListener() {
 
-            @Override
-            public void complete(ResultFuture future) {
-                s.release();
-            }
-        };
+			@Override
+			public void complete(ResultFuture future) {
+				s.release();
+			}
+		};
 
-        int count = 10000;
-        for (int i = 0; i < count; i++) {
-            ResultFuture f = connect.call(
-                new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello", new Object[] { name }, null));
-            f.addListener(listener);
-        }
+		int count = 10000;
+		for (int i = 0; i < count; i++) {
+			ResultFuture f = connect.call(new Call("com.dinstone.jrpc.cases.HelloService", "", 3000, "sayHello",
+					new Object[] { name }, null));
+			f.addListener(listener);
+		}
 
-        long et = System.currentTimeMillis() - st;
-        System.out.println("write time " + et + " ms");
+		long et = System.currentTimeMillis() - st;
+		System.out.println("write time " + et + " ms");
 
-        s.acquire(count);
-        et = System.currentTimeMillis() - st;
-        System.out.println("it takes " + et + "ms, 1k : " + (count * 1000 / et) + " tps");
-    }
+		s.acquire(count);
+		et = System.currentTimeMillis() - st;
+		System.out.println("it takes " + et + "ms, 1k : " + (count * 1000 / et) + " tps");
+	}
 }

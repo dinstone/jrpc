@@ -23,27 +23,27 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 public class MinaConnectionFactory implements ConnectionFactory {
 
-    private MinaConnector connector;
+	private MinaConnector connector;
 
-    @Override
-    public String getSchema() {
-        return "netty5";
-    }
+	@Override
+	public String getSchema() {
+		return "mina";
+	}
 
-    @Override
-    public Connection create(TransportConfig transportConfig, InetSocketAddress sa) {
-        if (connector == null) {
-            connector = new MinaConnector(transportConfig);
-        }
-        return new MinaConnection(connector.createSession(sa), transportConfig);
-    }
+	@Override
+	public Connection create(TransportConfig transportConfig, InetSocketAddress sa) {
+		if (connector == null) {
+			connector = new MinaConnector(transportConfig);
+		}
+		return new MinaConnection(connector.createSession(sa), transportConfig);
+	}
 
-    @Override
-    public void destroy() {
-        if (connector != null) {
-            connector.dispose();
-            connector = null;
-        }
-    }
+	@Override
+	public void destroy() {
+		if (connector != null) {
+			connector.dispose();
+			connector = null;
+		}
+	}
 
 }

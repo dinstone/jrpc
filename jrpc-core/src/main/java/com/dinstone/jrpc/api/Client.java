@@ -47,7 +47,7 @@ public class Client implements ServiceImporter {
 		checkAndInit(endpointConfig, serviceAddresses);
 	}
 
-	protected void checkAndInit(EndpointConfig endpointConfig, List<InetSocketAddress> serviceAddresses) {
+	private void checkAndInit(EndpointConfig endpointConfig, List<InetSocketAddress> serviceAddresses) {
 		if (endpointConfig == null) {
 			throw new IllegalArgumentException("endpointConfig is null");
 		}

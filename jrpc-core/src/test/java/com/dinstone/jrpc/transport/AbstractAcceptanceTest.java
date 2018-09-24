@@ -45,7 +45,7 @@ public class AbstractAcceptanceTest {
         ImplementBinding iBinding = new DefaultImplementBinding(null, null, new InetSocketAddress("localhost", 0));
         iBinding.bind(wrapper, null);
 
-        acceptance = new AbstractAcceptance(null, null, null) {
+        acceptance = new AbstractAcceptance(null, iBinding, null) {
 
             @Override
             public void destroy() {

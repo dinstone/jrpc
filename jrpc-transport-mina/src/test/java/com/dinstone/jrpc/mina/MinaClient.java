@@ -15,13 +15,7 @@
  */
 package com.dinstone.jrpc.mina;
 
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.dinstone.jrpc.binding.ReferenceBinding;
-import com.dinstone.jrpc.endpoint.DefaultServiceImporter;
-import com.dinstone.jrpc.endpoint.EndpointConfig;
+import com.dinstone.jrpc.api.ClientBuilder;
 import com.dinstone.jrpc.endpoint.ServiceImporter;
 import com.dinstone.jrpc.transport.TransportConfig;
 
@@ -31,40 +25,36 @@ import com.dinstone.jrpc.transport.TransportConfig;
  */
 public class MinaClient {
 
-    private ReferenceBinding referenceBinding;
+	private ServiceImporter serviceImporter;
 
-    private ServiceImporter serviceImporter;
+	public MinaClient(final String host, final int port) {
+		this(host, port, new TransportConfig());
+	}
 
-    public MinaClient(final String host, final int port) {
-        this(host, port, new TransportConfig());
-    }
+	public MinaClient(final String host, final int port, TransportConfig config) {
+		config.setSchema("mina");
 
-    public MinaClient(final String host, final int port, TransportConfig config) {
-        config.setSchema("mina");
-        List<InetSocketAddress> addresses = new ArrayList<>();
-        addresses.add(new InetSocketAddress(host, port));
-        serviceImporter = new DefaultServiceImporter(new EndpointConfig(), null, null);
-    }
+		serviceImporter = new ClientBuilder().transportConfig(config).bind(host, port).build();
+	}
 
-    public <T> T getService(Class<T> sic) {
-        return serviceImporter.importService(sic);
-    }
+	public <T> T getService(Class<T> sic) {
+		return serviceImporter.importService(sic);
+	}
 
-    public <T> T getService(Class<T> sic, String group) {
-        return serviceImporter.importService(sic, group);
-    }
+	public <T> T getService(Class<T> sic, String group) {
+		return serviceImporter.importService(sic, group);
+	}
 
-    public <T> T getService(Class<T> sic, String group, int timeout) {
-        return serviceImporter.importService(sic, group, timeout);
-    }
+	public <T> T getService(Class<T> sic, String group, int timeout) {
+		return serviceImporter.importService(sic, group, timeout);
+	}
 
-    public void destroy() {
-        serviceImporter.destroy();
-        referenceBinding.destroy();
-    }
+	public void destroy() {
+		serviceImporter.destroy();
+	}
 
-    public MinaClient setDefaultTimeout(int timeout) {
-        return this;
-    }
+	public MinaClient setDefaultTimeout(int timeout) {
+		return this;
+	}
 
 }
