@@ -25,59 +25,59 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ClientBuilder {
 
-    private EndpointConfig endpointConfig = new EndpointConfig();
+	private EndpointConfig endpointConfig = new EndpointConfig();
 
-    private RegistryConfig registryConfig = new RegistryConfig();
+	private List<InetSocketAddress> serviceAddresses = new ArrayList<>();
 
-    private TransportConfig transportConfig = new TransportConfig();
+	public ClientBuilder bind(String addresses) {
+		if (addresses == null || addresses.length() == 0) {
+			return this;
+		}
 
-    private List<InetSocketAddress> serviceAddresses = new ArrayList<>();
+		String[] addressArrays = addresses.split(",");
+		for (String address : addressArrays) {
+			int pidx = address.lastIndexOf(':');
+			if (pidx > 0 && (pidx < address.length() - 1)) {
+				String host = address.substring(0, pidx);
+				int port = Integer.parseInt(address.substring(pidx + 1));
 
-    public ClientBuilder bind(String addresses) {
-        if (addresses == null || addresses.length() == 0) {
-            return this;
-        }
+				serviceAddresses.add(new InetSocketAddress(host, port));
+			}
+		}
 
-        String[] addressArrays = addresses.split(",");
-        for (String address : addressArrays) {
-            int pidx = address.lastIndexOf(':');
-            if (pidx > 0 && (pidx < address.length() - 1)) {
-                String host = address.substring(0, pidx);
-                int port = Integer.parseInt(address.substring(pidx + 1));
+		return this;
+	}
 
-                serviceAddresses.add(new InetSocketAddress(host, port));
-            }
-        }
+	public ClientBuilder bind(String host, int port) {
+		serviceAddresses.add(new InetSocketAddress(host, port));
 
-        return this;
-    }
+		return this;
+	}
 
-    public ClientBuilder bind(String host, int port) {
-        serviceAddresses.add(new InetSocketAddress(host, port));
+	public Client build() {
+		return new Client(endpointConfig, serviceAddresses);
+	}
 
-        return this;
-    }
+	public ClientBuilder endpointConfig(EndpointConfig endpointConfig) {
+		if (endpointConfig != null) {
+			this.endpointConfig.setEndpointId(endpointConfig.getEndpointId());
+			this.endpointConfig.setEndpointName(endpointConfig.getEndpointName());
+			this.endpointConfig.setDefaultTimeout(endpointConfig.getDefaultTimeout());
+			this.endpointConfig.setTransportConfig(endpointConfig.getTransportConfig());
+			this.endpointConfig.setRegistryConfig(endpointConfig.getRegistryConfig());
+		}
 
-    public Client build() {
-        return new Client(endpointConfig, registryConfig, transportConfig, serviceAddresses);
-    }
+		return this;
+	}
 
-    public ClientBuilder endpointConfig(EndpointConfig endpointConfig) {
-        this.endpointConfig.mergeConfiguration(endpointConfig);
+	public ClientBuilder transportConfig(TransportConfig transportConfig) {
+		this.endpointConfig.setTransportConfig(transportConfig);
+		return this;
+	}
 
-        return this;
-    }
-
-    public ClientBuilder registryConfig(RegistryConfig registryConfig) {
-        this.registryConfig.mergeConfiguration(registryConfig);
-
-        return this;
-    }
-
-    public ClientBuilder transportConfig(TransportConfig transportConfig) {
-        this.transportConfig.mergeConfiguration(transportConfig);
-
-        return this;
-    }
+	public ClientBuilder registryConfig(RegistryConfig registryConfig) {
+		this.endpointConfig.setRegistryConfig(registryConfig);
+		return this;
+	}
 
 }

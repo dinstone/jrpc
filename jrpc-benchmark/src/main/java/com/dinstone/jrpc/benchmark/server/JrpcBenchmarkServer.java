@@ -20,42 +20,44 @@ import java.io.IOException;
 import com.dinstone.jrpc.api.Server;
 import com.dinstone.jrpc.api.ServerBuilder;
 import com.dinstone.jrpc.benchmark.BenchmarkService;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class JrpcBenchmarkServer {
 
-    public static void main(String[] args) throws IOException {
-        System.out.println("Usage:[TransportSchema]");
-        System.out.println("Usage:[TransportSchema] [NioProcessorCount] [BusinessProcessorCount]");
+	public static void main(String[] args) throws IOException {
+		System.out.println("Usage:[TransportSchema]");
+		System.out.println("Usage:[TransportSchema] [NioProcessorCount] [BusinessProcessorCount]");
 
-        int businessCount = 0;
-        int nioCount = 2 * Runtime.getRuntime().availableProcessors();
-        String transportSchema = "netty";
-        if (args.length == 1) {
-            transportSchema = args[0];
-        } else if (args.length == 3) {
-            transportSchema = args[0];
-            nioCount = Integer.parseInt(args[1]);
-            businessCount = Integer.parseInt(args[2]);
-        }
+		int businessCount = 0;
+		int nioCount = 2 * Runtime.getRuntime().availableProcessors();
+		String transportSchema = "netty";
+		if (args.length == 1) {
+			transportSchema = args[0];
+		} else if (args.length == 3) {
+			transportSchema = args[0];
+			nioCount = Integer.parseInt(args[1]);
+			businessCount = Integer.parseInt(args[2]);
+		}
 
-        System.out.println("NioProcessorCount=" + nioCount + ",BusinessProcessorCount=" + businessCount
-                + ",TransportSchema=" + transportSchema);
+		System.out.println("NioProcessorCount=" + nioCount + ",BusinessProcessorCount=" + businessCount
+				+ ",TransportSchema=" + transportSchema);
 
-        TransportConfig transportConfig = new TransportConfig();
-        transportConfig.setSchema(transportSchema).setNioProcessorCount(nioCount);
-        transportConfig.setBusinessProcessorCount(businessCount);
+		TransportConfig transportConfig = new TransportConfig();
+		transportConfig.setSchema(transportSchema).setNioProcessorCount(nioCount);
+		transportConfig.setBusinessProcessorCount(businessCount);
 
-        ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
-        Server server = builder.transportConfig(transportConfig).build().start();
+		ServerBuilder builder = new ServerBuilder().bind("localhost", 4444);
+		Server server = builder.endpointConfig(new EndpointConfig().setTransportConfig(transportConfig)).build()
+				.start();
 
-        MetricService metricService = new MetricService();
-        server.exportService(BenchmarkService.class, new BenchmarkServiceImpl(metricService));
+		MetricService metricService = new MetricService();
+		server.exportService(BenchmarkService.class, new BenchmarkServiceImpl(metricService));
 
-        System.out.println("please press any key to continue");
-        System.in.read();
+		System.out.println("please press any key to continue");
+		System.in.read();
 
-        server.stop();
-        metricService.destory();
-    }
+		server.stop();
+		metricService.destory();
+	}
 }

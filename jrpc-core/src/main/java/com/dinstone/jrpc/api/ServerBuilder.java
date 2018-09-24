@@ -15,8 +15,11 @@
  */
 package com.dinstone.jrpc.api;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,93 +31,100 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ServerBuilder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ServerBuilder.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ServerBuilder.class);
 
-    private EndpointConfig endpointConfig = new EndpointConfig();
+	private EndpointConfig endpointConfig = new EndpointConfig();
 
-    private RegistryConfig registryConfig = new RegistryConfig();
+	private InetSocketAddress serviceAddress;
 
-    private TransportConfig transportConfig = new TransportConfig();
+	public Server build() {
+		return new Server(endpointConfig, serviceAddress);
+	}
 
-    private InetSocketAddress serviceAddress;
+	public ServerBuilder bind(InetSocketAddress socketAddress) {
+		if (socketAddress != null) {
+			this.serviceAddress = socketAddress;
+		}
+		return this;
+	}
 
-    public Server build() {
-        return new Server(endpointConfig, registryConfig, transportConfig, serviceAddress);
-    }
+	public ServerBuilder bind(String host, int port) {
+		try {
+			List<InetSocketAddress> resolveAddress = resolveAddress(host, port);
+			if (!resolveAddress.isEmpty()) {
+				bind(resolveAddress.get(0));
+			}
+		} catch (SocketException e) {
+			throw new RuntimeException("host is invalid", e);
+		}
+		return this;
+	}
 
-    public ServerBuilder bind(InetSocketAddress serviceAddress) {
-        this.serviceAddress = serviceAddress;
-        return this;
-    }
+	public ServerBuilder bind(String address) {
+		if (address == null || address.isEmpty()) {
+			throw new RuntimeException("address is empty");
+		}
 
-    public ServerBuilder bind(String host, int port) {
-        try {
-            return bind(new InetSocketAddress(resolveHost(host), port));
-        } catch (SocketException e) {
-            throw new RuntimeException("host is invalid", e);
-        }
-    }
+		InetSocketAddress socketAddress = parseServiceAddress(address);
+		if (socketAddress == null) {
+			throw new RuntimeException("address is invalid");
+		}
 
-    public ServerBuilder bind(String address) {
-        if (address == null || address.isEmpty()) {
-            throw new RuntimeException("address is empty");
-        }
+		return bind(socketAddress);
+	}
 
-        InetSocketAddress socketAddress = parseServiceAddress(address);
-        if (socketAddress == null) {
-            throw new RuntimeException("address is invalid");
-        }
+	public ServerBuilder endpointConfig(EndpointConfig endpointConfig) {
+		if (endpointConfig != null) {
+			this.endpointConfig.setEndpointId(endpointConfig.getEndpointId());
+			this.endpointConfig.setEndpointName(endpointConfig.getEndpointName());
+			this.endpointConfig.setDefaultTimeout(endpointConfig.getDefaultTimeout());
+			this.endpointConfig.setTransportConfig(endpointConfig.getTransportConfig());
+			this.endpointConfig.setRegistryConfig(endpointConfig.getRegistryConfig());
+		}
 
-        return bind(socketAddress);
-    }
+		return this;
+	}
 
-    public ServerBuilder endpointConfig(EndpointConfig endpointConfig) {
-        this.endpointConfig.mergeConfiguration(endpointConfig);
+	public ServerBuilder transportConfig(TransportConfig transportConfig) {
+		this.endpointConfig.setTransportConfig(transportConfig);
+		return this;
+	}
 
-        return this;
-    }
+	public ServerBuilder registryConfig(RegistryConfig registryConfig) {
+		this.endpointConfig.setRegistryConfig(registryConfig);
+		return this;
+	}
 
-    public ServerBuilder registryConfig(RegistryConfig registryConfig) {
-        this.registryConfig.mergeConfiguration(registryConfig);
+	private InetSocketAddress parseServiceAddress(String address) {
+		try {
+			String[] hpParts = address.split(":", 2);
+			if (hpParts.length == 2) {
+				List<InetSocketAddress> resolveAddress = resolveAddress(hpParts[0], Integer.parseInt(hpParts[1]));
+				if (!resolveAddress.isEmpty()) {
+					return resolveAddress.get(0);
+				}
+			}
+		} catch (Exception e) {
+			LOG.warn("parse service address error", e);
+		}
 
-        return this;
-    }
+		return null;
+	}
 
-    public ServerBuilder transportConfig(TransportConfig transportConfig) {
-        this.transportConfig.mergeConfiguration(transportConfig);
+	private List<InetSocketAddress> resolveAddress(String host, int port) throws SocketException {
+		List<InetSocketAddress> addresses = new ArrayList<>();
+		if (host == null || "-".equals(host)) {
+			for (InetAddress inetAddress : NetworkInterfaceUtil.getPrivateAddresses()) {
+				addresses.add(new InetSocketAddress(inetAddress, port));
+			}
+		} else if ("+".equals(host)) {
+			for (InetAddress inetAddress : NetworkInterfaceUtil.getPublicAddresses()) {
+				addresses.add(new InetSocketAddress(inetAddress, port));
+			}
+		} else if ("*".equals(host)) {
+			addresses.add(new InetSocketAddress("0.0.0.0", port));
+		}
+		return addresses;
+	}
 
-        return this;
-    }
-
-    public void setServiceAddress(InetSocketAddress serviceAddress) {
-        this.serviceAddress = serviceAddress;
-    }
-
-    private InetSocketAddress parseServiceAddress(String address) {
-        InetSocketAddress providerAddress = null;
-        try {
-            String[] hpParts = address.split(":", 2);
-            if (hpParts.length == 2) {
-                String host = hpParts[0];
-                int port = Integer.parseInt(hpParts[1]);
-                host = resolveHost(host);
-                providerAddress = new InetSocketAddress(host, port);
-            }
-        } catch (Exception e) {
-            LOG.warn("parse service address error", e);
-        }
-
-        return providerAddress;
-    }
-
-    protected String resolveHost(String host) throws SocketException {
-        if (host == null || "-".equals(host)) {
-            host = NetworkInterfaceUtil.getPrivateAddresses().get(0).getHostAddress();
-        } else if ("+".equals(host)) {
-            host = NetworkInterfaceUtil.getPublicAddresses().get(0).getHostAddress();
-        } else if ("*".equals(host)) {
-            host = "0.0.0.0";
-        }
-        return host;
-    }
 }

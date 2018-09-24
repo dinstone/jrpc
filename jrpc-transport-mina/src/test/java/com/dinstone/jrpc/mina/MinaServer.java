@@ -29,52 +29,51 @@ import com.dinstone.jrpc.transport.TransportConfig;
  */
 public class MinaServer {
 
-    private Server server;
+	private Server server;
 
-    public MinaServer(String host, int port) {
-        this(host, port, new TransportConfig());
-    }
+	public MinaServer(String host, int port) {
+		this(host, port, new TransportConfig());
+	}
 
-    public MinaServer(String host, int port, TransportConfig transportConfig) {
-        this(new InetSocketAddress(host, port), transportConfig, null, null);
-    }
+	public MinaServer(String host, int port, TransportConfig transportConfig) {
+		this(new InetSocketAddress(host, port), transportConfig, null, null);
+	}
 
-    public MinaServer(InetSocketAddress providerAddress, TransportConfig transportConfig, RegistryConfig registryConfig,
-            EndpointConfig endpointConfig) {
-        transportConfig.setSchema("mina");
-        server = new ServerBuilder().bind(providerAddress).endpointConfig(endpointConfig).registryConfig(registryConfig)
-            .transportConfig(transportConfig).build();
+	public MinaServer(InetSocketAddress providerAddress, TransportConfig transportConfig, RegistryConfig registryConfig,
+			EndpointConfig endpointConfig) {
+		endpointConfig.setRegistryConfig(registryConfig).setTransportConfig(transportConfig.setSchema("mina"));
+		server = new ServerBuilder().bind(providerAddress).endpointConfig(endpointConfig).build();
 
-    }
+	}
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see com.dinstone.jrpc.api.Server#start()
-     */
-    public void start() {
-        server.start();
-    }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see com.dinstone.jrpc.api.Server#start()
+	 */
+	public void start() {
+		server.start();
+	}
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see com.dinstone.jrpc.api.Server#stop()
-     */
-    public void stop() {
-        server.stop();
-    }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see com.dinstone.jrpc.api.Server#stop()
+	 */
+	public void stop() {
+		server.stop();
+	}
 
-    public <T> void regist(Class<T> serviceInterface, T serviceImplement) {
-        server.exportService(serviceInterface, serviceImplement);
-    }
+	public <T> void regist(Class<T> serviceInterface, T serviceImplement) {
+		server.exportService(serviceInterface, serviceImplement);
+	}
 
-    public <T> void regist(Class<T> serviceInterface, String group, T serviceImplement) {
-        server.exportService(serviceInterface, group, serviceImplement);
-    }
+	public <T> void regist(Class<T> serviceInterface, String group, T serviceImplement) {
+		server.exportService(serviceInterface, group, serviceImplement);
+	}
 
-    public <T> void regist(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
-        server.exportService(serviceInterface, group, timeout, serviceImplement);
-    }
+	public <T> void regist(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
+		server.exportService(serviceInterface, group, timeout, serviceImplement);
+	}
 
 }

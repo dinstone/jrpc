@@ -29,7 +29,6 @@ import com.dinstone.jrpc.invoker.SkelectonServiceInvoker;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
 import com.dinstone.jrpc.proxy.StubServiceProxyFactory;
-import com.dinstone.jrpc.registry.RegistryConfig;
 import com.dinstone.jrpc.registry.RegistryFactory;
 import com.dinstone.jrpc.registry.ServiceRegistry;
 import com.dinstone.jrpc.transport.Acceptance;
@@ -38,120 +37,119 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 public class Server implements ServiceExporter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Server.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Server.class);
 
-    private Acceptance acceptance;
+	private Acceptance acceptance;
 
-    private EndpointConfig endpointConfig;
+	private EndpointConfig endpointConfig;
 
-    private InetSocketAddress serviceAddress;
+	private InetSocketAddress serviceAddress;
 
-    private ServiceRegistry serviceRegistry;
+	private ServiceRegistry serviceRegistry;
 
-    private ImplementBinding implementBinding;
+	private ImplementBinding implementBinding;
 
-    private ServiceProxyFactory serviceProxyFactory;
+	private ServiceProxyFactory serviceProxyFactory;
 
-    Server(EndpointConfig endpointConfig, RegistryConfig registryConfig, TransportConfig transportConfig,
-            InetSocketAddress serviceAddress) {
-        checkAndInit(endpointConfig, registryConfig, transportConfig, serviceAddress);
-    }
+	Server(EndpointConfig endpointConfig, InetSocketAddress serviceAddress) {
+		checkAndInit(endpointConfig, serviceAddress);
+	}
 
-    private void checkAndInit(EndpointConfig endpointConfig, RegistryConfig registryConfig,
-            TransportConfig transportConfig, InetSocketAddress serviceAddress) {
-        if (endpointConfig == null) {
-            throw new IllegalArgumentException("endpointConfig is null");
-        }
-        this.endpointConfig = endpointConfig;
+	private void checkAndInit(EndpointConfig endpointConfig, InetSocketAddress serviceAddress) {
+		if (endpointConfig == null) {
+			throw new IllegalArgumentException("endpointConfig is null");
+		}
+		this.endpointConfig = endpointConfig;
 
-        // check bind service address
-        if (serviceAddress == null) {
-            throw new RuntimeException("server not bind service address");
-        }
-        this.serviceAddress = serviceAddress;
+		// check bind service address
+		if (serviceAddress == null) {
+			throw new RuntimeException("server not bind service address");
+		}
+		this.serviceAddress = serviceAddress;
 
-        // check transport provider
-        SchemaFactoryLoader<AcceptanceFactory> afLoader = SchemaFactoryLoader.getInstance(AcceptanceFactory.class);
-        AcceptanceFactory acceptanceFactory = afLoader.getSchemaFactory(transportConfig.getSchema());
-        if (acceptanceFactory == null) {
-            throw new RuntimeException("can't find transport provider for schema : " + transportConfig.getSchema());
-        }
+		TransportConfig transportConfig = endpointConfig.getTransportConfig();
+		// check transport provider
+		SchemaFactoryLoader<AcceptanceFactory> afLoader = SchemaFactoryLoader.getInstance(AcceptanceFactory.class);
+		AcceptanceFactory acceptanceFactory = afLoader.getSchemaFactory(transportConfig.getSchema());
+		if (acceptanceFactory == null) {
+			throw new RuntimeException("can't find transport provider for schema : " + transportConfig.getSchema());
+		}
 
-        // check registry provider
-        String registrySchema = registryConfig.getSchema();
-        if (registrySchema != null && !registrySchema.isEmpty()) {
-            SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
-            RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
-            if (registryFactory == null) {
-                throw new RuntimeException("can't find registry provider for schema : " + registrySchema);
-            } else {
-                this.serviceRegistry = registryFactory.createServiceRegistry(registryConfig);
-            }
-        }
+		// check registry provider
+		String registrySchema = endpointConfig.getRegistryConfig().getSchema();
+		if (registrySchema != null && !registrySchema.isEmpty()) {
+			SchemaFactoryLoader<RegistryFactory> rfLoader = SchemaFactoryLoader.getInstance(RegistryFactory.class);
+			RegistryFactory registryFactory = rfLoader.getSchemaFactory(registrySchema);
+			if (registryFactory == null) {
+				throw new RuntimeException("can't find registry provider for schema : " + registrySchema);
+			} else {
+				this.serviceRegistry = registryFactory.createServiceRegistry(endpointConfig.getRegistryConfig());
+			}
+		}
 
-        this.serviceProxyFactory = new StubServiceProxyFactory(new SkelectonServiceInvoker());
-        this.implementBinding = new DefaultImplementBinding(endpointConfig, serviceRegistry, serviceAddress);
-        this.acceptance = acceptanceFactory.create(transportConfig, implementBinding, serviceAddress);
-    }
+		this.serviceProxyFactory = new StubServiceProxyFactory(new SkelectonServiceInvoker());
+		this.implementBinding = new DefaultImplementBinding(endpointConfig, serviceRegistry, serviceAddress);
+		this.acceptance = acceptanceFactory.create(transportConfig, implementBinding, serviceAddress);
+	}
 
-    public synchronized Server start() {
-        acceptance.bind();
+	public synchronized Server start() {
+		acceptance.bind();
 
-        LOG.info("JRPC server is started on {}", serviceAddress);
+		LOG.info("JRPC server is started on {}", serviceAddress);
 
-        return this;
-    }
+		return this;
+	}
 
-    public synchronized Server stop() {
-        destroy();
+	public synchronized Server stop() {
+		destroy();
 
-        LOG.info("JRPC server is stopped on {}", serviceAddress);
+		LOG.info("JRPC server is stopped on {}", serviceAddress);
 
-        return this;
-    }
+		return this;
+	}
 
-    public InetSocketAddress getServiceAddress() {
-        return serviceAddress;
-    }
+	public InetSocketAddress getServiceAddress() {
+		return serviceAddress;
+	}
 
-    @Override
-    public <T> void exportService(Class<T> serviceInterface, T serviceImplement) {
-        exportService(serviceInterface, "", endpointConfig.getDefaultTimeout(), serviceImplement);
-    }
+	@Override
+	public <T> void exportService(Class<T> serviceInterface, T serviceImplement) {
+		exportService(serviceInterface, "", endpointConfig.getDefaultTimeout(), serviceImplement);
+	}
 
-    @Override
-    public <T> void exportService(Class<T> serviceInterface, String group, T serviceImplement) {
-        exportService(serviceInterface, group, endpointConfig.getDefaultTimeout(), serviceImplement);
-    }
+	@Override
+	public <T> void exportService(Class<T> serviceInterface, String group, T serviceImplement) {
+		exportService(serviceInterface, group, endpointConfig.getDefaultTimeout(), serviceImplement);
+	}
 
-    @Override
-    public <T> void exportService(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
-        if (group == null) {
-            group = "";
-        }
-        if (timeout <= 0) {
-            timeout = endpointConfig.getDefaultTimeout();
-        }
+	@Override
+	public <T> void exportService(Class<T> serviceInterface, String group, int timeout, T serviceImplement) {
+		if (group == null) {
+			group = "";
+		}
+		if (timeout <= 0) {
+			timeout = endpointConfig.getDefaultTimeout();
+		}
 
-        try {
-            ServiceProxy<T> wrapper = serviceProxyFactory.create(serviceInterface, group, timeout, serviceImplement);
-            implementBinding.bind(wrapper, endpointConfig);
-        } catch (Exception e) {
-            throw new RuntimeException("can't export service", e);
-        }
-    }
+		try {
+			ServiceProxy<T> wrapper = serviceProxyFactory.create(serviceInterface, group, timeout, serviceImplement);
+			implementBinding.bind(wrapper, endpointConfig);
+		} catch (Exception e) {
+			throw new RuntimeException("can't export service", e);
+		}
+	}
 
-    @Override
-    public void destroy() {
-        if (implementBinding != null) {
-            implementBinding.destroy();
-        }
-        if (serviceRegistry != null) {
-            serviceRegistry.destroy();
-        }
-        if (acceptance != null) {
-            acceptance.destroy();
-        }
-    }
+	@Override
+	public void destroy() {
+		if (implementBinding != null) {
+			implementBinding.destroy();
+		}
+		if (serviceRegistry != null) {
+			serviceRegistry.destroy();
+		}
+		if (acceptance != null) {
+			acceptance.destroy();
+		}
+	}
 
 }

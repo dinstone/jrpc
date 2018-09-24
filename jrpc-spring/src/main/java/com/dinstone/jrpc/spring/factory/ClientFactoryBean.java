@@ -27,87 +27,86 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ClientFactoryBean extends AbstractFactoryBean<Client> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientFactoryBean.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ClientFactoryBean.class);
 
-    private String id;
+	private String id;
 
-    private String name;
+	private String name;
 
-    // ================================================
-    // Transport config
-    // ================================================
-    private ConfigBean transportBean;
+	// ================================================
+	// Transport config
+	// ================================================
+	private ConfigBean transportBean;
 
-    // ================================================
-    // Registry config
-    // ================================================
-    private ConfigBean registryBean;
+	// ================================================
+	// Registry config
+	// ================================================
+	private ConfigBean registryBean;
 
-    public String getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public ConfigBean getTransportBean() {
-        return transportBean;
-    }
+	public ConfigBean getTransportBean() {
+		return transportBean;
+	}
 
-    public void setTransportBean(ConfigBean transportBean) {
-        this.transportBean = transportBean;
-    }
+	public void setTransportBean(ConfigBean transportBean) {
+		this.transportBean = transportBean;
+	}
 
-    public ConfigBean getRegistryBean() {
-        return registryBean;
-    }
+	public ConfigBean getRegistryBean() {
+		return registryBean;
+	}
 
-    public void setRegistryBean(ConfigBean registryBean) {
-        this.registryBean = registryBean;
-    }
+	public void setRegistryBean(ConfigBean registryBean) {
+		this.registryBean = registryBean;
+	}
 
-    @Override
-    protected Client createInstance() throws Exception {
-        LOG.info("create jrpc client {}@{}", id, name);
+	@Override
+	protected Client createInstance() throws Exception {
+		LOG.info("create jrpc client {}@{}", id, name);
 
-        ClientBuilder builder = new ClientBuilder().bind("localhost", 4444);
-        builder.bind(transportBean.getAddress());
+		EndpointConfig endpointConfig = new EndpointConfig();
+		endpointConfig.setEndpointId(id).setEndpointName(name);
 
-        TransportConfig transportConfig = new TransportConfig();
-        transportConfig.setSchema(transportBean.getSchema());
-        transportConfig.setProperties(transportBean.getProperties());
-        builder.transportConfig(transportConfig);
+		TransportConfig transportConfig = new TransportConfig();
+		transportConfig.setSchema(transportBean.getSchema());
+		transportConfig.setProperties(transportBean.getProperties());
+		endpointConfig.setTransportConfig(transportConfig);
 
-        if (registryBean.getSchema() != null && !registryBean.getSchema().isEmpty()) {
-            RegistryConfig registryConfig = new RegistryConfig();
-            registryConfig.setSchema(registryBean.getSchema());
-            registryConfig.setProperties(registryBean.getProperties());
-            builder.registryConfig(registryConfig);
-        }
+		if (registryBean.getSchema() != null && !registryBean.getSchema().isEmpty()) {
+			RegistryConfig registryConfig = new RegistryConfig();
+			registryConfig.setSchema(registryBean.getSchema());
+			registryConfig.setProperties(registryBean.getProperties());
+			endpointConfig.setRegistryConfig(registryConfig);
+		}
 
-        EndpointConfig endpointConfig = new EndpointConfig();
-        endpointConfig.setEndpointId(id).setEndpointName(name);
-        builder.endpointConfig(endpointConfig);
+		ClientBuilder builder = new ClientBuilder();
+		builder.bind(transportBean.getAddress());
+		builder.endpointConfig(endpointConfig);
+		return builder.build();
+	}
 
-        return builder.build();
-    }
+	@Override
+	protected void destroyInstance(Client instance) throws Exception {
+		instance.destroy();
+	}
 
-    @Override
-    protected void destroyInstance(Client instance) throws Exception {
-        instance.destroy();
-    }
-
-    @Override
-    public Class<?> getObjectType() {
-        return Client.class;
-    }
+	@Override
+	public Class<?> getObjectType() {
+		return Client.class;
+	}
 }

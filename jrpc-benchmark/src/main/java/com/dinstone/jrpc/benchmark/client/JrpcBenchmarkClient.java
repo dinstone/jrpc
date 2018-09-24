@@ -22,77 +22,79 @@ import java.util.concurrent.CyclicBarrier;
 import com.dinstone.jrpc.api.Client;
 import com.dinstone.jrpc.api.ClientBuilder;
 import com.dinstone.jrpc.benchmark.BenchmarkService;
+import com.dinstone.jrpc.endpoint.EndpointConfig;
 import com.dinstone.jrpc.transport.TransportConfig;
 
 public class JrpcBenchmarkClient extends AbstractBenchmarkClient {
 
-    private BenchmarkService benchmarkService;
+	private BenchmarkService benchmarkService;
 
-    private Client client;
+	private Client client;
 
-    public JrpcBenchmarkClient(CaseConfig caseConfig) {
-        super(caseConfig);
-    }
+	public JrpcBenchmarkClient(CaseConfig caseConfig) {
+		super(caseConfig);
+	}
 
-    @Override
-    protected void init() {
-        TransportConfig transportConfig = new TransportConfig();
-        transportConfig.setSchema(caseConfig.transportSchema).setConnectPoolSize(caseConfig.connectPoolSize);
+	@Override
+	protected void init() {
+		TransportConfig transportConfig = new TransportConfig();
+		transportConfig.setSchema(caseConfig.transportSchema).setConnectPoolSize(caseConfig.connectPoolSize);
 
-        client = new ClientBuilder().bind("localhost", 4444).transportConfig(transportConfig).build();
-        benchmarkService = client.importService(BenchmarkService.class);
-    }
+		client = new ClientBuilder().bind("localhost", 4444)
+				.endpointConfig(new EndpointConfig().setTransportConfig(transportConfig)).build();
+		benchmarkService = client.importService(BenchmarkService.class);
+	}
 
-    @Override
-    @SuppressWarnings("rawtypes")
-    protected CaseRunnable getCaseRunnable(CyclicBarrier barrier, CountDownLatch latch, long startTime, long endTime) {
-        Class[] parameterTypes = new Class[] { BenchmarkService.class, CaseConfig.class, CyclicBarrier.class,
-                CountDownLatch.class, long.class, long.class };
-        Object[] parameters = new Object[] { benchmarkService, caseConfig, barrier, latch, startTime, endTime };
+	@Override
+	@SuppressWarnings("rawtypes")
+	protected CaseRunnable getCaseRunnable(CyclicBarrier barrier, CountDownLatch latch, long startTime, long endTime) {
+		Class[] parameterTypes = new Class[] { BenchmarkService.class, CaseConfig.class, CyclicBarrier.class,
+				CountDownLatch.class, long.class, long.class };
+		Object[] parameters = new Object[] { benchmarkService, caseConfig, barrier, latch, startTime, endTime };
 
-        CaseRunnable clientRunnable = null;
-        try {
-            clientRunnable = (CaseRunnable) Class.forName(caseConfig.caseClassName).getConstructor(parameterTypes)
-                .newInstance(parameters);
-        } catch (InstantiationException | NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.getTargetException();
-        }
+		CaseRunnable clientRunnable = null;
+		try {
+			clientRunnable = (CaseRunnable) Class.forName(caseConfig.caseClassName).getConstructor(parameterTypes)
+					.newInstance(parameters);
+		} catch (InstantiationException | NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.getTargetException();
+		}
 
-        return clientRunnable;
-    }
+		return clientRunnable;
+	}
 
-    @Override
-    protected void destory() {
-        client.destroy();
-    }
+	@Override
+	protected void destory() {
+		client.destroy();
+	}
 
-    public static void main(String[] args) {
-        System.out.println("Usage:[TransportSchema] [Concurrents]");
+	public static void main(String[] args) {
+		System.out.println("Usage:[TransportSchema] [Concurrents]");
 
-        CaseConfig caseConfig = new CaseConfig();
-        if (args.length == 2) {
-            caseConfig.transportSchema = args[0];
-            caseConfig.concurrents = Integer.parseInt(args[1]);
-        }
+		CaseConfig caseConfig = new CaseConfig();
+		if (args.length == 2) {
+			caseConfig.transportSchema = args[0];
+			caseConfig.concurrents = Integer.parseInt(args[1]);
+		}
 
-        caseConfig.dataLength = 1024;
-        new JrpcBenchmarkClient(caseConfig).execute();
+		caseConfig.dataLength = 1024;
+		new JrpcBenchmarkClient(caseConfig).execute();
 
-        caseConfig.dataLength = 5 * 1024;
-        new JrpcBenchmarkClient(caseConfig).execute();
+		caseConfig.dataLength = 5 * 1024;
+		new JrpcBenchmarkClient(caseConfig).execute();
 
-        caseConfig.dataLength = 10 * 1024;
-        new JrpcBenchmarkClient(caseConfig).execute();
+		caseConfig.dataLength = 10 * 1024;
+		new JrpcBenchmarkClient(caseConfig).execute();
 
-        caseConfig.dataLength = 20 * 1024;
-        new JrpcBenchmarkClient(caseConfig).execute();
+		caseConfig.dataLength = 20 * 1024;
+		new JrpcBenchmarkClient(caseConfig).execute();
 
-        caseConfig.dataLength = 30 * 1024;
-        new JrpcBenchmarkClient(caseConfig).execute();
+		caseConfig.dataLength = 30 * 1024;
+		new JrpcBenchmarkClient(caseConfig).execute();
 
-        caseConfig.dataLength = 50 * 1024;
-        new JrpcBenchmarkClient(caseConfig).execute();
-    }
+		caseConfig.dataLength = 50 * 1024;
+		new JrpcBenchmarkClient(caseConfig).execute();
+	}
 }

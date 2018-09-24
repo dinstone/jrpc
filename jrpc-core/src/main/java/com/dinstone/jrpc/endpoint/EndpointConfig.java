@@ -15,55 +15,72 @@
  */
 package com.dinstone.jrpc.endpoint;
 
-import com.dinstone.jrpc.Configuration;
+import com.dinstone.jrpc.registry.RegistryConfig;
+import com.dinstone.jrpc.transport.TransportConfig;
 
-public class EndpointConfig extends Configuration {
+public class EndpointConfig {
 
-    private static final String ENDPOINT_ID = "endpoint.id";
+	private String endpointId;
 
-    private static final String ENDPOINT_NAME = "endpoint.name";
+	private String endpointName;
 
-    private static final String DEFAULT_TIMEOUT_KEY = "default.timeout";
+	private int defaultTimeout = 3000;
 
-    private static final int DEFAULT_TIMEOUT = 3000;
+	private RegistryConfig registryConfig = new RegistryConfig();
 
-    public EndpointConfig() {
-        super();
-    }
+	private TransportConfig transportConfig = new TransportConfig();
 
-    public EndpointConfig(Configuration config) {
-        super(config);
-    }
+	public EndpointConfig() {
+		super();
+	}
 
-    public EndpointConfig(String configLocation) {
-        super(configLocation);
-    }
+	public String getEndpointId() {
+		return endpointId;
+	}
 
-    public EndpointConfig setDefaultTimeout(int defaultTimeout) {
-        setInt(DEFAULT_TIMEOUT_KEY, defaultTimeout);
-        return this;
-    }
+	public EndpointConfig setEndpointId(String endpointId) {
+		this.endpointId = endpointId;
+		return this;
+	}
 
-    public int getDefaultTimeout() {
-        return getInt(DEFAULT_TIMEOUT_KEY, DEFAULT_TIMEOUT);
-    }
+	public String getEndpointName() {
+		return endpointName;
+	}
 
-    public EndpointConfig setEndpointId(String id) {
-        set(ENDPOINT_ID, id);
-        return this;
-    }
+	public EndpointConfig setEndpointName(String endpointName) {
+		this.endpointName = endpointName;
+		return this;
+	}
 
-    public EndpointConfig setEndpointName(String name) {
-        set(ENDPOINT_NAME, name);
-        return this;
-    }
+	public int getDefaultTimeout() {
+		return defaultTimeout;
+	}
 
-    public String getEndpointId() {
-        return get(ENDPOINT_ID);
-    }
+	public EndpointConfig setDefaultTimeout(int defaultTimeout) {
+		this.defaultTimeout = defaultTimeout;
+		return this;
+	}
 
-    public String getEndpointName() {
-        return get(ENDPOINT_NAME);
-    }
+	public RegistryConfig getRegistryConfig() {
+		return registryConfig;
+	}
+
+	public EndpointConfig setRegistryConfig(RegistryConfig registryConfig) {
+		if (registryConfig != null) {
+			this.registryConfig.mergeConfiguration(registryConfig);
+		}
+		return this;
+	}
+
+	public TransportConfig getTransportConfig() {
+		return transportConfig;
+	}
+
+	public EndpointConfig setTransportConfig(TransportConfig transportConfig) {
+		if (transportConfig != null) {
+			this.transportConfig.mergeConfiguration(transportConfig);
+		}
+		return this;
+	}
 
 }

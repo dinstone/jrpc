@@ -30,114 +30,115 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 public class ServerFactoryBean extends AbstractFactoryBean<Server> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ServerFactoryBean.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ServerFactoryBean.class);
 
-    private String id;
+	private String id;
 
-    private String name;
+	private String name;
 
-    // ================================================
-    // Transport config
-    // ================================================
-    private ConfigBean transportBean;
+	// ================================================
+	// Transport config
+	// ================================================
+	private ConfigBean transportBean;
 
-    // ================================================
-    // Registry config
-    // ================================================
-    private ConfigBean registryBean;
+	// ================================================
+	// Registry config
+	// ================================================
+	private ConfigBean registryBean;
 
-    public String getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public ConfigBean getTransportBean() {
-        return transportBean;
-    }
+	public ConfigBean getTransportBean() {
+		return transportBean;
+	}
 
-    public void setTransportBean(ConfigBean transportBean) {
-        this.transportBean = transportBean;
-    }
+	public void setTransportBean(ConfigBean transportBean) {
+		this.transportBean = transportBean;
+	}
 
-    public ConfigBean getRegistryBean() {
-        return registryBean;
-    }
+	public ConfigBean getRegistryBean() {
+		return registryBean;
+	}
 
-    public void setRegistryBean(ConfigBean registryBean) {
-        this.registryBean = registryBean;
-    }
+	public void setRegistryBean(ConfigBean registryBean) {
+		this.registryBean = registryBean;
+	}
 
-    @Override
-    protected Server createInstance() throws Exception {
-        LOG.info("create jrpc client {}@{}", id, name);
+	@Override
+	protected Server createInstance() throws Exception {
+		LOG.info("create jrpc client {}@{}", id, name);
 
-        String address = transportBean.getAddress();
-        if (address == null || address.isEmpty()) {
-            throw new RuntimeException("transport address attribute is empty.");
-        }
+		String address = transportBean.getAddress();
+		if (address == null || address.isEmpty()) {
+			throw new RuntimeException("transport address attribute is empty.");
+		}
 
-        ServerBuilder builder = new ServerBuilder();
+		// setting endpoint config
+		EndpointConfig endpointConfig = new EndpointConfig().setEndpointId(id).setEndpointName(name);
 
-        // setting transport config
-        TransportConfig transportConfig = new TransportConfig();
-        transportConfig.setSchema(transportBean.getSchema());
-        transportConfig.setProperties(transportBean.getProperties());
-        builder.transportConfig(transportConfig);
+		// setting transport config
+		TransportConfig transportConfig = new TransportConfig();
+		transportConfig.setSchema(transportBean.getSchema());
+		transportConfig.setProperties(transportBean.getProperties());
+		endpointConfig.setTransportConfig(transportConfig);
 
-        // setting registry config
-        if (registryBean.getSchema() != null && !registryBean.getSchema().isEmpty()) {
-            RegistryConfig config = new RegistryConfig();
-            config.setSchema(registryBean.getSchema()).setProperties(registryBean.getProperties());
-            builder.registryConfig(config);
-        }
+		// setting registry config
+		if (registryBean.getSchema() != null && !registryBean.getSchema().isEmpty()) {
+			RegistryConfig config = new RegistryConfig();
+			config.setSchema(registryBean.getSchema()).setProperties(registryBean.getProperties());
+			endpointConfig.setRegistryConfig(config);
+		}
 
-        // setting endpoint config
-        EndpointConfig endpointConfig = new EndpointConfig().setEndpointId(id).setEndpointName(name);
+		ServerBuilder builder = new ServerBuilder().bind(address);
+		return builder.endpointConfig(endpointConfig).build().start();
+	}
 
-        return builder.endpointConfig(endpointConfig).bind(address).build().start();
-    }
+	protected InetSocketAddress getProviderAddress(String address) {
+		InetSocketAddress providerAddress = null;
+		try {
+			String[] hpParts = address.split(":", 2);
+			if (hpParts.length == 2) {
+				String host = hpParts[0];
+				int port = Integer.parseInt(hpParts[1]);
+				if (host == null || "-".equals(host)) {
+					host = NetworkInterfaceUtil.getPrivateAddresses().get(0).getHostAddress();
+				} else if ("+".equals(host)) {
+					host = NetworkInterfaceUtil.getPublicAddresses().get(0).getHostAddress();
+				} else if ("*".equals(host)) {
+					host = "0.0.0.0";
+				}
+				providerAddress = new InetSocketAddress(host, port);
+			}
+		} catch (Exception e) {
+			LOG.warn("parse provider address error", e);
+		}
 
-    protected InetSocketAddress getProviderAddress(String address) {
-        InetSocketAddress providerAddress = null;
-        try {
-            String[] hpParts = address.split(":", 2);
-            if (hpParts.length == 2) {
-                String host = hpParts[0];
-                int port = Integer.parseInt(hpParts[1]);
-                if (host == null || "-".equals(host)) {
-                    host = NetworkInterfaceUtil.getPrivateAddresses().get(0).getHostAddress();
-                } else if ("+".equals(host)) {
-                    host = NetworkInterfaceUtil.getPublicAddresses().get(0).getHostAddress();
-                } else if ("*".equals(host)) {
-                    host = "0.0.0.0";
-                }
-                providerAddress = new InetSocketAddress(host, port);
-            }
-        } catch (Exception e) {
-            LOG.warn("parse provider address error", e);
-        }
+		return providerAddress;
+	}
 
-        return providerAddress;
-    }
+	@Override
+	protected void destroyInstance(Server server) throws Exception {
+		if (server != null) {
+			server.stop();
+		}
+	}
 
-    @Override
-    protected void destroyInstance(Server instance) throws Exception {
-        instance.stop();
-    }
-
-    @Override
-    public Class<?> getObjectType() {
-        return Server.class;
-    }
+	@Override
+	public Class<?> getObjectType() {
+		return Server.class;
+	}
 }
