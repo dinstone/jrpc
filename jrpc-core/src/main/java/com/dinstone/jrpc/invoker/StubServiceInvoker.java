@@ -31,29 +31,29 @@ import com.dinstone.jrpc.transport.ConnectionManager;
  */
 public class StubServiceInvoker implements ServiceInvoker {
 
-    private InvocationHandler invocationHandler;
+	private InvocationHandler invocationHandler;
 
-    public StubServiceInvoker(ConnectionManager connectionManager, ReferenceBinding referenceBinding,
-            List<InetSocketAddress> serviceAddresses) {
-        invocationHandler = new RemoteInvocationHandler(connectionManager);
-        invocationHandler = new LocationInvocationHandler(invocationHandler, referenceBinding, serviceAddresses);
-    }
+	public StubServiceInvoker(ConnectionManager connectionManager, ReferenceBinding referenceBinding,
+			List<InetSocketAddress> serviceAddresses) {
+		invocationHandler = new LocationInvocationHandler(new RemoteInvocationHandler(connectionManager),
+				referenceBinding, serviceAddresses);
+	}
 
-    @Override
-    public <T> Object invoke(ServiceProxy<T> serviceProxy, Method method, Object[] args) throws Throwable {
-        String methodName = method.getName();
-        Object instance = serviceProxy.getProxy();
-        if (methodName.equals("hashCode")) {
-            return new Integer(System.identityHashCode(instance));
-        } else if (methodName.equals("equals")) {
-            return (instance == args[0] ? Boolean.TRUE : Boolean.FALSE);
-        } else if (methodName.equals("toString")) {
-            return instance.getClass().getName() + '@' + Integer.toHexString(instance.hashCode());
-        } else if (methodName.equals("getClass")) {
-            return serviceProxy.getService();
-        }
+	@Override
+	public <T> Object invoke(ServiceProxy<T> serviceProxy, Method method, Object[] args) throws Throwable {
+		String methodName = method.getName();
+		Object instance = serviceProxy.getProxy();
+		if (methodName.equals("hashCode")) {
+			return new Integer(System.identityHashCode(instance));
+		} else if (methodName.equals("equals")) {
+			return (instance == args[0] ? Boolean.TRUE : Boolean.FALSE);
+		} else if (methodName.equals("toString")) {
+			return instance.getClass().getName() + '@' + Integer.toHexString(instance.hashCode());
+		} else if (methodName.equals("getClass")) {
+			return serviceProxy.getService();
+		}
 
-        return invocationHandler.handle(new Invocation<>(serviceProxy, method, args));
-    }
+		return invocationHandler.handle(new Invocation<>(serviceProxy, method, args));
+	}
 
 }
