@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.netty5;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.binding.ImplementBinding;
+import com.dinstone.jrpc.invoker.ServiceInvoker;
 import com.dinstone.jrpc.transport.Acceptance;
 import com.dinstone.jrpc.transport.AcceptanceFactory;
 import com.dinstone.jrpc.transport.TransportConfig;
@@ -25,9 +26,9 @@ import com.dinstone.jrpc.transport.TransportConfig;
 public class NettyAcceptanceFactory implements AcceptanceFactory {
 
     @Override
-    public Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding,
+    public Acceptance create(TransportConfig transportConfig, ServiceInvoker serviceInvoker,
             InetSocketAddress serviceAddress) {
-        return new NettyAcceptance(transportConfig, implementBinding, serviceAddress);
+        return new NettyAcceptance(serviceInvoker, transportConfig, serviceAddress);
     }
 
     @Override

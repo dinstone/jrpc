@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
+
+import static org.junit.Assert.assertEquals;
 
 import java.net.InetSocketAddress;
 
@@ -25,12 +28,13 @@ import com.dinstone.jrpc.binding.DefaultImplementBinding;
 import com.dinstone.jrpc.binding.ImplementBinding;
 import com.dinstone.jrpc.demo.DemoService;
 import com.dinstone.jrpc.demo.DemoServiceImpl;
+import com.dinstone.jrpc.invoker.LocalInvocationHandler;
+import com.dinstone.jrpc.invoker.ServiceInvoker;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.proxy.ServiceProxy;
 import com.dinstone.jrpc.proxy.ServiceProxyFactory;
-import com.dinstone.jrpc.proxy.StubServiceProxyFactory;
 import com.dinstone.jrpc.serializer.SerializeType;
 
 public class AbstractAcceptanceTest {
@@ -39,13 +43,16 @@ public class AbstractAcceptanceTest {
 
     @Before
     public void setUp() throws Exception {
-        ServiceProxyFactory factory = new StubServiceProxyFactory(null);
-        ServiceProxy<DemoService> wrapper = factory.create(DemoService.class, "", 3000, new DemoServiceImpl());
-
         ImplementBinding iBinding = new DefaultImplementBinding(null, null, new InetSocketAddress("localhost", 0));
+
+        LocalInvocationHandler invocationHandler = new LocalInvocationHandler(iBinding);
+        ServiceInvoker serviceInvoker = new ServiceInvoker(invocationHandler);
+        ServiceProxyFactory factory = new ServiceProxyFactory(serviceInvoker);
+
+        ServiceProxy<DemoService> wrapper = factory.create(DemoService.class, "", 3000, new DemoServiceImpl());
         iBinding.bind(wrapper, null);
 
-        acceptance = new AbstractAcceptance(null, iBinding, null) {
+        acceptance = new AbstractAcceptance(serviceInvoker, null, null) {
 
             @Override
             public void destroy() {
@@ -72,6 +79,7 @@ public class AbstractAcceptanceTest {
         Response response = acceptance.handle(request);
 
         System.out.println(response);
+        assertEquals(response.getResult().getCode(), 200);
     }
 
     @Test
@@ -81,6 +89,7 @@ public class AbstractAcceptanceTest {
         Response response = acceptance.handle(request);
 
         System.out.println(response);
+        assertEquals(response.getResult().getCode(), 200);
     }
 
     @Test
@@ -90,6 +99,7 @@ public class AbstractAcceptanceTest {
         Response response = acceptance.handle(request);
 
         System.out.println(response);
+        assertEquals(response.getResult().getCode(), 405);
     }
 
     @Test
@@ -99,6 +109,7 @@ public class AbstractAcceptanceTest {
         Response response = acceptance.handle(request);
 
         System.out.println(response);
+        assertEquals(response.getResult().getCode(), 405);
     }
 
 }

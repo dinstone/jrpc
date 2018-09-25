@@ -13,36 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.binding.ImplementBinding;
+import com.dinstone.jrpc.RpcException;
+import com.dinstone.jrpc.invoker.ServiceInvoker;
 import com.dinstone.jrpc.protocol.Call;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
 import com.dinstone.jrpc.protocol.Result;
-import com.dinstone.jrpc.proxy.ServiceProxy;
 
 public abstract class AbstractAcceptance implements Acceptance {
 
-    protected TransportConfig transportConfig;
+    protected ServiceInvoker serviceInvoker;
 
-    protected ImplementBinding implementBinding;
+    protected TransportConfig transportConfig;
 
     protected InetSocketAddress serviceAddress;
 
-    public AbstractAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding,
+    public AbstractAcceptance(ServiceInvoker serviceInvoker, TransportConfig transportConfig,
             InetSocketAddress serviceAddress) {
-        this.transportConfig = transportConfig;
-        if (implementBinding == null) {
-            throw new IllegalArgumentException("implementBinding is null");
+        if (serviceInvoker == null) {
+            throw new IllegalArgumentException("serviceInvoker is null");
         }
-        this.implementBinding = implementBinding;
+        this.serviceInvoker = serviceInvoker;
         this.serviceAddress = serviceAddress;
+        this.transportConfig = transportConfig;
     }
 
     @Override
@@ -50,29 +50,24 @@ public abstract class AbstractAcceptance implements Acceptance {
         Result result = null;
         Call call = request.getCall();
         try {
-            ServiceProxy<?> wrapper = implementBinding.lookup(call.getService(), call.getGroup());
-            if (wrapper != null) {
-                Class<?>[] paramTypes = getParamTypes(call);
-                Method method = wrapper.getService().getDeclaredMethod(call.getMethod(), paramTypes);
-                Object resObj = method.invoke(wrapper.getProxy(), call.getParams());
-                result = new Result(200, resObj);
-            } else {
-                result = new Result(404, "unkown service: " + call.getService() + "[" + call.getGroup() + "]");
-            }
+            Object resObj = serviceInvoker.invoke(call.getService(), call.getGroup(), call.getMethod(),
+                call.getTimeout(), call.getParams(), call.getParamTypes());
+            result = new Result(200, resObj);
+        } catch (RpcException e) {
+            result = new Result(e.getCode(), e.getMessage());
         } catch (NoSuchMethodException e) {
-            result = new Result(405,
-                "unkown method: " + call.getService() + "[" + call.getGroup() + "]." + call.getMethod());
+            result = new Result(405, "unkown method: [" + call.getGroup() + "]" + e.getMessage());
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            String message = "illegal access: " + call.getService() + "[" + call.getGroup() + "]." + call.getMethod()
+            String message = "illegal access: [" + call.getGroup() + "]" + call.getService() + "." + call.getMethod()
                     + "(): " + e.getMessage();
             result = new Result(502, message);
         } catch (InvocationTargetException e) {
             Throwable t = getTargetException(e);
-            String message = "service exception: " + call.getService() + "[" + call.getGroup() + "]." + call.getMethod()
+            String message = "service exception: " + call.getGroup() + "]" + call.getService() + "." + call.getMethod()
                     + "(): " + t.getMessage();
             result = new Result(500, message);
         } catch (Throwable e) {
-            String message = "service exception: " + call.getService() + "[" + call.getGroup() + "]." + call.getMethod()
+            String message = "service exception: " + call.getGroup() + "]" + call.getService() + "." + call.getMethod()
                     + "(): " + e.getMessage();
             result = new Result(509, message);
         }
@@ -90,25 +85,6 @@ public abstract class AbstractAcceptance implements Acceptance {
             }
         }
         return t;
-    }
-
-    protected Class<?>[] getParamTypes(Call call) {
-        Class<?>[] paramTypes = call.getParamTypes();
-        Object[] params = call.getParams();
-        if (paramTypes == null && params != null) {
-            paramTypes = parseParamTypes(params);
-        }
-        return paramTypes;
-    }
-
-    private Class<?>[] parseParamTypes(Object[] args) {
-        Class<?>[] cs = new Class[args.length];
-        for (int i = 0; i < args.length; i++) {
-            Object arg = args[i];
-            cs[i] = arg.getClass();
-        }
-
-        return cs;
     }
 
 }

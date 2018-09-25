@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport;
 
 import java.net.InetSocketAddress;
 
 import com.dinstone.jrpc.SchemaFactory;
-import com.dinstone.jrpc.binding.ImplementBinding;
+import com.dinstone.jrpc.invoker.ServiceInvoker;
 
 public interface AcceptanceFactory extends SchemaFactory {
 
-    public abstract Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding,
+    public abstract Acceptance create(TransportConfig transportConfig, ServiceInvoker serviceInvoker,
             InetSocketAddress serviceAddress);
 
 }

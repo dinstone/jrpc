@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.mina;
 
 import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.binding.ImplementBinding;
+import com.dinstone.jrpc.invoker.ServiceInvoker;
 import com.dinstone.jrpc.transport.Acceptance;
 import com.dinstone.jrpc.transport.AcceptanceFactory;
 import com.dinstone.jrpc.transport.TransportConfig;
@@ -25,14 +26,14 @@ import com.dinstone.jrpc.transport.TransportConfig;
 public class MinaAcceptanceFactory implements AcceptanceFactory {
 
     @Override
-    public String getSchema() {
-        return "mina";
+    public Acceptance create(TransportConfig transportConfig, ServiceInvoker serviceInvoker,
+            InetSocketAddress serviceAddress) {
+        return new MinaAcceptance(serviceInvoker, transportConfig, serviceAddress);
     }
 
     @Override
-    public Acceptance create(TransportConfig transportConfig, ImplementBinding implementBinding,
-            InetSocketAddress serviceAddress) {
-        return new MinaAcceptance(transportConfig, implementBinding, serviceAddress);
+    public String getSchema() {
+        return "mina";
     }
 
 }

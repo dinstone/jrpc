@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc;
 
 /**
@@ -52,11 +53,6 @@ public class RpcException extends RuntimeException {
      */
     public int getCode() {
         return code;
-    }
-
-    @Override
-    public String getMessage() {
-        return code + "@" + super.getMessage();
     }
 
 }

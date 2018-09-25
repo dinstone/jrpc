@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.transport.mina;
 
 import java.net.InetSocketAddress;
@@ -37,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.dinstone.jrpc.NamedThreadFactory;
-import com.dinstone.jrpc.binding.ImplementBinding;
+import com.dinstone.jrpc.invoker.ServiceInvoker;
 import com.dinstone.jrpc.protocol.Heartbeat;
 import com.dinstone.jrpc.protocol.Request;
 import com.dinstone.jrpc.protocol.Response;
@@ -53,9 +54,9 @@ public class MinaAcceptance extends AbstractAcceptance {
 
     private ExecutorService executorService;
 
-    public MinaAcceptance(TransportConfig transportConfig, ImplementBinding implementBinding,
+    public MinaAcceptance(ServiceInvoker serviceInvoker, TransportConfig transportConfig,
             InetSocketAddress serviceAddress) {
-        super(transportConfig, implementBinding, serviceAddress);
+        super(serviceInvoker, transportConfig, serviceAddress);
     }
 
     @Override

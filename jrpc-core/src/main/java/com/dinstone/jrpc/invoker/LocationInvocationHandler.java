@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.invoker;
 
 import java.net.InetSocketAddress;
@@ -44,17 +45,17 @@ public class LocationInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public <T> Object handle(Invocation<T> invocation) throws Throwable {
+    public Object handle(Invocation invocation) throws Throwable {
         invocation.setServiceAddress(getServiceAddress(invocation.getService(), invocation.getGroup()));
         return invocationHandler.handle(invocation);
     }
 
-    public <T> InetSocketAddress getServiceAddress(Class<T> serviceInterface, String group) {
+    public <T> InetSocketAddress getServiceAddress(String serviceName, String group) {
         InetSocketAddress serviceAddress = null;
 
         int next = Math.abs(index.getAndIncrement());
         if (referenceBinding != null) {
-            serviceAddress = locateServiceAddress(serviceInterface.getName(), group, next);
+            serviceAddress = locateServiceAddress(serviceName, group, next);
         }
 
         if (serviceAddress == null && backupServiceAddresses.size() > 0) {
@@ -62,7 +63,7 @@ public class LocationInvocationHandler implements InvocationHandler {
         }
 
         if (serviceAddress == null) {
-            throw new RuntimeException("service " + serviceInterface.getName() + "[" + group + "] is not ready");
+            throw new RuntimeException("service " + serviceName + "[" + group + "] is not ready");
         }
 
         return serviceAddress;

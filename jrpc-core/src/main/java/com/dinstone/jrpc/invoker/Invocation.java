@@ -13,52 +13,84 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.invoker;
 
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 
-import com.dinstone.jrpc.proxy.ServiceProxy;
+public class Invocation {
 
-public class Invocation<T> {
+    private String service;
 
-    private ServiceProxy<T> proxy;
+    private String group;
 
-    private Method method;
+    private String method;
+
+    private int timeout;
 
     private Object[] params;
 
+    private Class<?>[] paramTypes;
+
     private InetSocketAddress serviceAddress;
 
-    public Invocation(ServiceProxy<T> proxy, Method method, Object[] params) {
+    public Invocation(String service, String group, String method, int timeout, Object[] params,
+            Class<?>[] paramTypes) {
         super();
-        this.proxy = proxy;
+        this.service = service;
+        this.group = group;
         this.method = method;
+        this.timeout = timeout;
         this.params = params;
+        this.paramTypes = paramTypes;
     }
 
-    public Method getMethod() {
+    public String getService() {
+        return service;
+    }
+
+    public void setService(String service) {
+        this.service = service;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public String getMethod() {
         return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     public Object[] getParams() {
         return params;
     }
 
-    public Class<T> getService() {
-        return proxy.getService();
+    public void setParams(Object[] params) {
+        this.params = params;
     }
 
-    public String getGroup() {
-        return proxy.getGroup();
+    public Class<?>[] getParamTypes() {
+        return paramTypes;
     }
 
-    public int getTimeout() {
-        return proxy.getTimeout();
-    }
-
-    public T getInstance() {
-        return proxy.getInstance();
+    public void setParamTypes(Class<?>[] paramTypes) {
+        this.paramTypes = paramTypes;
     }
 
     public InetSocketAddress getServiceAddress() {

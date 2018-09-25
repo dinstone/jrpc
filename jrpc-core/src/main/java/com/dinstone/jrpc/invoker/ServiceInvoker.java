@@ -13,23 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.invoker;
 
-import java.lang.reflect.Method;
+/**
+ * client-side service invoker.
+ *
+ * @author dinstone
+ * @version 1.0.0
+ */
+public class ServiceInvoker {
 
-import com.dinstone.jrpc.proxy.ServiceProxy;
+    private InvocationHandler invocationHandler;
 
-public interface ServiceInvoker {
+    public ServiceInvoker(InvocationHandler invocationHandler) {
+        if (invocationHandler == null) {
+            throw new IllegalArgumentException("invocationHandler is null");
+        }
+        this.invocationHandler = invocationHandler;
+    }
 
-    /**
-     * client/server side {@link Invocation} invoke.
-     *
-     * @param serviceProxy
-     * @param method
-     * @param args
-     * @return
-     * @throws Throwable TODO
-     */
-    <T> Object invoke(ServiceProxy<T> serviceProxy, Method method, Object[] args) throws Throwable;
+    public Object invoke(String service, String group, String method, int timeout, Object[] params,
+            Class<?>[] paramTypes) throws Throwable {
+        return invocationHandler.handle(new Invocation(service, group, method, timeout, params, paramTypes));
+    }
 
 }

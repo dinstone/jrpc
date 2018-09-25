@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.invoker;
 
-import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 import com.dinstone.jrpc.protocol.Call;
@@ -31,15 +31,14 @@ public class RemoteInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public <T> Object handle(Invocation<T> invocation) throws Throwable {
+    public Object handle(Invocation invocation) throws Throwable {
+        String service = invocation.getService();
         String group = invocation.getGroup();
         int timeout = invocation.getTimeout();
-        Class<?> service = invocation.getService();
-
-        Method method = invocation.getMethod();
+        String method = invocation.getMethod();
         Object[] args = invocation.getParams();
 
-        Call call = new Call(service.getName(), group, timeout, method.getName(), args, method.getParameterTypes());
+        Call call = new Call(service, group, timeout, method, args, invocation.getParamTypes());
         Connection connection = connectionManager.getConnection(invocation.getServiceAddress());
         return connection.call(call).get(timeout, TimeUnit.MILLISECONDS);
     }

@@ -13,10 +13,68 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.proxy;
 
-public interface ServiceProxyFactory {
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
-    public <T> ServiceProxy<T> create(Class<T> service, String group, int timeout, T instance) throws Exception;
+import com.dinstone.jrpc.invoker.ServiceInvoker;
 
+public class ServiceProxyFactory {
+
+    private ServiceInvoker serviceInvoker;
+
+    public ServiceProxyFactory(ServiceInvoker serviceInvoker) {
+        this.serviceInvoker = serviceInvoker;
+    }
+
+    public <T> ServiceProxy<T> create(Class<T> serviceInterface, String group, int timeout, T serviceInstance)
+            throws Exception {
+        if (!serviceInterface.isInterface()) {
+            throw new IllegalArgumentException(serviceInterface.getName() + " is not interface");
+        }
+        if (serviceInstance != null && !serviceInterface.isInstance(serviceInstance)) {
+            throw new IllegalArgumentException(
+                serviceInstance + " is not an instance of " + serviceInterface.getName());
+        }
+
+        ServiceProxy<T> serviceProxy = new ServiceProxy<>(serviceInterface, group, timeout);
+        ProxyInvocationHandler<T> handler = new ProxyInvocationHandler<>(serviceProxy);
+        T proxyInstance = serviceInterface
+            .cast(Proxy.newProxyInstance(serviceInterface.getClassLoader(), new Class[] { serviceInterface }, handler));
+
+        serviceProxy.setProxy(proxyInstance);
+        serviceProxy.setTarget(serviceInstance);
+        return serviceProxy;
+    }
+
+    private class ProxyInvocationHandler<T> implements InvocationHandler {
+
+        private ServiceProxy<T> serviceProxy;
+
+        public ProxyInvocationHandler(ServiceProxy<T> serviceProxy) {
+            this.serviceProxy = serviceProxy;
+        }
+
+        @Override
+        public Object invoke(Object proxyObj, Method method, Object[] args) throws Throwable {
+            String methodName = method.getName();
+            Object instance = serviceProxy.getProxy();
+            if (methodName.equals("hashCode")) {
+                return new Integer(System.identityHashCode(instance));
+            } else if (methodName.equals("equals")) {
+                return (instance == args[0] ? Boolean.TRUE : Boolean.FALSE);
+            } else if (methodName.equals("toString")) {
+                return instance.getClass().getName() + '@' + Integer.toHexString(instance.hashCode());
+            } else if (methodName.equals("getClass")) {
+                return serviceProxy.getService();
+            }
+
+            return serviceInvoker.invoke(serviceProxy.getService().getName(), serviceProxy.getGroup(), methodName,
+                serviceProxy.getTimeout(), args, method.getParameterTypes());
+        }
+
+    }
 }

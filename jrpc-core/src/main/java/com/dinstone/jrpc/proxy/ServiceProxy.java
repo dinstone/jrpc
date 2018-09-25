@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.dinstone.jrpc.proxy;
 
 public class ServiceProxy<T> {
@@ -23,7 +24,7 @@ public class ServiceProxy<T> {
 
     private int timeout;
 
-    private T instance;
+    private T target;
 
     private T proxy;
 
@@ -58,12 +59,12 @@ public class ServiceProxy<T> {
         this.timeout = timeout;
     }
 
-    public T getInstance() {
-        return instance;
+    public T getTarget() {
+        return target;
     }
 
-    public void setInstance(T instance) {
-        this.instance = instance;
+    public void setTarget(T target) {
+        this.target = target;
     }
 
     public T getProxy() {
