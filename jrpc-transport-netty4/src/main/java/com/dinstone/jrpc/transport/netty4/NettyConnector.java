@@ -31,6 +31,7 @@ import com.dinstone.jrpc.transport.TransportConfig;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
@@ -45,120 +46,127 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 
 public class NettyConnector {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NettyConnector.class);
+	private static final Logger LOG = LoggerFactory.getLogger(NettyConnector.class);
 
-    private NioEventLoopGroup workGroup;
+	private NioEventLoopGroup workGroup;
 
-    private Bootstrap clientBoot;
+	private Bootstrap clientBoot;
 
-    private int refCount;
+	private int refCount;
 
-    public NettyConnector(final TransportConfig transportConfig) {
-        workGroup = new NioEventLoopGroup(transportConfig.getConnectPoolSize(), new DefaultThreadFactory("N4C-Work"));
-        clientBoot = new Bootstrap().group(workGroup).channel(NioSocketChannel.class);
-        clientBoot.option(ChannelOption.TCP_NODELAY, true);
-        clientBoot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
-        clientBoot.option(ChannelOption.SO_RCVBUF, 8 * 1024).option(ChannelOption.SO_SNDBUF, 8 * 1024);
-        clientBoot.handler(new ChannelInitializer<SocketChannel>() {
+	public NettyConnector(final TransportConfig transportConfig) {
+		workGroup = new NioEventLoopGroup(transportConfig.getConnectPoolSize(), new DefaultThreadFactory("N4C-Work"));
+		clientBoot = new Bootstrap().group(workGroup).channel(NioSocketChannel.class);
+		clientBoot.option(ChannelOption.TCP_NODELAY, true);
+		clientBoot.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, transportConfig.getConnectTimeout());
+		clientBoot.option(ChannelOption.SO_RCVBUF, 8 * 1024).option(ChannelOption.SO_SNDBUF, 8 * 1024);
+		clientBoot.handler(new ChannelInitializer<SocketChannel>() {
 
-            @Override
-            public void initChannel(SocketChannel ch) throws Exception {
-                TransportProtocolDecoder decoder = new TransportProtocolDecoder();
-                decoder.setMaxObjectSize(transportConfig.getMaxSize());
-                TransportProtocolEncoder encoder = new TransportProtocolEncoder();
-                encoder.setMaxObjectSize(transportConfig.getMaxSize());
-                ch.pipeline().addLast("TransportProtocolDecoder", decoder);
-                ch.pipeline().addLast("TransportProtocolEncoder", encoder);
+			@Override
+			public void initChannel(SocketChannel ch) throws Exception {
+				TransportProtocolDecoder decoder = new TransportProtocolDecoder();
+				decoder.setMaxObjectSize(transportConfig.getMaxSize());
+				TransportProtocolEncoder encoder = new TransportProtocolEncoder();
+				encoder.setMaxObjectSize(transportConfig.getMaxSize());
+				ch.pipeline().addLast("TransportProtocolDecoder", decoder);
+				ch.pipeline().addLast("TransportProtocolEncoder", encoder);
 
-                int intervalSeconds = transportConfig.getHeartbeatIntervalSeconds();
-                ch.pipeline().addLast("IdleStateHandler", new IdleStateHandler(0, intervalSeconds, 0));
-                ch.pipeline().addLast("NettyClientHandler", new NettyClientHandler());
-            }
-        });
-    }
+				int intervalSeconds = transportConfig.getHeartbeatIntervalSeconds();
+				ch.pipeline().addLast("IdleStateHandler",
+						new IdleStateHandler(2 * intervalSeconds, intervalSeconds, 0));
+				ch.pipeline().addLast("NettyClientHandler", new NettyClientHandler());
+			}
+		});
+	}
 
-    /**
-    *
-    */
-    public void incrementRefCount() {
-        ++refCount;
-    }
+	/**
+	*
+	*/
+	public void incrementRefCount() {
+		++refCount;
+	}
 
-    /**
-    *
-    */
-    public void decrementRefCount() {
-        if (refCount > 0) {
-            --refCount;
-        }
-    }
+	/**
+	*
+	*/
+	public void decrementRefCount() {
+		if (refCount > 0) {
+			--refCount;
+		}
+	}
 
-    /**
-     * @return
-     */
-    public boolean isZeroRefCount() {
-        return refCount == 0;
-    }
+	/**
+	 * @return
+	 */
+	public boolean isZeroRefCount() {
+		return refCount == 0;
+	}
 
-    public void dispose() {
-        if (workGroup != null) {
-            workGroup.shutdownGracefully();
-        }
-    }
+	public void dispose() {
+		if (workGroup != null) {
+			workGroup.shutdownGracefully();
+		}
+	}
 
-    public Channel createSession(InetSocketAddress sa) {
-        Channel channel = clientBoot.connect(sa).awaitUninterruptibly().channel();
-        LOG.debug("session connect {} to {}", channel.localAddress(), channel.remoteAddress());
-        return channel;
-    }
+	public Channel createSession(InetSocketAddress sa) {
+		ChannelFuture future = clientBoot.connect(sa).awaitUninterruptibly();
+		if (!future.isSuccess()) {
+			throw new RuntimeException(future.cause());
+		}
+		Channel channel = future.channel();
+		LOG.debug("session connect {} to {}", channel.localAddress(), channel.remoteAddress());
+		return channel;
+	}
 
-    public class NettyClientHandler extends ChannelInboundHandlerAdapter {
+	public class NettyClientHandler extends ChannelInboundHandlerAdapter {
 
-        private Heartbeat heartbeat = new Heartbeat(0, SerializeType.JACKSON, new Tick());
+		private Heartbeat heartbeat = new Heartbeat(0, SerializeType.JACKSON, new Tick());
 
-        @Override
-        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-            if (evt instanceof IdleStateEvent) {
-                IdleStateEvent event = (IdleStateEvent) evt;
-                if (event.state() == IdleState.WRITER_IDLE) {
-                    heartbeat.getContent().increase();
-                    ctx.writeAndFlush(heartbeat);
-                }
-            } else {
-                super.userEventTriggered(ctx, evt);
-            }
-        }
+		@Override
+		public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+			if (evt instanceof IdleStateEvent) {
+				IdleStateEvent event = (IdleStateEvent) evt;
+				if (event.state() == IdleState.READER_IDLE) {
+					ctx.close();
+				} else if (event.state() == IdleState.WRITER_IDLE) {
+					heartbeat.getContent().increase();
+					ctx.writeAndFlush(heartbeat);
+				}
+			} else {
+				super.userEventTriggered(ctx, evt);
+			}
+		}
 
-        /**
-         * {@inheritDoc}
-         *
-         * @see io.netty.channel.ChannelInboundHandlerAdapter#channelInactive(io.netty.channel.ChannelHandlerContext)
-         */
-        @Override
-        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-            Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(ctx.channel());
-            for (ResultFuture future : futureMap.values()) {
-                future.setResult(new Result(400, "connection is closed"));
-            }
-        }
+		/**
+		 * {@inheritDoc}
+		 *
+		 * @see io.netty.channel.ChannelInboundHandlerAdapter#channelInactive(io.netty.channel.ChannelHandlerContext)
+		 */
+		@Override
+		public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+			Map<Integer, ResultFuture> futureMap = SessionUtil.getResultFutureMap(ctx.channel());
+			for (ResultFuture future : futureMap.values()) {
+				future.setResult(new Result(400, "connection is closed"));
+			}
+		}
 
-        @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            if (msg instanceof Response) {
-                Response response = (Response) msg;
-                Map<Integer, ResultFuture> cfMap = SessionUtil.getResultFutureMap(ctx.channel());
-                ResultFuture future = cfMap.remove(response.getMessageId());
-                if (future != null) {
-                    future.setResult(response.getResult());
-                }
-            }
-        }
+		@Override
+		public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+			if (msg instanceof Response) {
+				Response response = (Response) msg;
+				Map<Integer, ResultFuture> cfMap = SessionUtil.getResultFutureMap(ctx.channel());
+				ResultFuture future = cfMap.remove(response.getMessageId());
+				if (future != null) {
+					future.setResult(response.getResult());
+				}
+			}
+		}
 
-        @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { // (4)
-            LOG.error("Unhandled Exception", cause);
-            ctx.close();
-        }
+		@Override
+		public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { // (4)
+			LOG.error("Unhandled Exception", cause);
+			ctx.close();
+		}
 
-    }
+	}
 }
