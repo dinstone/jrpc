@@ -23,7 +23,7 @@ select transport implement, add 'mina' or 'netty' dependency:
 <dependency>
 	<groupId>com.dinstone.jrpc</groupId>
 	<artifactId>jrpc-transport-mina</artifactId>
-	<version>3.1.0</version>
+	<version>3.2.0</version>
 </dependency>
 ```
 or
@@ -31,7 +31,7 @@ or
 <dependency>
 	<groupId>com.dinstone.jrpc</groupId>
 	<artifactId>jrpc-transport-netty4</artifactId>
-	<version>3.1.0</version>
+	<version>3.2.0</version>
 </dependency>
 ```
 if you need service registry and discovery, please add dependencies :
@@ -39,7 +39,7 @@ if you need service registry and discovery, please add dependencies :
 <dependency>
 	<groupId>com.dinstone.jrpc</groupId>
 	<artifactId>jrpc-registry-zookeeper</artifactId>
-	<version>3.1.0</version>
+	<version>3.2.0</version>
 </dependency>
 ```
 If you are integrated with Spring, please add dependencies :
@@ -47,7 +47,7 @@ If you are integrated with Spring, please add dependencies :
 <dependency>
 	<groupId>com.dinstone.jrpc</groupId>
 	<artifactId>jrpc-spring</artifactId>
-	<version>3.1.0</version>
+	<version>3.2.0</version>
 </dependency>
 ```
 	
